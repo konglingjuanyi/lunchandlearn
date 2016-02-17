@@ -1,5 +1,5 @@
 # lunchandlearn
-A sample web application 
+A sample SPA (Single Page Appilcation) web application. 
 This is a sample application is created using Spring MVC at server end and AngularJS at client.
 
 To compile and host this application, you need to have JDK installed on our machine and JAVA_HOME properly set.
