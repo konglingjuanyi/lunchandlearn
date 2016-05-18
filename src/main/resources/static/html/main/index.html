@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<!-- NO CONDITIONAL BLOCKS ALLOWED BEFORE THIS TAG. -->
+		<!-- Otherwise IE will not observe the IE=edge which turns off compatibility mode -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>Lunch & Learn</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+
+		<link rel="stylesheet" href="/lunchandlearn/lib/bootstrap3/css/bootstrap.css"/>
+		<link rel="stylesheet" href="/lunchandlearn/custom.css">
+
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_16.png" sizes="16x16">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_32.png" sizes="32x32">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_57.png" sizes="57x57">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_72.png" sizes="72x72">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_96.png" sizes="96x96">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_120.png" sizes="120x120">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_128.png" sizes="128x128">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_144.png" sizes="144x144">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_152.png" sizes="152x152">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_195.png" sizes="195x195">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
+
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
+		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
+
+		<link rel="stylesheet" href="/lunchandlearn/lib/designsystem/css/design_system.css">
+	</head>
+	<body ng-app="lunchAndLearnApp">
+		<div>
+			<header>
+				<div id="header" class="navbar navbar-default custom-navbar">
+					<div class="container">
+						<div class="navbar-header">
+							<a class="navbar-brand brand-text a-lnk" href="/lunchandlearn">Lunch &amp; Learn</a>
+						</div>
+						<div class="collapse navbar-collapse" id="main-navbar">
+							<ul class="nav navbar-nav">
+								<li class="divider-vertical hidden-xs"></li>
+								<li>
+									<a href="#/trainings">Trainings</a>
+								</li>
+								<li>
+									<a href="#/topics">Topics</a>
+								</li>
+								<li>
+									<a href="#/employees">Employees</a>
+								</li>
+							</ul>
+							<!-- end navbar-nav left -->
+							<!-- navbar-nav right -->
+							<ul class="nav navbar-nav navbar-right">
+								<li class="divider-vertical hidden-xs"></li>
+								<!-- Alert menu -->
+								<li class="dropdown menu-alert">
+									<a href="" class="dropdown-toggle face" data-toggle="dropdown">
+										<svg class="hidden-lg" width="24" height="24" viewBox="0 0 24 24"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svgUserInitials" x="0" y="0"></use></svg>
+										<span><i class="nc-icon-outline ui-1_bell-54"></i></span>
+									</a>
+									<ul class="dropdown-menu" role="menu">
+										<li>
+											<a href="">Notification<br>
+												<span class="menu-text-small">Skills, Trainings</span>
+											</a>
+										</li>
+										<li role="separator" class="divider"></li>
+										<li>
+											<a href="">Notification<br>
+												<span class="menu-text-small">Skills, Trainings</span>
+											</a>
+										</li>
+									</ul>
+								</li>
+								<!-- User menu -->
+								<li class="dropdown menu-user">
+									<a href="" class="dropdown-toggle face" data-toggle="dropdown">
+										<svg class="hidden-lg" width="24" height="24" viewBox="0 0 24 24"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svgUserInitials" x="0" y="0"></use></svg>
+										<!-- <img src="modules/patterns/assets/images/128.jpg" alt="User Image"> -->
+										<span><i class="nc-icon-outline users_single-05"></i>&nbsp;&nbsp;Deepak Rana</span>
+									</a>
+									<ul class="dropdown-menu" role="menu">
+										<li>
+											<a href="">Your Account<br>
+												<span class="menu-text-small">Skills, Trainings</span>
+											</a>
+										</li>
+										<li role="separator" class="divider"></li>
+										<li>
+											<a href="">Sign Out</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<!-- end navbar-nav right -->
+						</div>
+					</div>
+				</div>
+			</header>
+			<div ng-view>
+			</div>
+			<br>
+			<footer class="pb-footer">
+				<div class="footer-wrapper">
+				<footer>
+					<div class="container">
+						<div class="contents">
+							<!-- the logo and copyright have their own flexbox -->
+							<div class="logo-copyright">
+								<div class="footer-logo"><a href="http://www.pb.com"><i class="pb-footer-logo gradient"></i></a></div>
+								<div class="copyright">© 2016 Pitney Bowes Inc.</div>
+							</div>
+						</div>
+					</div>
+				</footer>
+				</div>
+			</footer>
+
+			<script src="/lunchandlearn/lib/lodash/lodash.min.js"></script>
+			<script src="/lunchandlearn/lib/jquery/jquery.js"></script>
+			<script src="/lunchandlearn/lib/jquery/jquery.cookie.js"></script>
+			<script src="/lunchandlearn/lib/angular/angular.min.js"></script>
+			<script src="/lunchandlearn/lib/angular/angular-route.min.js"></script>
+			<!--<script src="/lunchandlearn/lib/angular/angular-resource.min.js"></script>-->
+			<!--<script src="/lunchandlearn/lib/angular/angular-animate.min.js"></script>-->
+			<script src="/lunchandlearn/lib/angular/angular-messages.min.js"></script>
+			<script src="/lunchandlearn/lib/angular/angular-cookies.js"></script>
+			<script src="/lunchandlearn/lib/angular-ordinal/ordinal-browser.js"></script>
+			<script src="/lunchandlearn/lib/ngstorage/ngStorage.min.js"></script>
+			<script src="/lunchandlearn/lib/bootstrap3/js/bootstrap.min.js"></script>
+			<script src="/lunchandlearn/lib/ui-bootstrap/ui-bootstrap-tpls-1.2.4.min.js"></script>
+			<script src="/lunchandlearn/js/services/restService.js"></script>
+			<script src="/lunchandlearn/js/common/services/pagingService.js"></script>
+			<script src="/lunchandlearn/js/services/employeeService.js"></script>
+			<script src="/lunchandlearn/js/services/topicService.js"></script>
+			<script src="/lunchandlearn/js/controllers/modalController.js"></script>
+			<script src="/lunchandlearn/js/controllers/topicController.js"></script>
+			<script src="/lunchandlearn/js/controllers/employeeController.js"></script>
+			<script src="/lunchandlearn/js/directives/mainTile.js"></script>
+			<script src="/lunchandlearn/js/directives/mainTopicTrainer.js"></script>
+			<script src="/lunchandlearn/js/directives/mainTraining.js"></script>
+			<script src="/lunchandlearn/js/directives/topicListMini.js"></script>
+			<script src="/lunchandlearn/js/directives/topicTag.js"></script>
+			<script src="/lunchandlearn/js/app.js"></script>
+
+		</div>
+	</body>
+</html>

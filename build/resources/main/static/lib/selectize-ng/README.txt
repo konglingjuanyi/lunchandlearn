@@ -1,0 +1,1 @@
+selectize-ng 0.1.0 downloaded from https://github.com/kbanman/selectize-ng/releases.

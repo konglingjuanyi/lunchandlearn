@@ -1,0 +1,1 @@
+selectize.js 0.12.0 downloaded from https://github.com/brianreavis/selectize.js/releases.

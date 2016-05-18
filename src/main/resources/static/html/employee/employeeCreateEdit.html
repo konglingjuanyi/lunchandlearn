@@ -1,0 +1,76 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="cancel('cancel')">
+        <span aria-hidden="true"></span>
+        <span class="sr-only">Close</span>
+    </button>
+    <h4>{{mode == 'edit' ? 'Edit' : 'Add'}} Employee</h4>
+</div>
+<div class="modal-body">
+    <div class="container-fluid">
+
+        <form class="form-horizontal">
+            <div class="row form-group">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">GUID</label>
+                <span class="col-md-6" ng-if="mode == 'edit'">{{item.guid}}</span>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" ng-show="mode == 'add'"
+                           ng-model="item.guid" autofocus="true">
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">Name</label>
+                <div class="col-md-6">
+                    <input class="form-control" type="text" ng-model="item.name" required>
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">Email</label>
+                <div class="col-md-6">
+                    <input class="form-control" type="text" ng-model="item.emailId" required>
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">Managers</label>
+                <div class="col-md-6">
+                    <div ng-repeat="manager in item.managers track by $index">
+                        <select name="manager" ng-options="manager.guid as manager.name for manager in options.managers"
+                                ng-model="item.managers[$index]" class="dynamic-select">
+                        </select><a role="button" class="btn btn-inline btn-primary btn-xs dynamic-remove"
+                                    ng-click="removeManager($index)">x</a>
+                    </div>
+                    <div add-manager>
+                        <div>
+                            <a role="button" class="btn btn-primary btn-xs"
+                               id="btn_add_manager">Add </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group" ng-show="item.topicsKnown">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">Topics Known
+                </label>
+                <div class="col-md-6">
+                    <span class="label label-default" ng-repeat="(key, value) in item.topicsKnown">{{value}}</span>
+                </div>
+            </div>
+            <div class="row form-group" ng-show="item.trainingsGiven">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">Trainings Given
+                </label>
+                <div class="col-md-6">
+                    <span class="label label-default" ng-repeat="(key, value) in item.trainingsGiven">{{value}}</span>
+                </div>
+            </div>
+            <div class="row form-group" ng-show="item.trainingsTaken">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">Trainings Taken
+            </label>
+                <div class="col-md-6">
+                    <span class="label label-default" ng-repeat="(key, value) in item.trainingsTaken">{{value}}</span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="yes()">Save</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+</div>

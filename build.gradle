@@ -1,42 +1,68 @@
-apply plugin: 'java'
-apply plugin: 'war'
-apply plugin: 'eclipse-wtp'
-apply plugin: 'jetty'
+buildscript {
+	ext {
+		springBootVersion = '1.3.3.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
+	}
+}
 
-// JDK 8
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+//apply plugin: 'war'
+
+jar {
+	baseName = 'lunchandlearn'
+	version = '1.1'
+}
+
+/*
+war {
+	baseName = 'lunchandlearn'
+//	version = '1.1'
+}
+*/
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 repositories {
-    mavenLocal()
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
- 
-	compile ('org.springframework:spring-webmvc:4.1.7.RELEASE')
-    testCompile("junit:junit:4.10")	
-}
 
-// Embeded Jetty for testing
-jettyRun{
-	contextPath = "lunchandlearn"
-	httpPort = 8080
+	compile('javax.servlet:javax.servlet-api:4.0.0-b01')
+	compile('org.springframework.boot:spring-boot-starter-aop')
+	compile('org.springframework.boot:spring-boot-starter-cache')
+	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
+//	compile('org.springframework.boot:spring-boot-starter-security')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile("org.hibernate:hibernate-validator")
+	compile group: 'commons-io', name: 'commons-io', version: '2.4'
+//	optional ("org.springframework.boot:spring-boot-configuration-processor")
+//	providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
+/*
+configurations {
+	providedRuntime
+}*/
 
-jettyRunWar{
-	contextPath = "lunchandlearn"
-	httpPort = 8080
-}
+//compileJava.dependsOn(processResources)
 
-//For Eclipse IDE only
 eclipse {
+	classpath {
+		 containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+		 containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+	}
+}
 
-  wtp {
-    component {
-      //define context path, default to project folder name
-      contextPath = 'lunchandlearn'
-      
-    }
-  }
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.12'
 }
