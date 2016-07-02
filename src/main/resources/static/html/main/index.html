@@ -10,6 +10,8 @@
 		<meta name="viewport" content="width=device-width">
 
 		<link rel="stylesheet" href="/lunchandlearn/lib/bootstrap3/css/bootstrap.css"/>
+		<link rel="stylesheet" href="/lunchandlearn/lib/daterangepicker/daterangepicker.css">
+		<link rel="stylesheet" href="/lunchandlearn/lib/ui-select/select.css">
 		<link rel="stylesheet" href="/lunchandlearn/custom.css">
 
 		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_16.png" sizes="16x16">
@@ -29,6 +31,22 @@
 		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
 
 		<link rel="stylesheet" href="/lunchandlearn/lib/designsystem/css/design_system.css">
+
+
+		<style>
+			body {
+				padding: 15px;
+			}
+
+			.select2 > .select2-choice.ui-select-match {
+				/* Because of the inclusion of Bootstrap */
+				height: 29px;
+			}
+
+			.selectize-control > .selectize-dropdown {
+				top: 36px;
+			}
+		</style>
 	</head>
 	<body ng-app="lunchAndLearnApp">
 		<div>
@@ -103,7 +121,7 @@
 			<div ng-view>
 			</div>
 			<br>
-			<footer class="pb-footer">
+			<footer style="position: fixed;" class="pb-footer">
 				<div class="footer-wrapper">
 				<footer>
 					<div class="container">
@@ -124,26 +142,50 @@
 			<script src="/lunchandlearn/lib/jquery/jquery.cookie.js"></script>
 			<script src="/lunchandlearn/lib/angular/angular.min.js"></script>
 			<script src="/lunchandlearn/lib/angular/angular-route.min.js"></script>
+			<script src="/lunchandlearn/lib/angular/angular-sanitize.min.js"></script>
 			<!--<script src="/lunchandlearn/lib/angular/angular-resource.min.js"></script>-->
-			<!--<script src="/lunchandlearn/lib/angular/angular-animate.min.js"></script>-->
+			<script src="/lunchandlearn/lib/angular/angular-animate.min.js"></script>
+			<script src="/lunchandlearn/lib/moment/moment.min.js"></script>
+			<script src="/lunchandlearn/lib/datetime-picker/datetime-picker.min.js"></script>
+
 			<script src="/lunchandlearn/lib/angular/angular-messages.min.js"></script>
 			<script src="/lunchandlearn/lib/angular/angular-cookies.js"></script>
 			<script src="/lunchandlearn/lib/angular-ordinal/ordinal-browser.js"></script>
 			<script src="/lunchandlearn/lib/ngstorage/ngStorage.min.js"></script>
 			<script src="/lunchandlearn/lib/bootstrap3/js/bootstrap.min.js"></script>
-			<script src="/lunchandlearn/lib/ui-bootstrap/ui-bootstrap-tpls-1.2.4.min.js"></script>
+			<script src="/lunchandlearn/lib/angular-ui-bootstrap/ui-bootstrap.js"></script>
+			<script src="/lunchandlearn/lib/angular-ui-bootstrap/ui-bootstrap-tpls.js"></script>
+			<script src="/lunchandlearn/lib/ui-select/select.js"></script>
+			<script src="/lunchandlearn/lib/ng-file-upload/ng-file-upload-shim.min.js"></script>
+			<script src="/lunchandlearn/lib/ng-file-upload/ng-file-upload.min.js"></script>
+
 			<script src="/lunchandlearn/js/services/restService.js"></script>
 			<script src="/lunchandlearn/js/common/services/pagingService.js"></script>
+			<script src="/lunchandlearn/js/common/services/utilitiesService.js"></script>
 			<script src="/lunchandlearn/js/services/employeeService.js"></script>
 			<script src="/lunchandlearn/js/services/topicService.js"></script>
+			<script src="/lunchandlearn/js/services/trainingService.js"></script>
+			<script src="/lunchandlearn/js/common/filters/rangeFilter.js"></script>
+			<script src="/lunchandlearn/js/common/filters/fileSizeFilter.js"></script>
+			<script src="/lunchandlearn/js/common/filters/commentDateFilter.js"></script>
 			<script src="/lunchandlearn/js/controllers/modalController.js"></script>
 			<script src="/lunchandlearn/js/controllers/topicController.js"></script>
+			<script src="/lunchandlearn/js/controllers/topicPaneController.js"></script>
+			<script src="/lunchandlearn/js/controllers/trainingPaneController.js"></script>
+			<script src="/lunchandlearn/js/controllers/topicsController.js"></script>
+			<script src="/lunchandlearn/js/controllers/employeesController.js"></script>
 			<script src="/lunchandlearn/js/controllers/employeeController.js"></script>
+			<script src="/lunchandlearn/js/controllers/trainingsController.js"></script>
+			<script src="/lunchandlearn/js/controllers/trainingController.js"></script>
 			<script src="/lunchandlearn/js/directives/mainTile.js"></script>
-			<script src="/lunchandlearn/js/directives/mainTopicTrainer.js"></script>
-			<script src="/lunchandlearn/js/directives/mainTraining.js"></script>
+			<script src="/lunchandlearn/js/common/directives/simpleTag.js"></script>
+			<script src="/lunchandlearn/js/common/directives/comments.js"></script>
+			<script src="/lunchandlearn/js/directives/topicMain.js"></script>
+			<script src="/lunchandlearn/js/directives/trainingMain.js"></script>
 			<script src="/lunchandlearn/js/directives/topicListMini.js"></script>
+			<script src="/lunchandlearn/js/directives/trainingListMini.js"></script>
 			<script src="/lunchandlearn/js/directives/topicTag.js"></script>
+			<script src="/lunchandlearn/js/directives/trainingTag.js"></script>
 			<script src="/lunchandlearn/js/app.js"></script>
 
 		</div>

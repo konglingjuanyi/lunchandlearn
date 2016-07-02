@@ -8,8 +8,8 @@ import javax.validation.constraints.NotNull;
 /**
  * Created by de007ra on 4/28/2016.
  */
-@Document(collection = "{mongodb.collection.name.rating}")
-public class RatingName {
+@Document(collection = "ratings")
+public final class RatingName {
 	@NotNull
 	@Min(3)
 	private String name;

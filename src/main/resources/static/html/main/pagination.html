@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="col-md-12 toolbar toolbar-footer">
+        <div class="col-md-3">
+                    <span ng-cloak><span ng-show="self.toCount === self.fromCount">{{self.fromCount | ordinal}}</span>
+                        <span ng-hide="self.toCount === self.fromCount">{{self.fromCount}} - {{self.toCount}}</span> of {{self.totalCount}}</span>
+        </div>
+        <div class="col-md-3 text-center">
+            <form class="form-inline">
+                <select ng-change="self.list();self.savePageSize();" ng-model="self.currentPageSize"
+                        ng-options="size as size for size in self.pageSizes"></select> per page
+            </form>
+        </div>
+        <div class="col-md-6 no-padding-margin">
+            <uib-pagination class="pull-right no-padding-margin" ng-change="self.list();"
+                            boundary-links="true"
+                            items-per-page="self.currentPageSize" total-items="self.totalCount"
+                            max-size="self.maxPageSize" ng-model="self.currentPage"
+                            class="pagination-sm"
+                            previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;"
+                            last-text="&raquo;"></uib-pagination>
+        </div>
+    </div>
+</div>

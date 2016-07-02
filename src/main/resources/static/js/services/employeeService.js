@@ -45,8 +45,16 @@ angular.module('services').factory('employeeService', [ 'restService', function(
 			return restService.get(this.employeesUrl, config);
 		},
 
+		listEmployeesMinimal: function() {
+			return restService.get(this.employeesUrl + '/minimal');
+		},
+
 		getEmployeesName: function() {
 			return restService.get(this.employeesUrl + '/names')
+		},
+
+		updateEmployeeByField: function(empGuid, item) {
+			return restService.put(this.employeeUrl  + "/" +  empGuid + '/field', item);
 		},
 
 		addEmployee: function(item) {

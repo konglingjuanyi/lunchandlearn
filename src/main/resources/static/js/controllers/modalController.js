@@ -4,11 +4,32 @@
 var lunchAndLearnControllers = angular.module('controllers', [ 'services', 'ui.bootstrap' ]);
 
 lunchAndLearnControllers.controller('modalController',
-    ['$uibModalInstance', 'data', '$scope', function($uibModalInstance, data, $scope) {
+    ['$uibModalInstance', 'data', '$scope', 'utilitiesService', function($uibModalInstance, data, $scope,
+                                                                         utilitiesService) {
         $scope.mode = data.mode;
         $scope.item = data.item;
         $scope.options = data.options
         $scope.msg = data.msg;
+
+        $scope.$watch('selected.trainer', function () {
+            if ($scope.selected.trainer) {
+                $scope.item.trainers = utilitiesService.addUnique($scope.item.trainers, $scope.selected.trainer, 'guid', 'name');
+            }
+        });
+
+        $scope.$watch('selected.topic', function () {
+            if ($scope.selected.topic && (!$scope.item.prerequisites || !$scope.item.prerequisites[$scope.selected.topic.id])) {
+                $scope.item.topics = utilitiesService.addUnique($scope.item.topics, $scope.selected.topic, 'id', 'name');
+            }
+        });
+
+        $scope.$watch('selected.prerequisite', function () {
+            if ($scope.selected.prerequisite && (!$scope.item.topics || !$scope.item.topics[$scope.selected.prerequisite.id])) {
+                $scope.item.prerequisites = utilitiesService.addUnique($scope.item.prerequisites, $scope.selected.prerequisite, 'id', 'name');
+            }
+        });
+
+        $scope.selected = {};
 
         $scope.yes = function() {
             $uibModalInstance.close($scope.item);
@@ -21,6 +42,14 @@ lunchAndLearnControllers.controller('modalController',
 
         $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
+        };
+
+        $scope.isDatePickerOpen = false;
+        $scope.datePickerOptions = {'show-button-bar': false, 'showWeeks': false, 'minDate': new Date(), maxDate: moment().add(3, 'M').toDate()};
+        $scope.openDatePicker = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $scope.isDatePickerOpen = true;
         };
     }
 ]).directive('addManager', ['$compile', function ($compile) {

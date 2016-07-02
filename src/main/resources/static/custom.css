@@ -13,6 +13,7 @@
     text-decoration: none !important;
     cursor: pointer;
 }
+
 .search-clear-a {
     margin-right: 45px;
     margin-top: 8px;
@@ -23,6 +24,22 @@
     outline: 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
+
+.a-lnk-icon-mini {
+    font-size: xx-small;
+    margin-left: 3px;
+}
+
+
+.a-lnk-icon {
+    font-size: smaller;
+    margin-left: 3px;
+}
+
+.a-lnk-icon:hover {
+    color: black;
+}
+
 .table-cell-text {
     font-style: italic;
 }
@@ -38,22 +55,39 @@
     padding: 0px !important;
     margin: 0px !important;
 }
-.mini-tag {
+
+.mini-tag-simple {
     background-color: darkgray;
-    padding: 3px 5px;
-    padding-right: 5px;
-    border-top-left-radius: 15px;
+    padding: 3px 3px;
     display: inline-block;
-    text-transform: lowercase;
     color: #fff;
-    z-index: 256;
-    border-bottom-left-radius: 15px;
+    text-transform: lowercase;
+    margin-bottom: 10px;
 }
-.mini-tag:hover {
+
+.mini-tag-simple-container {
+    margin-right: 10px;
+}
+
+.mini-tag-form-container {
+    margin-top: 10px;
+    font-size: small;
+}
+.mini-tag-advance {
+    z-index: 256;
+    padding: 3px 3px;
+}
+
+.mini-tag-advance:hover {
     color: #fff;
     background-color: gray;
     text-decoration: none;
+    padding: 3px 3px;
+    border: 1px #3e53a4;
+    outline: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
+
 .mini-tag-container {
     padding-top: 10px;
     padding-left: 5px;
@@ -61,6 +95,12 @@
     border-top: 1px solid #e1e1e1;
 
 }
+
+.bottom-border {
+    border-top: 1px solid #e1e1e1;
+    padding-bottom: 12px;
+}
+
 .line {
     display: inline-block;
     border-right: 1px solid #e1e1e1;
@@ -68,15 +108,114 @@
 .mini-tag-like {
     float: right;
     background-color: darkgray;
-    padding: 3px 5px;
-    border-radius: 15px;
+    padding: 3px 10px;
     display: inline-block;
     text-transform: lowercase;
     color: #fff;
-    margin-left: -79px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    margin-left: -25px;
 }
+
 .mini-tag-like:hover {
     color: #fff;
     background-color: gray;
     text-decoration: none;
+    padding: 3px 10px;
+    border: 1px #3e53a4;
+    outline: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+.field-editable {
+    display: block;
+}
+
+.field-editable:hover {
+    padding: 3px;
+    cursor: pointer;
+    border: solid #3e53a4 thin;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+h3 {
+    margin-top: 0px !important;
+}
+
+.taskDescription {
+    margin-top:10px;
+}
+
+.commentListReplies {
+    margin-left: 50px;
+}
+
+.commentList {
+    /* padding-bottom: 19px; */
+    padding: 0px 0px 10px 0px;
+    list-style: none;
+    /* max-height: 200px; */
+    overflow: auto;
+}
+
+.commentList li {
+    margin: 10px 0px 0px 0px;
+    /*border-bottom: 1px solid lightgray;*/
+}
+
+.commentList li > div {
+    display:table-cell;
+}
+.commenterImage {
+    margin-right:5px;
+    height:100%;
+    float:left;
+}
+
+.commenterName {
+    line-height: 22px;
+}
+
+.commentListReplies {
+    padding-bottom: 5px;
+}
+
+.commentListReplies>div:not(:last-child) {
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 5px;
+}
+
+.new-comment {
+    width: 100%;
+}
+
+.commentList>div:not(:first-child) {
+    padding-top: 5px;
+}
+
+.commentListReplies>div {
+    margin-top: 5px;
+}
+
+.commenterImage img {
+    width:100%;
+    border-radius:50%;
+}
+
+.comment {
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 10px;
+}
+.commentText {
+    margin:0;
+    white-space: pre;
+}
+.sub-text {
+    color:#aaa;
+    font-family:verdana;
+    font-size:11px;
 }

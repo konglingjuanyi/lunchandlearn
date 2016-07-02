@@ -1,44 +1,32 @@
 angular.module('controllers').controller('topicController', [
-	'$uibModal', 'topicService', 'pagingService', function($uibModal, topicService, pagingService) {
+	'$uibModal', 'topicService', 'pagingService', '$routeParams', 'restService', 'utilitiesService',
+	function($uibModal, topicService, pagingService, $routeParams, restService, utilitiesService) {
 		var self = this;
 
-		self.pageSizes = pagingService.pageSizes;
-
-		self.currentPage = 1;
-		self.currentPageSize = pagingService.currentPageSize;
-		self.maxPages = pagingService.maxPageSize;
-
-		self.checkSearch = function($event) {
-			if($event.which === 13 || $event.keyCode === 13) {
-				self.search();
+		self.init = function () {
+			if(!_.isEmpty($routeParams.topicId)) {
+				self.getTopic($routeParams.topicId);
+				topicService.pushRecentTopicId($routeParams.topicId);
+				self.getTrainings('', $routeParams.topicId);
 			}
+			self.list();
 		};
 
-		self.search = function () {
-			if(!_.isUndefined(self.searchTerm)) {
-				self.searchTerm = _.trim(self.searchTerm);
-				if(!_.isEmpty(self.searchTerm)) {
-					topicService.listTopics({
-						params: {
-							search: self.searchTerm,
-							page: self.currentPage - 1,
-							size: self.currentPageSize
-						}
-					}).then(function (response) {
-						self.setListResult(response.data);
-					});
+		self.getTrainings = function (type, topicId) {
+			topicService.listTrainings(type, topicId).then(function(response) {
+				if(type === 'upcoming') {
+					self.upcomingTrainings = response.data;
 				}
-			}
-		};
-
-		self.savePageSize = function() {
-			pagingService.savePageSize(self.currentPageSize);
+				else if(type === 'passed') {
+					self.passedTrainings = response.data;
+				}
+			});
 		};
 
 		self.setListResult = function(data) {
 			self.totalPages = data.totalPages;
-			self.topics = data.content;
 			self.totalCount = data.totalElements;
+			self.topics = {totalCount: self.totalCount, data: data.content};
 			self.fromCount = (data.size * data.number) + 1;
 			self.toCount = (self.fromCount - 1) + data.numberOfElements;
 		};
@@ -52,12 +40,56 @@ angular.module('controllers').controller('topicController', [
 			});
 		}
 
-		self.showEdit = function(guid) {
-			topicService.getTopic(guid).then(function(response) {
-				self.topic = response.data;
-				self.topic.managers = _.keys(self.topic.managers);
-				self.mode = 'edit';
-				self.showModalDlg();
+		self.getTopic = function(topicId) {
+			topicService.getTopic(topicId).then(function(response) {
+				self.item = response.data;
+				updateTrainingsList();
+			}, function (error) {
+				self.error = true;
+				self.errorMsg = error.data.message;
+			});
+		}
+
+		var updateTrainingsList = function () {
+			self.otherTrainings = {};
+			self.upcomingTrainings = {};
+			self.closedTrainings = {};
+			self.unscheduledTrainings = {};
+			self.unscheduledTrainingsCount = 0;
+			self.closedTrainingsCount = 0;
+			self.upcomingTrainingsCount = 0;
+			self.otherTrainingsCount = 0;
+			if(self.item) {
+				_.each(self.item.trainings, function (training) {
+					switch(training.status) {
+						case 'NOMINATED':
+							self.unscheduledTrainings[training.id] = training.name;
+							++self.unscheduledTrainingsCount;
+							break;
+						case 'SCHEDULED':
+							self.upcomingTrainings[training.id] = training.name;
+							++self.upcomingTrainingsCount;
+							break;
+						case 'COMPLETED':
+							self.closedTrainings[training.id] = training.name;
+							++self.closedTrainingsCount;
+							break;
+						default:
+							self.otherTrainings[training.id] = training.name;
+							++self.otherTrainingsCount;
+					}
+				})
+			}
+		}
+
+		self.saveByField = function(fieldName) {
+			var data = {name: fieldName, value: _.get(self.item, fieldName)};
+			topicService.updateTopicByField(self.item.id, data).then(function(response) {
+				if(restService.isResponseOk(response)) {
+					if(restService.isResponseOk(response)) {
+						utilitiesService.setEditable(self, fieldName, false);
+					}
+				}
 			});
 		}
 
@@ -70,29 +102,9 @@ angular.module('controllers').controller('topicController', [
 		}
 
 		self.add = function() {
-			self.topic.managers = topicService.getManagersGuidWithName(self.managers, self.topic.managers);
 			topicService.addTopic(self.topic).then(function(response) {
 				self.mode = null;
 				self.list();
-			});
-		}
-
-		self.showAdd = function(guid) {
-			self.topic = {};
-			self.mode = 'add';
-			self.showModalDlg();
-		}
-
-		self.remove = function(guid) {
-			var topic = topicService.getTopicByGuid(guid, self.topics);
-			self.showConfirmationDlg({msg: 'Topic \'' + topic.name + '\'', guid: guid});
-		}
-
-		self.doRemove = function(guid) {
-			topicService.removeTopic(guid).then(function (response) {
-				self.list();
-			}, function (response) {
-				console.log('error removeTopic: '+ response)
 			});
 		}
 
@@ -116,7 +128,7 @@ angular.module('controllers').controller('topicController', [
 
 		self.showModalDlg = function () {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/topic/topicCreateEdit.html',
+				templateUrl: '/lunchandlearn/html/topic/trainingCreate.html',
 				backdrop: 'static',
 				controller: 'modalController as self',
 				resolve: {
@@ -136,7 +148,36 @@ angular.module('controllers').controller('topicController', [
 			}, function () {
 				console.log('confirmation modal cancelled')
 			});
-		}
+		};
 
-		self.list();
+		self.showTrainingAdd = function() {
+			self.training = {};
+			self.mode = 'add';
+			self.showModalDlg();
+		};
+
+		self.showModalDlg = function () {
+			var opts = {
+				templateUrl: '/lunchandlearn/html/training/trainingCreate.html',
+				backdrop: 'static',
+				controller: 'modalController as self',
+				resolve: {
+					data: function () {
+						return {item: self.training, mode: self.mode, options: {topicId: self.topicId}};
+					}
+				}
+			}
+			$uibModal.open(opts).result.then(function (selectedItem) {
+				self.training = selectedItem;
+				if(self.mode === 'add') {
+					self.add();
+				}
+				else if(self.mode === 'edit') {
+					self.save();
+				}
+			}, function () {
+				console.log('confirmation modal cancelled')
+			});
+		};
+		self.init();
 	}]);

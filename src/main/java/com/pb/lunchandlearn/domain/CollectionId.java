@@ -1,14 +1,24 @@
 package com.pb.lunchandlearn.domain;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by de007ra on 5/3/2016.
  */
-@Document(collection = "{mongodb.collection.name.collectionId}")
-public class CollectionId {
+@Document(collection = "collectionIds")
+public final class CollectionId {
+	@Id
+	@NotNull
 	private String collectionName;
 	private Long lastId;
+
+	public CollectionId(String collectionName, Long lastId) {
+		this.collectionName = collectionName;
+		this.lastId = lastId;
+	}
 
 	@Override
 	public String toString() {

@@ -4,8 +4,10 @@ package com.pb.lunchandlearn.web;
  * Created by DE007RA on 4/27/2016.
  */
 import com.pb.lunchandlearn.domain.Employee;
+import com.pb.lunchandlearn.domain.SimpleFieldEntry;
 import com.pb.lunchandlearn.exception.ResourceNotFoundException;
 import com.pb.lunchandlearn.service.EmployeeService;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +20,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -37,6 +39,11 @@ public class EmployeeController {
 		return employeeService.getAll(pageable);
 	}
 
+	@RequestMapping(value = "/minimal", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public JSONObject minimalList() {
+		return employeeService.getEmployeesMinimal();
+	}
+
 	@RequestMapping(value = "/names", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Employee> listNames() {
 		return employeeService.getAllNames();
@@ -48,12 +55,8 @@ public class EmployeeController {
 	}
 
 	@RequestMapping(value="/employee/{guid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getEmployee(@PathVariable("guid") String guid) {
-		Employee employee = employeeService.getEmployee(guid);
-		if(employee == null) {
-			throw new ResourceNotFoundException(MessageFormat.format("Employee with given guid: {0} does not exist", guid));
-		}
-		return new ResponseEntity(employee, HttpStatus.OK);
+	public Employee getEmployee(@PathVariable("guid") String guid) {
+		return employeeService.getEmployee(guid);
 	}
 
 	@RequestMapping(value="/employee", method = RequestMethod.POST)
@@ -84,6 +87,13 @@ public class EmployeeController {
 
 	@RequestMapping(value="/topic/{topicName}", method = RequestMethod.GET)
 	public void employeesKnownToTopic(@PathVariable("topicName") String topicName) {
-		employeeService.getEmployeesByTopic(topicName);
+		employeeService.getEmployeesByTopicKnown(topicName);
+	}
+
+	@RequestMapping(value = "/employee/{guid}/field", method = RequestMethod.PUT)
+	@ResponseStatus(HttpStatus.OK)
+	public void editTrainingByField(@PathVariable("guid") String employeeGuid,
+									@RequestBody SimpleFieldEntry fieldEntry) throws ParseException {
+		employeeService.editTrainingField(employeeGuid, fieldEntry);
 	}
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * Created by DE007RA on 5/11/2016.
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class ResourceNotFoundException extends RuntimeException {
+public final class ResourceNotFoundException extends RuntimeException {
 	private static final long serialVersionUID = 1l;
 
 	public ResourceNotFoundException(String message) {

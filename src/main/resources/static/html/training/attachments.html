@@ -1,0 +1,36 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="spaced">
+            <li ng-repeat="attachment in self.item.attachments">
+                <a target="_blank"
+                   ng-href="/lunchandlearn/trainings/training/{{self.item.id}}/attachments/file?name={{attachment.fileName}}">
+                    {{attachment.fileName}} [{{attachment.size | filesize}}]</a>&nbsp;
+                <span class="a-lnk a-lnk-icon" ng-click="self.removeAttachment(attachment.fileName);">
+                <i class="nc-icon-mini ui-1_trash-simple"></i>
+            </span>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row spacer-bottom-md">
+    <div class="col-md-8 spacer-bottom-md">
+        <p class="text-error">{{self.attachmentUploadErrorMsg}}</p>
+        <button class="btn btn-sm btn-default" ng-show="!self.attachedFiles"
+                ngf-select="self.uploadFiles($files, $invalidFiles)"
+                ngf-max-size="50MB">
+            Add New
+        </button>
+        <div class="spaced" ng-show="self.attachedFiles">
+            <div ng-repeat="f in self.attachedFiles">
+                <span class="sub-text">uploading {{f.name}}</span>
+                <div class="progress" ng-show="f.progress >= 0">
+                    <uib-progressbar value="f.progress" type="success"><b>{{f.progress}}%</b>
+                    </uib-progressbar>
+                </div>
+            </div>
+            <p ng-repeat="f in self.errFiles" class="text-error">{{f.$error === 'maxSize' ? 'Maximum file size allowed
+                is ' + f.$errorParam : f.$error + ' ' + f.$errorParam}}
+            </p>
+        </div>
+    </div>
+</div>

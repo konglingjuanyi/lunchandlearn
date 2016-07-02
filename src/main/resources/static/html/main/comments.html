@@ -1,0 +1,65 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="commentList">
+            <div class="comment" ng-repeat="comment in self.comments" ng-init="commentId = comment.id">
+                <div class="commenterImage">
+                    <i class="nc-icon-mini users_single-05"></i>
+                </div>
+                <div>
+                    <span class="commenterName">{{comment.ownerName}}</span>
+                    <div>
+                        <p class="commentText">{{comment.text}}</p> <span
+                            class="date sub-text">on {{comment.dateTime | commentDate}}&nbsp;</span>
+                        <span ng-if="comment.replies.length === 0">
+                            <span ng-show="!parentCommentId" class="a-lnk a-lnk-icon" ng-click="self.addReply(comment);">&nbsp;<i
+                                    class="nc-icon-mini arrows-1_curved-next"></i></span>
+                        </span>
+                        <span class="a-lnk a-lnk-icon" ng-click="self.removeComment(commentId);">&nbsp;<i
+                            class="nc-icon-mini ui-1_trash-simple"></i></span>
+                    </div>
+                </div>
+                <div class="commentListReplies" ng-if="comment.replies">
+                    <div ng-repeat="reply in comment.replies">
+                        <div class="commenterImage">
+                            <i class="nc-icon-mini users_single-05"></i>
+                        </div>
+                        <div>
+                            <span class="commenterName">{{reply.ownerName}}</span>
+                            <div>
+                                <p class="commentText">{{reply.text}}</p>
+                                <div>
+                                    <span class="date sub-text">{{reply.dateTime | commentDate}}&nbsp;</span>
+                                    <span ng-if="$last">
+                                        <span ng-show="!parentCommentId" class="a-lnk a-lnk-icon" ng-click="self.addReply(comment);">&nbsp;<i
+                                                class="nc-icon-mini arrows-1_curved-next"></i></span>
+                                    </span>
+                                    <span class="a-lnk a-lnk-icon" ng-click="self.removeCommentReply(commentId, reply.id);">&nbsp;<i
+                                        class="nc-icon-mini ui-1_trash-simple"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" ng-if="parentCommentId === commentId">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <textarea class="new-comment" ng-model="self.newReply" placeholder="reply.."/>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" ng-click="self.saveReply()">Add</button>
+                                <button class="btn btn-default" ng-click="self.cancelReply()">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" ng-show="self.newReply === undefined">
+        <div class="form-group">
+            <textarea ng-model="self.newComment" class="new-comment" placeholder="your comments.."/>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" ng-click="self.saveComment()">Add</button>
+        </div>
+    </div>
+</div>

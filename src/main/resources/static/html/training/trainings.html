@@ -1,0 +1,37 @@
+<div class="container main">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="specifications">Trainings</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="input-group spacer-bottom-xs">
+                <input class="form-control search" ng-model="self.searchTerm" type="text"
+                       placeholder="Search trainings" ng-keypress="self.checkSearch($event);" required>
+                <a class="search-clear a-lnk search-clear-a" href="" ng-show="self.searchTerm.length > 0"
+                   ng-click="self.searchTerm = ''; self.list();"><i
+                        class="nc-icon-mini fw ui-1_circle-remove"></i></a>
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-link" ng-click="self.list()"
+                            data-toggle="dropdown">
+                        <i class="nc-icon-mini ui-1_zoom"></i> <i
+                            class="nc-icon-mini arrows-2_small-down"></i>
+                    </button>
+                </span>
+            </div>
+            <div class="spacer-bottom-md">
+                <a class="btn btn-link" ng-click="self.showAdd();">Add Training</a>
+                <div style="min-height: 400px;" training-list-mini training-heading="All Trainings"
+                     trainings="self.searchedTrainings" on-list="self.listWithFilterBy">
+                </div>
+                <div class="col-md-12 bottom-border">
+                </div>
+            </div>
+            <ng-include src="'/lunchandlearn/html/main/pagination.html'"></ng-include>
+        </div>
+        <div class="col-md-4">
+            <ng-include src="'/lunchandlearn/html/training/trainingLeftPane.html'"></ng-include>
+        </div>
+    </div>
+</div>

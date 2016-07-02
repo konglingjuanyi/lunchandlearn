@@ -1,8 +1,7 @@
-<div class="row">
-    <div class="md-col-12">
-        <h3>Recent Topics{{topicHeading}}</h3>
-        <div class="mini-tag-container">
-            <div topic-tag topic=""></div>
-        </div>
+<div ng-hide="topics.data == undefined || topics.data.length == 0">
+    <h3>{{topicHeading}} <span ng-if="topics.totalCount">({{topics.totalCount}})</span></h3>
+    <div class="mini-tag-container">
+        <span ng-repeat="topic in topics.data" topic-tag topic="topic">
+        </span>
     </div>
 </div>

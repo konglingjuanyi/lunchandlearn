@@ -1,0 +1,178 @@
+<div class="container main" ng-click="self.saveByField('scheduledOn')">
+    <h1 class="specifications">Training</h1>
+    <div class="row spacer-top-md">
+        <div class="col-md-8">
+            <ng-include src="'/lunchandlearn/html/main/error.html'" ng-show="self.error"></ng-include>
+            <form novalidate ng-show="!self.error">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-12">
+                                        <span class="field-editable" ng-show="!self.editName"
+                                              ng-click="self.editName = true">{{self.item.name}}</span>
+                                <input type="text" class="form-control" ng-show="self.editName"
+                                       ng-model="self.item.name" autofocus="true"
+                                       ng-blur="self.saveByField('name')">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Description</label>
+                            <div class="form-group">
+                                <span class="field-editable" ng-show="!self.editDesc"
+                                      ng-click="self.editDesc = true">{{self.item.desc}}</span>
+                                <textarea class="form-control" ng-show="self.editDesc" ng-model="self.item.desc"
+                                          rows="5" autofocus="true" ng-blur="self.saveByField('desc')"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Topics</label>
+                            <div class="form-group">
+                                <simple-tag items="self.item.topics" linkable="true"
+                                            section="'topics'" section-url="'topics'"
+                                            on-remove="self.saveByField"></simple-tag>
+                                <span class="btn-group mini-tag-simple-container"
+                                      ng-show="!self.editTopics" ng-click="self.editTopics = true">
+                                    <span class="mini-tag-simple">
+                                        <span class="a-lnk a-lnk-icon-mini"><i
+                                                class="nc-icon-mini ui-1_simple-add"></i></span>
+                                    </span>
+                                </span>
+                                <ui-select ng-model="selected.topic" ng-show="self.editTopics">
+                                    <ui-select-match>
+                                        <span ng-bind="$select.selected.name"></span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                            repeat="topic in (self.topics | filter: $select.search)">
+                                        <span ng-bind-html="topic.name | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">PreRequisites</label>
+                            <div class="form-group">
+                                <simple-tag items="self.item.prerequisites" linkable="true"
+                                            section-url="'topics'" section="'prerequisites'"
+                                            on-remove="self.saveByField"></simple-tag>
+                                <span class="btn-group mini-tag-simple-container"
+                                      ng-show="!self.editPrerequisites" ng-click="self.editPrerequisites = true">
+                                    <span class="mini-tag-simple">
+                                        <span class="a-lnk a-lnk-icon-mini"><i
+                                                class="nc-icon-mini ui-1_simple-add"></i></span>
+                                    </span>
+                                </span>
+                                <ui-select ng-model="selected.prerequisite" ng-show="self.editPrerequisites">
+                                    <ui-select-match>
+                                        <span ng-bind="$select.selected.name"></span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                            repeat="prerequisite in (self.topics | filter: $select.search)">
+                                        <span ng-bind-html="prerequisite.name | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Trainers</label>
+                            <div class="form-group">
+                                <simple-tag items="self.item.trainers" linkable="true"
+                                            section="'trainers'" section-url="'employees'"
+                                            on-remove="self.saveByField"></simple-tag>
+                                <span class="btn-group mini-tag-simple-container"
+                                      ng-show="!self.editTrainers" ng-click="self.editTrainers = true">
+                                    <span class="mini-tag-simple">
+                                        <span class="a-lnk a-lnk-icon-mini"><i
+                                                class="nc-icon-mini ui-1_simple-add"></i></span>
+                                    </span>
+                                </span>
+                                <ui-select ng-model="selected.trainer" ng-show="self.editTrainers">
+                                    <ui-select-match>
+                                        <span ng-bind="$select.selected.name"></span>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                            repeat="trainer in (self.trainers | filter: $select.search)">
+                                        <span ng-bind-html="trainer.name | highlight: $select.search"></span>
+                                        <small ng-bind-html="trainer.emailId | highlight: $select.search"></small>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Scheduled On</label>
+                            <div class="form-group">
+                                <a class="btn btn-link" ng-show="!self.editScheduledOn"
+                                   ng-click="self.editScheduledOn = true">
+                                    <i class="nc-icon-mini nc-fw ui-1_calendar-57"></i>
+                                    {{scheduledOnView}}
+                                </a>
+                                <p class="input-group" ng-show="self.editScheduledOn">
+                                    <input type="text" class="form-control" datetime-picker="dd-MMM-yy, hh:mm a"
+                                           ng-model="scheduledOn" is-open="self.isDatePickerOpen"
+                                           ng-blur="self.saveByField('scheduledOn')"
+                                           datepicker-options="self.datePickerOptions"/>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default"
+                                                    ng-click="self.openDatePicker($event, prop)"><i
+                                                    class="nc-icon-mini nc-fw ui-1_calendar-57"></i></button>
+                                        </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <uib-tabset justified="true" class="spacer-top-md">
+                        <uib-tab>
+                            <uib-tab-heading><i class="nc-icon-mini ui-3_bullet-list"></i>
+                                Agenda
+                            </uib-tab-heading>
+                        </uib-tab>
+
+                        <uib-tab>
+                            <uib-tab-heading><i class="nc-icon-mini ui-1_attach-86"></i>
+                                Attachments ({{self.item.attachments.length}})
+                            </uib-tab-heading>
+                            <ng-include src="'/lunchandlearn/html/training/attachments.html'"></ng-include>
+                        </uib-tab>
+
+                        <uib-tab>
+                            <uib-tab-heading><i class="nc-icon-mini ui-3_chat-33"></i>
+                                Comments ({{commentsCount}})
+                            </uib-tab-heading>
+                            <comments parent-id="self.trainingId" section-name="trainings" comments-count="commentsCount"></comments>
+                        </uib-tab>
+
+                        <uib-tab>
+                            <uib-tab-heading><i class="nc-icon-mini users_multiple-19"></i>
+                                Trainees
+                            </uib-tab-heading>
+                        </uib-tab>
+
+                        <uib-tab>
+                            <uib-tab-heading><i class="nc-icon-mini design_bullet-list-69"></i>
+                                Feedback
+                            </uib-tab-heading>
+                        </uib-tab>
+                    </uib-tabset>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <ng-include src="'/lunchandlearn/html/training/trainingLeftPane.html'"></ng-include>
+        </div>
+    </div>
+</div>

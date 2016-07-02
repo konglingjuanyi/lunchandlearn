@@ -1,0 +1,112 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="cancel('cancel')">
+        <span aria-hidden="true"></span>
+        <span class="sr-only">Close</span>
+    </button>
+    <h4>Add Training</h4>
+</div>
+<div class="modal-body">
+    <div class="container-fluid">
+        <form class="form-horizontal">
+            <div class="row form-group">
+                </label> <label class="col-md-3 field-label">Name</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" ng-model="item.name" autofocus="true" ng-required="true">
+                </div>
+            </div>
+            <div class="row form-group">
+                </label> <label class="col-md-3 field-label">Description</label>
+                <div class="col-md-9">
+                    <textarea class="form-control" ng-model="item.desc" rows="5"/>
+                </div>
+            </div>
+            <div class="row form-group">
+                </label> <label class="col-md-3 field-label">Topics</label>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-12 spacer-bottom-xs">
+                            <ui-select ng-model="selected.topic">
+                                <ui-select-match>
+                                    <span ng-bind="$select.selected.name"></span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="topic in (options.topics | filter: $select.search)">
+                                    <span ng-bind-html="topic.name | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <div class="col-md-12">
+                            <simple-tag items="item.topics" on-remove="true"></simple-tag>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                </label> <label class="col-md-3 field-label">Trainers</label>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-12 spacer-bottom-xs">
+                            <ui-select ng-model="selected.trainer">
+                                <ui-select-match>
+                                    <span ng-bind="$select.selected.name"></span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="employee in (options.employees | filter: $select.search)">
+                                    <span ng-bind-html="employee.name | highlight: $select.search"></span>
+                                    <small ng-bind-html="employee.emailId | highlight: $select.search"></small>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <div class="col-md-12">
+                            <simple-tag items="item.trainers" on-remove="true"></simple-tag>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                </label> <label class="col-md-3 field-label">Scheduled On</label>
+                <div class="col-md-9">
+                    <p class="input-group">
+                        <input type="text" class="form-control" datetime-picker="dd-MMM-yy, hh:mm a"
+                               ng-model="scheduledOn" is-open="isDatePickerOpen"
+                               datepicker-options="datePickerOptions"/>
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="openDatePicker($event, prop)"><i
+                                    class="nc-icon-mini nc-fw ui-1_calendar-57"></i></button>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <!--
+                        <div class="row form-group">
+                            </label> <label class="col-md-3 field-label">Trainees</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" ng-model="item.trainee"/>
+                            </div>
+                        </div>
+            -->
+            <div class="row form-group">
+                </label> <label class="col-md-3 field-label">PreRequisites</label>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-12 spacer-bottom-xs">
+                            <ui-select ng-model="selected.prerequisite">
+                                <ui-select-match>
+                                    <span ng-bind="$select.selected.name"></span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="prerequisite in (options.topics | filter: $select.search)">
+                                    <span ng-bind-html="prerequisite.name | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <div class="col-md-12">
+                            <simple-tag items="item.prerequisites" on-remove="true"></simple-tag>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="yes()">Save</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+</div>

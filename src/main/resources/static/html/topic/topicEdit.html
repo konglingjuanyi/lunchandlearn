@@ -1,0 +1,149 @@
+<div class="container main">
+    <h1 class="specifications">Topic</h1>
+    <div class="row spacer-top-md">
+        <div class="col-md-8">
+            <ng-include src="'/lunchandlearn/html/main/error.html'" ng-show="self.error"></ng-include>
+            <form novalidate>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Name</label>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span class="field-editable" ng-show="!self.editName"
+                                              ng-click="self.editName = true">{{self.item.name}}</span>
+                                        <input type="text" class="form-control" ng-show="self.editName"
+                                               ng-model="self.item.name" autofocus="true"
+                                               ng-blur="self.saveByField('name')">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Description</label>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span class="field-editable" ng-show="!self.editDesc"
+                                              ng-click="self.editDesc = true">{{self.item.desc}}</span>
+                                        <textarea class="form-control" ng-show="self.editDesc" ng-model="self.item.desc"
+                                                  rows="5" autofocus="true" ng-blur="self.saveByField('desc')"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="self.item.upcomingTrainings">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Upcoming Trainings</label>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span class="label label-default"
+                                              ng-repeat="miniTraining in self.item.upcomingTrainings">{{miniTraining.name}}
+                                        On {{miniTraining.scheduledOn}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="self.item.passedTrainings">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Passed Trainings</label>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span class="label label-default"
+                                              ng-repeat="miniTraining in self.item.passedTrainings">{{miniTraining.name}}
+                                        On {{miniTraining.scheduledOn}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="self.item.interestedEmployees">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Interested Employees</label>
+                            <div class="form-group">
+                                <simple-tag items="self.item.interestedEmployees" linkable="true"
+                                            section-url="'employees'" section="'interestedEmployees'"></simple-tag>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="self.item.employeesKnowAbout">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Employees Know About</label>
+                            <div class="form-group">
+                                <simple-tag items="self.item.employeesKnowAbout" linkable="true"
+                                            section-url="'employees'" section="'employeesKnowAbout'"></simple-tag>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h2>Trainings
+                                <span ng-controller="trainingsController as tc" class="pull-right">
+                                    <button class="btn btn-link" ng-click="tc.showAdd();">
+                                        <i class="nc-icon-mini ui-e-2_calendar-add"></i>
+                                        Add Training
+                                    </button>
+                                </span>
+                            </h2>
+                            <uib-tabset justified="true">
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini design_album"></i>
+                                        Unscheduled ({{self.unscheduledTrainingsCount}})
+                                    </uib-tab-heading>
+                                    <simple-tag items="self.unscheduledTrainings" linkable="true"
+                                                section="'trainings'" section-url="'trainings'"></simple-tag>
+                                </uib-tab>
+
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini design_todo"></i>
+                                        Upcoming ({{self.upcomingTrainingsCount}})
+                                    </uib-tab-heading>
+                                    <simple-tag items="self.upcomingTrainings" linkable="true"
+                                                section="'trainings'" section-url="'trainings'"></simple-tag>
+                                </uib-tab>
+
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini ui-1_check-square-11"></i>
+                                        Closed ({{self.closedTrainingsCount}})
+                                    </uib-tab-heading>
+                                    <simple-tag items="self.closedTrainings" linkable="true"
+                                                section="'trainings'" section-url="'trainings'"></simple-tag>
+                                </uib-tab>
+
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini design_note-code"></i>
+                                        Other ({{self.otherTrainingsCount}})
+                                    </uib-tab-heading>
+                                    <simple-tag items="self.otherTrainings" linkable="true"
+                                                section="'trainings'" section-url="'trainings'"></simple-tag>
+                                </uib-tab>
+                            </uib-tabset>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <ng-include src="'/lunchandlearn/html/topic/topicLeftPane.html'"></ng-include>
+        </div>
+    </div>
+</div>

@@ -12,12 +12,20 @@ import org.springframework.stereotype.Service;
 public class IDProviderService {
 	@Autowired
 	private IDRepository idRepository;
+	private static final Long initialId = 1000l;
 
 	public Long getNextId(String collectionName) {
 		CollectionId collectionId = idRepository.findByCollectionName(collectionName);
-		Long id = collectionId.getLastId();
-		collectionId.setLastId(++id);
-		idRepository.save(collectionId);
-		return id;
+		if(collectionId == null) {
+			collectionId = new CollectionId(collectionName, initialId);
+			collectionId = idRepository.insert(collectionId);
+			return collectionId.getLastId();
+		}
+		else {
+			Long id = collectionId.getLastId();
+			collectionId.setLastId(++id);
+			idRepository.save(collectionId);
+			return id;
+		}
 	}
 }

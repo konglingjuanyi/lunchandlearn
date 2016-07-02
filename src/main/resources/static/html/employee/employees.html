@@ -24,7 +24,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <input class="form-control search" ng-model="self.searchTerm" type="text" placeholder="Search" ng-keypress="self.checkSearch($event);" required>
+                            <input class="form-control search" ng-model="self.searchTerm" type="text" placeholder="Search" ng-keypress="self.checkSearch($event);">
                             <button class="btn btn-link search-clear" type="reset" ng-click="self.searchTerm = ''; self.list();"><i class="nc-icon-mini fw ui-1_circle-remove"></i></button>
                         </div>
                     </form>
@@ -59,7 +59,7 @@
                         <td>{{employee.name}}</td>
                         <td><a ng-href="mailto: {{employee.emailId}}" ng-click="$event.stopPropagation();">{{employee.emailId}}</a></td>
                         <td><span ng-repeat="(key, value) in employee.managers"><span ng-if="$index !== 0">, </span><span>{{value}}</span></span></td>
-                        <td><span ng-repeat="knowTopic in employee.knowTopics" class="label label-default"></span>{{knowTopic}}</td>
+                        <td><span ng-repeat="knowTopic in employee.topics" class="label label-default"></span>{{knowTopic}}</td>
                         <td>
                             <a><i class="nc-icon-mini ui-1_trash-simple" ng-click="$event.stopPropagation();self.remove(employee.guid);"></i></a>
                         </td>
@@ -67,20 +67,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="row toolbar toolbar-footer">
-                <div class="col-md-4">
-                    <span ng-cloak><span ng-show="self.toCount === self.fromCount">{{self.fromCount | ordinal}}</span>
-                        <span ng-hide="self.toCount === self.fromCount">{{self.fromCount}} - {{self.toCount}}</span> of {{self.totalCount}}</span>
-                </div>
-                <div class="col-md-2 text-center">
-                    <form class="form-inline">
-                        <select ng-change="self.list();self.savePageSize();" ng-model="self.currentPageSize" ng-options="size as size for size in self.pageSizes"></select> per page
-                    </form>
-                </div>
-                <div class="col-md-6 no-padding-margin">
-                    <uib-pagination class="pull-right no-padding-margin" ng-change="self.list();" boundary-links="true" items-per-page="self.currentPageSize" total-items="self.totalCount" max-size="self.maxPageSize" ng-model="self.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></uib-pagination>
-                </div>
-            </div>
+            <ng-include src="'/lunchandlearn/html/main/pagination.html'"></ng-include>
         </div>
     </div>
 </div>

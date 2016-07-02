@@ -1,0 +1,11 @@
+<div>
+    <h3>{{trainingHeading}} <span ng-if="trainings.totalCount != undefined">({{trainings.totalCount}})</span>
+        <select style="font-size: smaller" ng-if="onList" ng-model="trainingOption.status" class="pull-right"
+                ng-options="status.code as status.label for status in trainingStatus"
+                ng-change="trainingOption.list()"></select>
+    </h3>
+    <div class="mini-tag-container">
+        <span ng-repeat="training in trainings.data" training-tag training="training">
+        </span>
+    </div>
+</div>

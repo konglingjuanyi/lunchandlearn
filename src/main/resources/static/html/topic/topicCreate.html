@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="cancel('cancel')">
+        <span aria-hidden="true"></span>
+        <span class="sr-only">Close</span>
+    </button>
+    <h4>Add Topic</h4>
+</div>
+<div class="modal-body">
+    <div class="container-fluid">
+        <form class="form-horizontal">
+            <div class="row form-group">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">Name</label>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" ng-model="item.name" autofocus="true">
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="col-md-2"></label> <label class="col-md-3 field-label">Description</label>
+                <div class="col-md-6">
+                    <textarea class="form-control" ng-model="item.desc" rows="5"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="yes()">Save</button>
+    <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+</div>

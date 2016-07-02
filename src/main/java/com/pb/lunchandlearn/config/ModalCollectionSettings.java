@@ -8,12 +8,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(prefix = "mongodb.collection.name")
-public class ModalCollectionSettings {
+public final class ModalCollectionSettings {
 	private String employee;
 	private String rating;
 	private String training;
 	private String collectionId;
 	private String topic;
+	private String comment;
 
 	@Override
 	public String toString() {
@@ -23,11 +24,16 @@ public class ModalCollectionSettings {
 				", training='" + training + '\'' +
 				", collectionId='" + collectionId + '\'' +
 				", topic='" + topic + '\'' +
+				", comment='" + comment + '\'' +
 				'}';
 	}
 
-	public void setTopic(String topic) {
-		this.topic = topic;
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 	@Override
@@ -37,22 +43,28 @@ public class ModalCollectionSettings {
 
 		ModalCollectionSettings that = (ModalCollectionSettings) o;
 
-		if (!employee.equals(that.employee)) return false;
-		if (!rating.equals(that.rating)) return false;
-		if (!training.equals(that.training)) return false;
-		if (!collectionId.equals(that.collectionId)) return false;
-		return topic.equals(that.topic);
+		if (employee != null ? !employee.equals(that.employee) : that.employee != null) return false;
+		if (rating != null ? !rating.equals(that.rating) : that.rating != null) return false;
+		if (training != null ? !training.equals(that.training) : that.training != null) return false;
+		if (collectionId != null ? !collectionId.equals(that.collectionId) : that.collectionId != null) return false;
+		if (topic != null ? !topic.equals(that.topic) : that.topic != null) return false;
+		return comment != null ? comment.equals(that.comment) : that.comment == null;
 
 	}
 
 	@Override
 	public int hashCode() {
-		int result = employee.hashCode();
-		result = 31 * result + rating.hashCode();
-		result = 31 * result + training.hashCode();
-		result = 31 * result + collectionId.hashCode();
-		result = 31 * result + topic.hashCode();
+		int result = employee != null ? employee.hashCode() : 0;
+		result = 31 * result + (rating != null ? rating.hashCode() : 0);
+		result = 31 * result + (training != null ? training.hashCode() : 0);
+		result = 31 * result + (collectionId != null ? collectionId.hashCode() : 0);
+		result = 31 * result + (topic != null ? topic.hashCode() : 0);
+		result = 31 * result + (comment != null ? comment.hashCode() : 0);
 		return result;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
 	}
 
 	public String getEmployee() {

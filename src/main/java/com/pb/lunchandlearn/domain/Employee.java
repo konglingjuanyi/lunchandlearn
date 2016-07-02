@@ -15,8 +15,8 @@ import java.util.Map;
 /**
  * Created by de007ra on 4/28/2016.
  */
-@Document(collection = "{mongodb.collection.name.employee}")
-public class Employee {
+@Document(collection = "employees")
+public final class Employee {
 
 	@Id
 	@NotNull
@@ -26,12 +26,12 @@ public class Employee {
 	private String guid;
 
 	@Size(min = 4, max = 20)
-	@NotNull()
+	@NotNull
 	@Indexed
 	@TextIndexed
 	private String name;
 
-	@NotNull()
+	@NotNull
 	@Email
 	@Size(min = 7, max = 26)
 	@Indexed
@@ -44,43 +44,24 @@ public class Employee {
 
 	@Indexed
 	@TextIndexed
-	private Map<String, String> trainingsTaken;
+	private List<MiniTrainingDetail> trainingsInterestedIn;
 
 	@Indexed
 	@TextIndexed
-	private Map<String, String> trainingsGiven;
+	private List<MiniTrainingDetail> trainingsTaken;
 
 	@Indexed
 	@TextIndexed
-	private List<String> knowTopics;
+	private Map<Long, String> topicsKnown;
+
+	@Indexed
+	@TextIndexed
+	private Map<Long, String> topicsInterestedIn;
 
 	@TextScore
 	private Float score;
 
-	public Employee() {
-	}
-
-	public Float getScore() {
-		return score;
-	}
-
-	public void setScore(Float score) {
-		this.score = score;
-	}
-
-	public Employee(String guid, String name, String emailId, Map<String, String> managers, Map<String, String> trainingsTaken, Map<String, String> trainingsGiven, List<String> knowTopics) {
-		this.guid = guid;
-		this.name = name;
-		this.emailId = emailId;
-		this.managers = managers;
-		this.trainingsTaken = trainingsTaken;
-		this.trainingsGiven = trainingsGiven;
-		this.knowTopics = knowTopics;
-	}
-
-	public Map<String, String> getTrainingsTaken() {
-		return trainingsTaken;
-	}
+	public Employee() {}
 
 	@Override
 	public String toString() {
@@ -89,9 +70,11 @@ public class Employee {
 				", name='" + name + '\'' +
 				", emailId='" + emailId + '\'' +
 				", managers=" + managers +
+				", trainingsInterestedIn=" + trainingsInterestedIn +
 				", trainingsTaken=" + trainingsTaken +
-				", trainingsGiven=" + trainingsGiven +
-				", knowTopics=" + knowTopics +
+				", topicsKnown=" + topicsKnown +
+				", topicsInterestedIn=" + topicsInterestedIn +
+				", score=" + score +
 				'}';
 	}
 
@@ -102,48 +85,83 @@ public class Employee {
 
 		Employee employee = (Employee) o;
 
-		if (!guid.equals(employee.guid)) return false;
-		if (!name.equals(employee.name)) return false;
-		if (!emailId.equals(employee.emailId)) return false;
+		if (guid != null ? !guid.equals(employee.guid) : employee.guid != null) return false;
+		if (name != null ? !name.equals(employee.name) : employee.name != null) return false;
+		if (emailId != null ? !emailId.equals(employee.emailId) : employee.emailId != null) return false;
 		if (managers != null ? !managers.equals(employee.managers) : employee.managers != null) return false;
+		if (trainingsInterestedIn != null ? !trainingsInterestedIn.equals(employee.trainingsInterestedIn) : employee.trainingsInterestedIn != null)
+			return false;
 		if (trainingsTaken != null ? !trainingsTaken.equals(employee.trainingsTaken) : employee.trainingsTaken != null)
 			return false;
-		if (trainingsGiven != null ? !trainingsGiven.equals(employee.trainingsGiven) : employee.trainingsGiven != null)
+		if (topicsKnown != null ? !topicsKnown.equals(employee.topicsKnown) : employee.topicsKnown != null)
 			return false;
-		return knowTopics != null ? knowTopics.equals(employee.knowTopics) : employee.knowTopics == null;
+		if (topicsInterestedIn != null ? !topicsInterestedIn.equals(employee.topicsInterestedIn) : employee.topicsInterestedIn != null)
+			return false;
+		return score != null ? score.equals(employee.score) : employee.score == null;
 
 	}
 
 	@Override
 	public int hashCode() {
-		int result = (guid != null ? guid.hashCode() : 0);
+		int result = guid != null ? guid.hashCode() : 0;
 		result = 31 * result + (name != null ? name.hashCode() : 0);
-		result = 31 * result + (emailId != null ? emailId.hashCode() : 0);;
+		result = 31 * result + (emailId != null ? emailId.hashCode() : 0);
 		result = 31 * result + (managers != null ? managers.hashCode() : 0);
+		result = 31 * result + (trainingsInterestedIn != null ? trainingsInterestedIn.hashCode() : 0);
 		result = 31 * result + (trainingsTaken != null ? trainingsTaken.hashCode() : 0);
-		result = 31 * result + (trainingsGiven != null ? trainingsGiven.hashCode() : 0);
-		result = 31 * result + (knowTopics != null ? knowTopics.hashCode() : 0);
+		result = 31 * result + (topicsKnown != null ? topicsKnown.hashCode() : 0);
+		result = 31 * result + (topicsInterestedIn != null ? topicsInterestedIn.hashCode() : 0);
+		result = 31 * result + (score != null ? score.hashCode() : 0);
 		return result;
 	}
 
-	public void setTrainingsTaken(Map<String, String> trainingsTaken) {
+	public List<MiniTrainingDetail> getTrainingsInterestedIn() {
+		return trainingsInterestedIn;
+	}
+
+	public void setTrainingsInterestedIn(List<MiniTrainingDetail> trainingsInterestedIn) {
+		this.trainingsInterestedIn = trainingsInterestedIn;
+	}
+
+	public Map<Long, String> getTopicsInterestedIn() {
+		return topicsInterestedIn;
+	}
+
+	public void setTopicsInterestedIn(Map<Long, String> topicsInterestedIn) {
+		this.topicsInterestedIn = topicsInterestedIn;
+	}
+
+	public Float getScore() {
+		return score;
+	}
+
+	public void setScore(Float score) {
+		this.score = score;
+	}
+
+	public Employee(String guid, String name, String emailId, Map<String, String> managers, List<MiniTrainingDetail> trainingsTaken, Map<Long, String> topicsKnown) {
+		this.guid = guid;
+		this.name = name;
+		this.emailId = emailId;
+		this.managers = managers;
+		this.trainingsTaken = trainingsTaken;
+		this.topicsKnown = topicsKnown;
+	}
+
+	public List<MiniTrainingDetail> getTrainingsTaken() {
+		return trainingsTaken;
+	}
+
+	public void setTrainingsTaken(List<MiniTrainingDetail> trainingsTaken) {
 		this.trainingsTaken = trainingsTaken;
 	}
 
-	public Map<String, String> getTrainingsGiven() {
-		return trainingsGiven;
+	public Map<Long, String> getTopicsKnown() {
+		return topicsKnown;
 	}
 
-	public void setTrainingsGiven(Map<String, String> trainingsGiven) {
-		this.trainingsGiven = trainingsGiven;
-	}
-
-	public List<String> getKnowTopics() {
-		return knowTopics;
-	}
-
-	public void setKnowTopics(List<String> knowTopics) {
-		this.knowTopics = knowTopics;
+	public void setTopicsKnown(Map<Long, String> topicsKnown) {
+		this.topicsKnown = topicsKnown;
 	}
 
 	public String getGuid() {

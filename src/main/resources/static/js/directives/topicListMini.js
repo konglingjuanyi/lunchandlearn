@@ -5,6 +5,9 @@ angular.module('directives').directive('topicListMini', function() {
 	return {
 		templateUrl : '/lunchandlearn/html/topic/topicListMini.html',
 		replace : true,
-		scope: true
+		scope: {
+			topics: '=?',
+			topicHeading: '@'
+		}
 	};
 });
