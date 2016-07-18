@@ -21,9 +21,43 @@
                 </span>
             </div>
             <div class="spacer-bottom-md">
-                <a class="btn btn-link" ng-click="self.showAdd();">Add Training</a>
-                <div style="min-height: 400px;" training-list-mini training-heading="All Trainings"
-                     trainings="self.searchedTrainings" on-list="self.listWithFilterBy">
+                <a class="btn btn-link spacer-bottom-xs" ng-click="self.showAdd();"><i
+                        class="nc-icon-mini ui-e-2_calendar-add"/>Add Training</a>
+                <div style="min-height: 400px;">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th><a href="" ng-click="self.sortList('name');" class="a-lnk">Name&nbsp;&nbsp;
+                                <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'name',
+                             'arrows-1_small-triangle-down': self.sort.name === 'name' && self.sort.direction === 'desc',
+                             'arrows-1_small-triangle-up': self.sort.name === 'name' && self.sort.direction === 'asc'}"></span></a>
+                            </th>
+                            <th><a href="" ng-click="self.sortList('scheduledOn');" class="a-lnk">Date&nbsp;&nbsp;
+                                <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'scheduledOn',
+                             'arrows-1_small-triangle-down': self.sort.name === 'scheduledOn' && self.sort.direction === 'desc',
+                             'arrows-1_small-triangle-up': self.sort.name === 'scheduledOn' && self.sort.direction === 'asc'}"></span></a>
+                            </th>
+                            <th>Location</th>
+                            <th>Duration</th>
+                            <th>Topics Covered</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="trn in self.searchedTrainings.data">
+                            <td><span training-tag training="trn"></span></td>
+                            <td>{{trn.scheduledOn}}</td>
+                            <td>{{trn.location}}</td>
+                            <td>{{trn.duration == undefined ? 'None' :
+                                trn.duration > 1 ? trn.duration + ' hours' :
+                                trn.duration + ' hour'}}
+                            </td>
+                            <td>
+                                <simple-tag items="trn.topics" linkable="true"
+                                            section="'topics'" section-url="'topics'"></simple-tag>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="col-md-12 bottom-border">
                 </div>

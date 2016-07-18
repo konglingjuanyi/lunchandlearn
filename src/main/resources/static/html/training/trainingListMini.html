@@ -7,5 +7,6 @@
     <div class="mini-tag-container">
         <span ng-repeat="training in trainings.data" training-tag training="training">
         </span>
+        <span class="text-none" ng-if="!trainings.data || trainings.data.length === 0">None</span>
     </div>
 </div>

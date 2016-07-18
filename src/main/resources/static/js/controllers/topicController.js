@@ -14,21 +14,25 @@ angular.module('controllers').controller('topicController', [
 
 		self.getTrainings = function (type, topicId) {
 			topicService.listTrainings(type, topicId).then(function(response) {
-				if(type === 'upcoming') {
-					self.upcomingTrainings = response.data;
-				}
-				else if(type === 'passed') {
-					self.passedTrainings = response.data;
+				if(angular.isDefined(response.data)) {
+					if (type === 'upcoming') {
+						self.upcomingTrainings = response.data;
+					}
+					else if (type === 'passed') {
+						self.passedTrainings = response.data;
+					}
 				}
 			});
 		};
 
 		self.setListResult = function(data) {
-			self.totalPages = data.totalPages;
-			self.totalCount = data.totalElements;
-			self.topics = {totalCount: self.totalCount, data: data.content};
-			self.fromCount = (data.size * data.number) + 1;
-			self.toCount = (self.fromCount - 1) + data.numberOfElements;
+			if(angular.isDefined(data)) {
+				self.totalPages = data.totalPages;
+				self.totalCount = data.totalElements;
+				self.topics = {totalCount: self.totalCount, data: data.content};
+				self.fromCount = (data.size * data.number) + 1;
+				self.toCount = (self.fromCount - 1) + data.numberOfElements;
+			}
 		};
 
 		self.list = function() {
@@ -42,8 +46,18 @@ angular.module('controllers').controller('topicController', [
 
 		self.getTopic = function(topicId) {
 			topicService.getTopic(topicId).then(function(response) {
-				self.item = response.data;
-				updateTrainingsList();
+				if(angular.isDefined(response.data)) {
+					self.item = response.data;
+
+					var obj = {};
+					obj[self.item.createdByGuid] = self.item.createdByName;
+					self.createdBy = obj;
+
+					self.employeesKnowAboutEmpty = _.isEmpty(self.item.employeesKnowAbout);
+					updateTrainingsList();
+					utilitiesService.setLastModifiedBy(self, self.item);
+
+				}
 			}, function (error) {
 				self.error = true;
 				self.errorMsg = error.data.message;
@@ -88,6 +102,7 @@ angular.module('controllers').controller('topicController', [
 				if(restService.isResponseOk(response)) {
 					if(restService.isResponseOk(response)) {
 						utilitiesService.setEditable(self, fieldName, false);
+						utilitiesService.setLastModifiedBy(self);
 					}
 				}
 			});

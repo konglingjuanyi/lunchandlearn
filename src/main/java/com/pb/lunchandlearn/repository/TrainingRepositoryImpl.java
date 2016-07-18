@@ -6,6 +6,7 @@ import com.mongodb.WriteResult;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
 import com.pb.lunchandlearn.config.LikeType;
+import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,18 +38,18 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 	private final String trainingCollectionName = "trainings";
 
 	@Override
-	public Training updateLikes(Long trainingId, LikeType type, String userName, String userId) {
+	public Training updateLikes(Long trainingId, LikeType type, String userName, String userGuid) {
 		Query query = new Query(where("id").is(trainingId));
 		Training training = mongoTemplate.findOne(query, Training.class);
 		switch (type) {
 			case LIKE:
-				if(training.getLikedBy() == null) {
+				if (training.getLikedBy() == null) {
 					training.setLikedBy(new HashMap<>(1));
 				}
-				training.getLikedBy().put(userId, userName);
+				training.getLikedBy().put(userGuid, userName);
 				break;
 			case DISLIKE:
-				training.getLikedBy().remove(userId);
+				training.getLikedBy().remove(userGuid);
 				break;
 		}
 		training.setLikesCount(training.getLikedBy().size());
@@ -62,9 +64,11 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 	}
 
 	@Override
-	public boolean updateByFieldName(Long trainingId, SimpleFieldEntry simpleFieldEntry) {
+	public boolean updateByFieldName(Long trainingId, SimpleFieldEntry simpleFieldEntry, SecuredUser user) {
 		WriteResult result = mongoTemplate.updateFirst(new Query(where("id").is(trainingId)),
-				Update.update(simpleFieldEntry.getName(), simpleFieldEntry.getValue()), Training.class);
+				Update.update(simpleFieldEntry.getName(), simpleFieldEntry.getValue()).
+						set("lastModifiedByGuid", user.getGuid()).set("lastModifiedByName", user.getUsername())
+						.set("lastModifiedOn", new Date()), Training.class);
 		return result.getN() == 1;
 	}
 
@@ -94,7 +98,7 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		Query query = Query.query(where("id").is(trainingId));
 		Update update = new Update().push("comments", comment);
 		WriteResult result = mongoTemplate.updateFirst(query, update, Training.class);
-		if(result.getN() == 1) {
+		if (result.getN() == 1) {
 			return comment;
 		}
 		return null;
@@ -105,7 +109,7 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		Query query = Query.query(where("id").is(trainingId).and("comments.id").is(parentCommentId));
 		Update update = new Update().push("comments.$.replies", comment);
 		WriteResult result = mongoTemplate.updateFirst(query, update, Training.class);
-		if(result.getN() == 1) {
+		if (result.getN() == 1) {
 			return comment;
 		}
 		return null;
@@ -117,7 +121,7 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		Training trn = mongoTemplate.findOne(query, Training.class);
 		Update update = new Update().pull("comments.$.replies", new BasicDBObject("id", replyCommentId));
 		WriteResult result = mongoTemplate.updateFirst(query, update, Training.class);
-		if(result.getN() == 0) {
+		if (result.getN() == 0) {
 			return false;
 		}
 		return true;
@@ -128,7 +132,7 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		Query query = Query.query(where("id").is(trainingId));
 		Update update = new Update().pull("comments", new BasicDBObject("id", commentId));
 		int result = mongoTemplate.updateFirst(query, update, Training.class).getN();
-		if(result == 0) {
+		if (result == 0) {
 			return false;
 		}
 		return true;
@@ -138,7 +142,7 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 	public FileAttachmentInfo getAttachedFileInfo(Long trainingId, String fileName) {
 		Query query = Query.query(where("id").is(trainingId).and("attachmentInfos.fileName").is(fileName));
 		Training info = mongoTemplate.findOne(query, Training.class);
-		if(info == null) {
+		if (info == null) {
 			return null;
 		}
 		return info.getAttachmentInfos().get(0);
@@ -150,23 +154,34 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		query.fields().include("topics").exclude("id");
 		return mongoTemplate.findOne(query, Training.class);
 	}
-/*
 
 	@Override
-	public Map<Long, String> getMiniTrainingsById(Long trainingId) {
+	public Training setTrainingStatus(Long trainingId, TrainingStatus trainingStatus) {
 		Query query = Query.query(where("id").is(trainingId));
-		query.fields().exclude("id").include("topics");
-		Training training = mongoTemplate.findOne(query, Training.class);
-		return training.getTopics();
+		query.fields().include("status");
+		if(mongoTemplate.updateFirst(query, new Update().set("status", trainingStatus), Training.class).getN() == 0) {
+			return  null;
+		}
+		return mongoTemplate.findOne(query, Training.class);
 	}
-*/
+
+	@Override
+	public boolean addFeedBack(FeedBack feedBack) {
+		Query query = Query.query(where("id").is(feedBack.getParentId()));
+		Update update = new Update().addToSet("feedbackList", feedBack.getId());
+		int updateCount = mongoTemplate.updateFirst(query, update, Training.class).getN();
+		if (updateCount == 1) {
+			return true;
+		}
+		return false;
+	}
 
 	@Override
 	public FileAttachmentInfo getAttachmentFileInfoWithFile(Long trainingId, String fileName) throws IOException {
 		Query query = Query.query(whereMetaData().is(new BasicDBObject("trainingId", trainingId)).
 				and("filename").is(fileName));
 		GridFSDBFile file = gridFsOperations.findOne(query);
-		if(file == null) {
+		if (file == null) {
 			throw new ResourceNotFoundException(MessageFormat.
 					format("Attached File: {0} in Training with id: {1}", trainingId, fileName));
 		}
@@ -176,15 +191,8 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 	@Override
 	public FileAttachmentInfo attachFile(InputStream ios, String fileName, Long trainingId) {
 		DBObject obj = new BasicDBObject("trainingId", trainingId);
-/*
-		Collection mimeTypes = MimeUtil.getMimeTypes(ios);
-*/
+
 		String contentType = null;
-/*
-		if(!CollectionUtils.isEmpty(mimeTypes)) {
-			contentType = mimeTypes.iterator().next().toString();
-		}
-*/
 		GridFSFile gridFSFile = gridFsOperations.store(ios, fileName, contentType, obj);
 		return new FileAttachmentInfo(gridFSFile.getFilename(), gridFSFile.getContentType(), gridFSFile.getLength());
 	}
@@ -194,7 +202,7 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		Query query = Query.query(where("id").is(trainingId));
 		Update update = new Update().addToSet("attachmentInfos", fileInfo);
 		int updateCount = mongoTemplate.updateFirst(query, update, Training.class).getN();
-		if(updateCount == 1) {
+		if (updateCount == 1) {
 			return true;
 		}
 		return false;
@@ -212,7 +220,7 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		Query query = Query.query(where("id").is(trainingId));
 		query.fields().exclude("id").include("attachmentInfos.fileName").include("attachmentInfos.size");
 		Training training = mongoTemplate.findOne(query, Training.class);
-		if(training != null) {
+		if (training != null) {
 			return training.getAttachmentInfos();
 		}
 		return null;
@@ -225,7 +233,7 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		gridFsOperations.delete(query);
 		Update update = new Update().pull("attachmentInfos", new BasicDBObject("fileName", fileName));
 		int result = mongoTemplate.updateFirst(Query.query(where("id").is(trainingId)), update, Training.class).getN();
-		if(result == 0) {
+		if (result == 0) {
 			return false;
 		}
 		return true;

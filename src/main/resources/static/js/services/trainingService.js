@@ -1,9 +1,9 @@
 /**
  * Created by de007ra on 5/8/2016.
  */
-angular.module('services').factory('trainingService', [ 'restService', '$localStorage',
-	function(restService, $localStorage) {
-	return {
+angular.module('services').factory('trainingService', [ 'restService', '$localStorage', 'utilitiesService',
+	function(restService, $localStorage, utilitiesService) {
+	var trainingService = {
 		trainingsUrl: restService.appUrl + '/trainings',
 		trainingUrl: restService.appUrl + '/trainings/training',
 		maxRecentTrainingsCount: 4,
@@ -15,6 +15,23 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 				url += config.url;
 			}
 			return restService.get(url, config);
+		},
+
+		isEditable: function (training) {
+			return restService.getLoggedInUser().then(function(user) {
+				if(utilitiesService.isAdminUser(user.roles)) {
+					return true;
+				}
+				var currentUserGuid = user.guid.toUpperCase();
+				return currentUserGuid === training.createdByGuid
+					|| (training.trainers && angular.isDefined(training.trainers[currentUserGuid]));
+			});
+		},
+
+		isAdmin: function () {
+			return restService.getLoggedInUser().then(function(user) {
+				return utilitiesService.isAdminUser(user.roles);
+			});
 		},
 
 		likeTraining: function(trainingId) {
@@ -33,19 +50,27 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 		},
 
 		updateTraining: function(item) {
-			return restService.put(this.trainingUrl  + "/" +  item.trainingId, item);
+			return restService.put(this.trainingUrl  + '/' +  item.trainingId, item);
 		},
 
 		updateTrainingByField: function(trainingId, item) {
-			return restService.put(this.trainingUrl  + "/" +  trainingId + '/field', item);
+			return restService.put(this.trainingUrl  + '/' +  trainingId + '/field', item);
 		},
 
 		removeTraining: function(trainingId) {
-			return restService.delete(this.trainingUrl + "/" + trainingId);
+			return restService.delete(this.trainingUrl + '/' + trainingId);
 		},
 
 		getTraining: function(trainingId) {
-			return restService.get(this.trainingUrl  + "/" + trainingId);
+			return restService.get(this.trainingUrl  + '/' + trainingId);
+		},
+
+		getTrainingMinimal: function(trainingId) {
+			return restService.get(this.trainingUrl  + '/' + trainingId + '/minimal');
+		},
+
+		getFeedback: function(trainingId, id) {
+			return restService.get(this.trainingUrl  + '/' + trainingId + '/feedbacks/' + id);
 		},
 
 		getComments: function (trainingId) {
@@ -53,25 +78,49 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 		},
 
 		removeComment: function(trainingId, commentId) {
-			return restService.delete(this.trainingUrl + "/" + trainingId + '/comments/' + commentId);
+			return restService.delete(this.trainingUrl + '/' + trainingId + '/comments/' + commentId);
 		},
 
 		removeAttachment: function(trainingId, filename) {
 			var config = {params: {name: filename}}
-			return restService.delete(this.trainingUrl + "/" + trainingId + '/attachments/file', config);
+			return restService.delete(this.trainingUrl + '/' + trainingId + '/attachments/file', config);
 		},
 
 		removeCommentReply: function(trainingId, commentId, commentReplyId) {
-			return restService.delete(this.trainingUrl + "/" + trainingId + '/comments/' + commentId + '/replies/' + commentReplyId);
+			return restService.delete(this.trainingUrl + '/' + trainingId + '/comments/' + commentId + '/replies/' + commentReplyId);
 		},
 
 		addCommentReply: function(trainingId, commentId, newReply) {
 			var comment = {name: 'comment', value: newReply};
-			return restService.post(this.trainingUrl + "/" + trainingId + '/comments/' + commentId + '/reply', comment);
+			return restService.post(this.trainingUrl + '/' + trainingId + '/comments/' + commentId + '/reply', comment);
+		},
+
+		listTrainees: function(trainingId) {
+			return restService.get(this.trainingUrl + '/' + trainingId + '/trainees');
+		},
+
+		durationStepperOptions: {
+			arrowStep: 0.5,
+			wheelStep: 0.5,
+			limit: [0.5, 2147483647],
+			type: 'float',
+			floatPrecission: 2// decimal precission
 		},
 
 		getComments: function (trainingId) {
 			return restService.get(this.trainingUrl + '/' + trainingId + '/comments');
+		},
+
+		getFeedbacks: function (trainingId) {
+			return restService.get(this.trainingUrl + '/' + trainingId + '/feedbacks');
+		},
+
+		getFeedbackRatings: function (trainingId) {
+			return restService.get(this.trainingUrl + '/' + trainingId + '/feedbacks/rating');
+		},
+
+		sendFeedBackRequest: function (trainingId) {
+			return restService.get(this.trainingUrl + '/' + trainingId + '/feedbacks/request');
 		},
 
 		getAttachments: function(id) {
@@ -81,6 +130,10 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 		addComment: function(id, newComment) {
 			var comment = {name: 'comment', value: newComment};
 			return restService.post(this.trainingUrl + '/' + id + '/comments', comment);
+		},
+
+		addFeedback: function(feedback) {
+			return restService.post(this.trainingUrl + '/' + feedback.parentId + '/feedbacks', feedback);
 		},
 
 		getRecentTrainingsId: function() {
@@ -112,7 +165,21 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 				recentTrainingsId[0] = trainingId;
 			}
 			$localStorage.recentTrainingsId = recentTrainingsId;
+		},
 
+		setEditables: function (training, self) {
+			return trainingService.isAdmin().then(function (status) {
+				self.isAdmin = status;
+				if(self.isAdmin) {
+					self.isEditable = true;
+				}
+				else {
+					trainingService.isEditable(training).then(function (status) {
+						self.isEditable = status;
+					});
+				}
+			});
 		}
 	};
+	return trainingService
 }]);

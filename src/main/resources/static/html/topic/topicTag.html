@@ -1,6 +1,7 @@
 <span class="btn-group">
-    <a class="mini-tag-simple mini-tag-advance" ng-href="#/topics/{{topic.id}}">{{topic.name}}
-        <span class="badge">{{topic.likesCount}}</span></a>
-    <span class="mini-tag-like a-lnk" ng-click="ttc.likeTopic(topic);">&nbsp;&nbsp;&nbsp;&nbsp;
+    <a class="mini-tag-simple mini-tag-advance" ng-href="#/topics/{{topic.id}}" uib-popover="{{topic.name}}"
+       popover-trigger="mouseenter" popover-enable="{{topic.name.length > 40}}">{{topic.name}}
+    </a>
+    <span class="mini-tag-like a-lnk" ng-click="ttc.likeTopic(topic);"><span class="badge">{{topic.likesCount}}</span>
         <span class="nc-icon-mini ui-2_like"></span></span>
 </span>

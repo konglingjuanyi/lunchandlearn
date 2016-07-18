@@ -6,6 +6,7 @@
 .main-tile{
     margin-top: 150px;
 }
+
 .main{
     margin-top: 40px;
 }
@@ -30,6 +31,13 @@
     margin-left: 3px;
 }
 
+.a-lnk-icon-mini:hover {
+    color: black;
+}
+
+.desc {
+    min-height: 28px;
+}
 
 .a-lnk-icon {
     font-size: smaller;
@@ -57,12 +65,18 @@
 }
 
 .mini-tag-simple {
-    background-color: darkgray;
-    padding: 3px 3px;
+    background-color: gray;
+    padding: 3px 5px;
     display: inline-block;
     color: #fff;
     text-transform: lowercase;
     margin-bottom: 10px;
+    z-index: 256;
+    padding: 3px 5px;
+    max-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mini-tag-simple-container {
@@ -75,14 +89,14 @@
 }
 .mini-tag-advance {
     z-index: 256;
-    padding: 3px 3px;
+    padding: 3px 5px;
 }
 
 .mini-tag-advance:hover {
     color: #fff;
-    background-color: gray;
+    background-color: darkgray;
     text-decoration: none;
-    padding: 3px 3px;
+    padding: 3px 5px;
     border: 1px #3e53a4;
     outline: 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
@@ -107,19 +121,19 @@
 }
 .mini-tag-like {
     float: right;
-    background-color: darkgray;
+    background-color: grey;
     padding: 3px 10px;
     display: inline-block;
     text-transform: lowercase;
     color: #fff;
     margin-right: 20px;
     margin-bottom: 10px;
-    margin-left: -25px;
+    margin-left: -8px;
 }
 
 .mini-tag-like:hover {
     color: #fff;
-    background-color: gray;
+    background-color: darkgray;
     text-decoration: none;
     padding: 3px 10px;
     border: 1px #3e53a4;
@@ -189,6 +203,10 @@ h3 {
     padding-bottom: 5px;
 }
 
+.panel>.panel-heading:not(:first-child) {
+    margin-top: -20px !important;
+}
+
 .new-comment {
     width: 100%;
 }
@@ -218,4 +236,74 @@ h3 {
     color:#aaa;
     font-family:verdana;
     font-size:11px;
+    font-weight: normal;
+}
+
+.text-none {
+    font-style: italic;
+}
+
+.signin .signin-wrapper {
+    height: 100vh;
+    margin: 0;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.signin .signin-body-top {
+    width: 400px;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-flex: 1 0 auto;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+}
+
+.signin .signin-pb-logo {
+    margin-bottom: 20px;
+    display: block;
+    height: 56px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOMAAAA4CAMAAAA4qb+SAAADAFBMV…nH6ANixk+dnpOVlTPz/qL81F7u3KPMHr4t/L1d7fgZ/w8ZWmjTJ5xBpwAAAABJRU5ErkJggg==);
+}
+
+/* we are using numericStepper for number inputs, so we dont want the browser-specific number incrementers */
+[stepper]::-webkit-inner-spin-button,
+[stepper]::-webkit-outer-spin-button,
+input[type=number].hide-arrows::-webkit-inner-spin-button,
+input[type=number].hide-arrows::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type=number][stepper],
+input[type=number].hide-arrows{
+    -moz-appearance:textfield;
+}
+
+input.short-stepper{
+    width:60px;
+}
+
+.required {
+    color: red;
+}
+
+.training-tab {
+    min-height: 215px;
 }

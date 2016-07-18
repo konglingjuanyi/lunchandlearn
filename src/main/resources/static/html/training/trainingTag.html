@@ -1,6 +1,9 @@
 <span class="btn-group">
-    <a class="mini-tag-simple mini-tag-advance" ng-href="#/trainings/{{training.id}}">{{training.name}}
-        <span class="badge">{{training.likesCount}}</span></a>
-    <span class="mini-tag-like a-lnk" ng-click="ttc.likeTraining(training);">&nbsp;&nbsp;&nbsp;&nbsp;
+    <a class="mini-tag-simple mini-tag-advance" target="{{target}}" ng-href="#/trainings/{{training.id}}"
+       uib-popover="{{training.name}}" popover-trigger="mouseenter" popover-enable="{{training.name.length > 40}}">
+        <span>{{training.name}}</span>
+        </a>
+    <span class="mini-tag-like a-lnk" ng-click="ttc.likeTraining(training);"><span
+            class="badge">{{training.likesCount}}</span>
         <span class="nc-icon-mini ui-2_like"></span></span>
 </span>

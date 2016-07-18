@@ -1,12 +1,15 @@
 angular.module('controllers').controller('trainingsController', [
-	'$scope', '$uibModal', 'trainingService', 'pagingService', '$routeParams', 'employeeService', 'topicService', 'utilitiesService',
-	function($scope, $uibModal, trainingService, pagingService, $routeParams, employeeService, topicService, utilitiesService) {
+	'$scope', '$uibModal', 'trainingService', 'pagingService', '$routeParams', 'employeeService', 'topicService',
+	'utilitiesService', '$location',
+	function($scope, $uibModal, trainingService, pagingService, $routeParams, employeeService, topicService,
+			 utilitiesService, $location) {
 		var self = this;
 
 		self.pageSizes = pagingService.pageSizes;
 		self.currentPage = 1;
 		self.currentPageSize = pagingService.currentPageSize;
 		self.maxPages = pagingService.maxPageSize;
+		self.sort = {};
 
 		self.checkSearch = function($event) {
 			if($event.which === 13 || $event.keyCode === 13) {
@@ -23,27 +26,33 @@ angular.module('controllers').controller('trainingsController', [
 			pagingService.savePageSize(self.currentPageSize);
 		};
 
+		self.sortList = function(fieldName) {
+			self.sort.name = fieldName;
+			self.sort.direction = self.sort.direction === 'asc' ? 'desc' : 'asc';
+			self.list();
+		};
+
 		self.setListResult = function(data) {
 			self.totalPages = data.totalPages;
 			self.totalCount = data.totalElements;
 			self.searchedTrainings = {totalCount: self.totalCount, data: data.content};
+			_.each(self.searchedTrainings.data, function(training) {
+				training.scheduledOn = moment(training.scheduledOn).format('DD-MMM-YY, HH:mm A');
+			});
 			self.fromCount = (data.size * data.number) + 1;
 			self.toCount = (self.fromCount - 1) + data.numberOfElements;
 		};
 
 		self.list = function() {
 			trainingService.listTrainings(pagingService.getConfigObj(self)).then(function(response) {
-				self.setListResult(response.data);
+				if(angular.isDefined(response.data)) {
+					self.setListResult(response.data);
+				}
 			});
 		}
 
 		self.showEdit = function(id) {
-			trainingService.getTraining(id).then(function(response) {
-				self.training = response.data;
-				self.training.managers = _.keys(self.training.managers);
-				self.mode = 'edit';
-				self.showModalDlg();
-			});
+			$location.path('/trainings/' + id);
 		}
 
 		self.save = function() {
@@ -65,10 +74,12 @@ angular.module('controllers').controller('trainingsController', [
 			if(self.training.trainers) {
 				self.training.trainers = utilitiesService.sortObj(self.training.trainers);
 			}
+/*
 			if(self.training.trainees) {
 				self.training.trainees = utilitiesService.sortObj(self.training.trainees);
 			}
 
+*/
 			trainingService.addTraining(self.training).then(function(response) {
 				self.mode = null;
 				self.list();
@@ -136,7 +147,8 @@ angular.module('controllers').controller('trainingsController', [
 				resolve: {
 					data: function () {
 						return {item: self.training, mode: self.mode, options: {trainerId: self.trainerId,
-							employees: self.trainers, topics: self.topics}};
+							employees: self.trainers, topics: self.topics, stepperOptions: trainingService.durationStepperOptions
+					}};
 					}
 				}
 			}

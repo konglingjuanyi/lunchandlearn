@@ -10,15 +10,44 @@ angular.module('directives').directive('simpleTag', function() {
 			linkable: '=',
 			section: '=',
 			sectionUrl: '=',
-			onRemove: '=?'
+			onRemove: '=?',
+			popoverEnable: '='
 		},
-		controller: 'simpleTabController as self'
+		link: function(scope) {
+			var setTagIcon = function() {
+				switch (scope.section) {
+					case 'managers':
+					case 'employees':
+					case 'employeesKnowAbout':
+					case 'interestedEmployees':
+					case 'trainees':
+					case 'trainers':
+						scope.tagIcon = 'users_single-05';
+						break;
+					case 'topics':
+					case 'topicsKnown':
+					case 'topicsInterestedIn':
+					case 'prerequisites':
+						scope.tagIcon = 'location_bookmark';
+						break;
+					case 'trainings':
+					case 'trainingsInterestedIn':
+					case 'trainingsAttended':
+					case 'trainingsImparted':
+						scope.tagIcon = 'education_board-51';
+						break;
+					case 'roles':
+						scope.tagIcon = 'clothes_cap';
+						break;
+				}
+			}
+			setTagIcon();
+		},
+		controller: 'simpleTagController'
 	};
-}).controller('simpleTabController', ['$scope',
+}).controller('simpleTagController', ['$scope',
 	function($scope) {
-		var self = this;
-
-		self.removeProperty = function (e, obj, prop) {
+		$scope.removeProperty = function (e, obj, prop) {
 			e.preventDefault();
 			e.stopPropagation();
 			delete obj[prop];

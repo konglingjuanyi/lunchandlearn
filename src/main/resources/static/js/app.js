@@ -2,8 +2,8 @@ var lunchAndLearnApp = angular.module('lunchAndLearnApp', ['ngRoute', 'filters',
 	'ordinal', 'ui.select', 'ngSanitize', 'ui.bootstrap', 'ui.bootstrap.datetimepicker', 'ngFileUpload']);
 //Define Routing for the app
 
-lunchAndLearnApp.config(['$routeProvider',
-	function($routeProvider) {
+lunchAndLearnApp.config(['$routeProvider', '$httpProvider',
+	function($routeProvider, $httpProvider) {
 		$routeProvider.
 			when('/', {
 				templateUrl: '/lunchandlearn/html/main/main.html'
@@ -37,7 +37,16 @@ lunchAndLearnApp.config(['$routeProvider',
 				templateUrl: '/lunchandlearn/html/training/trainingEdit.html',
 				controller: 'trainingController as self'
 			}).
+			when('/login', {
+				templateUrl: '/lunchandlearn/html/main/login.html',
+				controller: 'loginController as self'
+			}).
+			when('/login?logout', {
+				templateUrl: '/lunchandlearn/html/main/login.html',
+				controller: 'loginController as self'
+			}).
 			otherwise({
 				redirectTo: '/'
 			});
+		$httpProvider.interceptors.push('loginInterceptor');
 }]);

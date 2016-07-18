@@ -1,0 +1,26 @@
+<div>
+    <div class="row" ng-if="self.feedbacks && self.feedbacks.length > 0">
+        <table class="col-md-12 table table-hover">
+            <thead>
+            <tr>
+                <th>Trainee</th>
+                <th ng-repeat="ratingRow in self.ratingsRows">{{ratingRow.label}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="feedback in self.feedbacks" ng-click="self.show(feedback.id)" class="a-lnk">
+                <td>{{feedback.respondentName}}</td>
+                <td ng-repeat="rating in self.ratingsRows">{{feedback.ratings[rating.code]}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <button class="btn btn-sm btn-default spacer-bottom-md" ng-click="self.showAdd();"
+                    ng-if="self.pendingFeedBack">
+                Add Feedback
+            </button>
+        </div>
+    </div>
+</div>

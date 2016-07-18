@@ -15,6 +15,7 @@ public final class ModalCollectionSettings {
 	private String collectionId;
 	private String topic;
 	private String comment;
+	private String feedback;
 
 	@Override
 	public String toString() {
@@ -25,15 +26,8 @@ public final class ModalCollectionSettings {
 				", collectionId='" + collectionId + '\'' +
 				", topic='" + topic + '\'' +
 				", comment='" + comment + '\'' +
+				", feedback='" + feedback + '\'' +
 				'}';
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
 	}
 
 	@Override
@@ -48,7 +42,8 @@ public final class ModalCollectionSettings {
 		if (training != null ? !training.equals(that.training) : that.training != null) return false;
 		if (collectionId != null ? !collectionId.equals(that.collectionId) : that.collectionId != null) return false;
 		if (topic != null ? !topic.equals(that.topic) : that.topic != null) return false;
-		return comment != null ? comment.equals(that.comment) : that.comment == null;
+		if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
+		return feedback != null ? feedback.equals(that.feedback) : that.feedback == null;
 
 	}
 
@@ -60,7 +55,24 @@ public final class ModalCollectionSettings {
 		result = 31 * result + (collectionId != null ? collectionId.hashCode() : 0);
 		result = 31 * result + (topic != null ? topic.hashCode() : 0);
 		result = 31 * result + (comment != null ? comment.hashCode() : 0);
+		result = 31 * result + (feedback != null ? feedback.hashCode() : 0);
 		return result;
+	}
+
+	public String getFeedback() {
+		return feedback;
+	}
+
+	public void setFeedback(String feedback) {
+		this.feedback = feedback;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 	public void setTopic(String topic) {

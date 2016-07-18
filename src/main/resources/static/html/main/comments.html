@@ -6,16 +6,20 @@
                     <i class="nc-icon-mini users_single-05"></i>
                 </div>
                 <div>
-                    <span class="commenterName">{{comment.ownerName}}</span>
+                    <span class="commenterName">
+                        <a class="a-lnk" ng-href="#/employees/{{comment.ownerGuid}}">
+                        {{comment.ownerName}}</a></span>
                     <div>
-                        <p class="commentText">{{comment.text}}</p> <span
+                        <div class="commentText" ng-bind-html="comment.text | linky:'_blank'"></div> <span
                             class="date sub-text">on {{comment.dateTime | commentDate}}&nbsp;</span>
                         <span ng-if="comment.replies.length === 0">
-                            <span ng-show="!parentCommentId" class="a-lnk a-lnk-icon" ng-click="self.addReply(comment);">&nbsp;<i
+                            <span ng-show="!parentCommentId" class="a-lnk a-lnk-icon"
+                                  ng-click="self.addReply(comment);">&nbsp;<i
                                     class="nc-icon-mini arrows-1_curved-next"></i></span>
                         </span>
-                        <span class="a-lnk a-lnk-icon" ng-click="self.removeComment(commentId);">&nbsp;<i
-                            class="nc-icon-mini ui-1_trash-simple"></i></span>
+                        <span class="a-lnk a-lnk-icon" ng-if="self.isAdmin || comment.ownerGuid === self.userGuid"
+                              ng-click="self.removeComment(commentId);">&nbsp;<i
+                                class="nc-icon-mini ui-1_trash-simple"></i></span>
                     </div>
                 </div>
                 <div class="commentListReplies" ng-if="comment.replies">
@@ -24,17 +28,23 @@
                             <i class="nc-icon-mini users_single-05"></i>
                         </div>
                         <div>
-                            <span class="commenterName">{{reply.ownerName}}</span>
+                            <span class="commenterName">
+                                <a class="a-lnk" ng-href="#/employees/{{reply.ownerGuid}}">
+                                {{reply.ownerName}}</a>
+                            </span>
                             <div>
-                                <p class="commentText">{{reply.text}}</p>
+                                <div class="commentText" ng-bind-html="reply.text | linky:'_blank'"></div>
                                 <div>
                                     <span class="date sub-text">{{reply.dateTime | commentDate}}&nbsp;</span>
                                     <span ng-if="$last">
-                                        <span ng-show="!parentCommentId" class="a-lnk a-lnk-icon" ng-click="self.addReply(comment);">&nbsp;<i
+                                        <span ng-show="!parentCommentId" class="a-lnk a-lnk-icon"
+                                              ng-click="self.addReply(comment);">&nbsp;<i
                                                 class="nc-icon-mini arrows-1_curved-next"></i></span>
                                     </span>
-                                    <span class="a-lnk a-lnk-icon" ng-click="self.removeCommentReply(commentId, reply.id);">&nbsp;<i
-                                        class="nc-icon-mini ui-1_trash-simple"></i></span>
+                                    <span class="a-lnk a-lnk-icon"
+                                          ng-if="self.isAdmin || reply.ownerGuid === self.userGuid"
+                                          ng-click="self.removeCommentReply(commentId, reply.id);">&nbsp;<i
+                                            class="nc-icon-mini ui-1_trash-simple"></i></span>
                                 </div>
                             </div>
                         </div>
@@ -45,7 +55,9 @@
                                 <textarea class="new-comment" ng-model="self.newReply" placeholder="reply.."/>
                             </div>
                             <div class="form-group">
-                                <button class="btn btn-primary" ng-click="self.saveReply()">Add</button>
+                                <button class="btn btn-primary" ng-click="self.saveReply()"
+                                        ng-disabled="!self.newReply || self.newReply.length <= 0">Add
+                                </button>
                                 <button class="btn btn-default" ng-click="self.cancelReply()">Cancel</button>
                             </div>
                         </div>
@@ -59,7 +71,10 @@
             <textarea ng-model="self.newComment" class="new-comment" placeholder="your comments.."/>
         </div>
         <div class="form-group">
-            <button class="btn btn-primary" ng-click="self.saveComment()">Add</button>
+            <button class="btn btn-primary spacer-bottom-md"
+                    ng-disabled="!self.newComment || self.newComment.length <= 0"
+                    ng-click="self.saveComment()">Add
+            </button>
         </div>
     </div>
 </div>

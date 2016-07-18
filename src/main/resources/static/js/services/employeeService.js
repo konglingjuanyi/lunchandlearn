@@ -1,8 +1,9 @@
 /**
  * Created by de007ra on 5/8/2016.
  */
-angular.module('services').factory('employeeService', [ 'restService', function(restService) {
-	return {
+angular.module('services').factory('employeeService', [ 'restService', 'utilitiesService', '$q',
+	function(restService, utilitiesService, $q) {
+	var employeeService = {
 		getEmployeeByGuid: function(guid, employeeArray) {
 			return _.find(employeeArray, function (emloyee) {
 				return emloyee.guid === guid;
@@ -49,9 +50,23 @@ angular.module('services').factory('employeeService', [ 'restService', function(
 			return restService.get(this.employeesUrl + '/minimal');
 		},
 
-		getEmployeesName: function() {
-			return restService.get(this.employeesUrl + '/names')
+		getManagers: function() {
+			return restService.get(this.employeesUrl + '/managers')
 		},
+
+		isEditable: function (guid) {
+			return restService.getLoggedInUser().then(function(user) {
+				if(!user) {
+					return false;
+				}
+				if(utilitiesService.isAdminUser(user)) {
+					return true;
+				}
+				return _.upperCase(user.guid) === _.upperCase(guid);
+			});
+		},
+
+		roles: [{label: 'Manager', code: 'MANAGER'}, {label: 'Admin', code: 'ADMIN'}],
 
 		updateEmployeeByField: function(empGuid, item) {
 			return restService.put(this.employeeUrl  + "/" +  empGuid + '/field', item);
@@ -71,6 +86,17 @@ angular.module('services').factory('employeeService', [ 'restService', function(
 
 		getEmployee: function(guid) {
 			return restService.get(this.employeeUrl  + "/" + guid);
+		},
+
+		setTrainingObj: function(trainings) {
+			if(trainings) {
+				var trainingObj = {};
+				_.each(trainings, function (training) {
+					trainingObj[training.id] = training.name;
+				});
+				return trainingObj;
+			}
 		}
 	};
+	return employeeService;
 }]);

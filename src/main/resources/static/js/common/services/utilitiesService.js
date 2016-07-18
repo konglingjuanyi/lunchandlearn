@@ -1,7 +1,7 @@
 /**
  * Created by DE007RA on 6/23/2016.
  */
-angular.module('services').service('utilitiesService', [function() {
+angular.module('services').service('utilitiesService', ['restService', function(restService) {
     var self = this;
     self.addUnique = function (map, obj, objMapKey, objValueKey, sort){
         if(angular.isDefined(obj)) {
@@ -18,6 +18,14 @@ angular.module('services').service('utilitiesService', [function() {
         return sort ? self.sortObj(map) : map;
     };
 
+    self.isAdminUser = function (roles) {
+        if(!_.isEmpty(roles)) {
+            if (_.indexOf(roles, 'ADMIN') > -1) {
+                return true;
+            }
+        }
+        return false;
+    }
     self.sortObj = function (obj) {
         var values = [];
         _.each(obj, function (v, k) {
@@ -58,4 +66,26 @@ angular.module('services').service('utilitiesService', [function() {
         var propName = 'edit' + _.upperFirst(fieldName);
         obj[propName] = status;
     }
+
+    self.filterByLikeCount = function (array) {
+        var data = _.filter(array, function (item) {
+            return item.likesCount > 0;
+        });
+        return data;
+    }
+
+    self.setLastModifiedBy = function(parent, obj) {
+        if(!obj) {
+            restService.getLoggedInUser().then(function(user) {
+                var entry = {};
+                entry[user.guid] = user.name;
+                parent.lastModifiedBy = entry;
+            });
+        }
+        else if(obj.lastModifiedByGuid) {
+            var entry = {};
+            entry[obj.lastModifiedByGuid] = obj.lastModifiedByName;
+            parent.lastModifiedBy = entry;
+        }
+    };
 }]);

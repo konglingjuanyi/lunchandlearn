@@ -35,7 +35,29 @@
                             </ui-select>
                         </div>
                         <div class="col-md-12">
-                            <simple-tag items="item.topics" on-remove="true"></simple-tag>
+                            <simple-tag items="item.topics" on-remove="true"
+                                        section="'topics'"></simple-tag>
+                            <simple-tag ></simple-tag>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                </label> <label class="col-md-3 field-label">PreRequisites</label>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-12 spacer-bottom-xs">
+                            <ui-select ng-model="selected.prerequisite">
+                                <ui-select-match>
+                                    <span ng-bind="$select.selected.name"></span>
+                                </ui-select-match>
+                                <ui-select-choices repeat="prerequisite in (options.topics | filter: $select.search)">
+                                    <span ng-bind-html="prerequisite.name | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <div class="col-md-12">
+                            <simple-tag items="item.prerequisites" section="'topics'" on-remove="true"></simple-tag>
                         </div>
                     </div>
                 </div>
@@ -56,7 +78,7 @@
                             </ui-select>
                         </div>
                         <div class="col-md-12">
-                            <simple-tag items="item.trainers" on-remove="true"></simple-tag>
+                            <simple-tag items="item.trainers" section="'trainers'" on-remove="true"></simple-tag>
                         </div>
                     </div>
                 </div>
@@ -75,32 +97,11 @@
                     </p>
                 </div>
             </div>
-            <!--
-                        <div class="row form-group">
-                            </label> <label class="col-md-3 field-label">Trainees</label>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control" ng-model="item.trainee"/>
-                            </div>
-                        </div>
-            -->
             <div class="row form-group">
-                </label> <label class="col-md-3 field-label">PreRequisites</label>
+                </label> <label class="col-md-3 field-label">Duration</label>
                 <div class="col-md-9">
-                    <div class="row">
-                        <div class="col-md-12 spacer-bottom-xs">
-                            <ui-select ng-model="selected.prerequisite">
-                                <ui-select-match>
-                                    <span ng-bind="$select.selected.name"></span>
-                                </ui-select-match>
-                                <ui-select-choices repeat="prerequisite in (options.topics | filter: $select.search)">
-                                    <span ng-bind-html="prerequisite.name | highlight: $select.search"></span>
-                                </ui-select-choices>
-                            </ui-select>
-                        </div>
-                        <div class="col-md-12">
-                            <simple-tag items="item.prerequisites" on-remove="true"></simple-tag>
-                        </div>
-                    </div>
+                    <input type="number" class="form-control short-stepper" stepper
+                           options="options.stepperOptions" ng-model="item.duration">
                 </div>
             </div>
         </form>

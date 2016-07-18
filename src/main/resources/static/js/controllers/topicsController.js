@@ -28,7 +28,9 @@ angular.module('controllers').controller('topicsController', [
 
 		self.list = function() {
 			topicService.listTopics(pagingService.getConfigObj(self)).then(function(response) {
-				self.setListResult(response.data);
+				if(angular.isDefined(response.data)) {
+					self.setListResult(response.data);
+				}
 			});
 		}
 

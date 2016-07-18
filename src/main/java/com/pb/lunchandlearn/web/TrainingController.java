@@ -5,10 +5,7 @@ package com.pb.lunchandlearn.web;
  */
 
 import com.pb.lunchandlearn.config.LikeType;
-import com.pb.lunchandlearn.domain.Comment;
-import com.pb.lunchandlearn.domain.FileAttachmentInfo;
-import com.pb.lunchandlearn.domain.SimpleFieldEntry;
-import com.pb.lunchandlearn.domain.Training;
+import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.service.TrainingService;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
@@ -29,8 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
-
-//import eu.medsea.mimeutil.MimeUtil;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/trainings")
@@ -53,11 +49,21 @@ public class TrainingController {
 		return trainingService.getComments(trainingId);
 	}
 
+	@RequestMapping(value = "training/{id}/feedbacks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public JSONArray getFeedbacks(@PathVariable("id") Long trainingId) {
+		return trainingService.getFeedBacks(trainingId);
+	}
+
+	@RequestMapping(value = "training/{id}/feedbacks/{feedbackId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public FeedBack getFeedback(@PathVariable("id") Long trainingId, @PathVariable("feedbackId") Long feedbackId) {
+		return trainingService.getFeedBack(feedbackId);
+	}
+
 	@RequestMapping(value = "training/{id}/comments", method = RequestMethod.POST,
 			produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Comment addComment(@PathVariable("id") Long trainingId, @RequestBody SimpleFieldEntry comment) {
 		if (!StringUtils.isEmpty(comment.getValue())) {
-			return trainingService.addComment(new Comment(comment.getValue().toString()), trainingId);
+			return trainingService.add(new Comment(comment.getValue().toString()), trainingId);
 		}
 		return null;
 	}
@@ -80,7 +86,7 @@ public class TrainingController {
 	public Comment addCommentReply(@PathVariable("id") Long trainingId, @PathVariable("commentId") Long commentParentId,
 								   @RequestBody SimpleFieldEntry comment) {
 		if (!StringUtils.isEmpty(comment.getValue())) {
-			return trainingService.addCommentReply(new Comment(comment.getValue().toString()), trainingId, commentParentId);
+			return trainingService.add(new Comment(comment.getValue().toString()), trainingId, commentParentId);
 		}
 		return null;
 	}
@@ -94,10 +100,10 @@ public class TrainingController {
 		return trainingService.getAll(pageable, false, filterBy);
 	}
 
-	@RequestMapping(value = "/recent", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public JSONObject recent() {
+	@RequestMapping(value = "/{trainingStatus}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public JSONObject byStatus(@PathVariable("trainingStatus")String status) {
 		Pageable pageable = trainingService.getRecentPageable();
-		return trainingService.getAll(pageable, true, null);
+		return trainingService.getAll(pageable, true, status);
 	}
 
 	@RequestMapping(value = "/likes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -116,10 +122,28 @@ public class TrainingController {
 		return trainingService.getTrainingById(trainingId);
 	}
 
+	@RequestMapping(value = "/training/{id}/minimal", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public JSONObject getMinimalTraining(@PathVariable("id") Long trainingId) {
+		return trainingService.getTrainingMinimal(trainingId);
+	}
+
+	@RequestMapping(value = "/training/{id}/trainees", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, String> getTrainees(@PathVariable("id") Long trainingId) {
+		return trainingService.getTraineesById(trainingId);
+	}
+
 	@RequestMapping(value = "/training", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Training addTraining(@RequestBody Training training, BindingResult result) {
 		if (!result.hasErrors()) {
 			return trainingService.add(training);
+		}
+		return null;
+	}
+
+	@RequestMapping(value = "/training/{id}/feedbacks", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public FeedBack addFeedback(@RequestBody FeedBack feedBack, BindingResult result) {
+		if (!result.hasErrors()) {
+			return trainingService.add(feedBack);
 		}
 		return null;
 	}
@@ -131,15 +155,15 @@ public class TrainingController {
 
 	@RequestMapping(value = "/training", method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
-	public void editTraining(@RequestBody Training training) {
-		trainingService.editTraining(training);
+	public void updateTraining(@RequestBody Training training) {
+		trainingService.update(training);
 	}
 
 	@RequestMapping(value = "/training/{id}/field", method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
-	public void editTrainingByField(@PathVariable("id") Long trainingId,
-									@RequestBody SimpleFieldEntry fieldEntry) throws ParseException {
-		trainingService.editTrainingField(trainingId, fieldEntry);
+	public void updateTrainingByField(@PathVariable("id") Long trainingId,
+									  @RequestBody SimpleFieldEntry fieldEntry) throws ParseException {
+		trainingService.updateField(trainingId, fieldEntry);
 	}
 
 	@RequestMapping(value = "/training/{id}", method = RequestMethod.DELETE)
@@ -160,7 +184,7 @@ public class TrainingController {
 		InputStream in = null;
 		try {
 			in = file.getInputStream();
-			trainingService.attachFile(trainingId, file.getOriginalFilename(), in);
+			trainingService.add(trainingId, file.getOriginalFilename(), in);
 		} catch (IOException exp) {
 			throw exp;
 		} finally {

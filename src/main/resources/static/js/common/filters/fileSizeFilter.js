@@ -1,7 +1,6 @@
 /**
  * Created by DE007RA on 6/27/2016.
  */
-
 angular.module('filters').filter('filesize', function() {
     return function(sizeInBytes) {
         var kbVal = parseInt(sizeInBytes);

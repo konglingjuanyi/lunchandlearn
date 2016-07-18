@@ -13,20 +13,30 @@ import java.util.Map;
  */
 public interface CustomEmployeeRepository {
 
-	void removeTraining(String empGuid, Long trainingId);
-	void addTraining(String empGuid, Training training);
+	void removeTraining(String empGuid, Long trainingId, String trainingStr);
+	void addTraining(String empGuid, Training training, String trainingStr);
 
-	void removeTopic(String empGuid, Long topicId);
+	void removeTopicKnown(String empGuid, Long topicId);
 
-	Map<Long, String> getTopics(String empGuid);
+	Map<Long, String> getTopics(String empGuid, String topicStr);
 
-	List<MiniTrainingDetail> getTrainings(String empGuid);
+	List<MiniTrainingDetail> getTrainings(String empGuid, String trainingStr);
 
-	void addTopic(String empGuid, Long topicId, String topicName);
+	void addTopicKnown(String empGuid, Long topicId, String topicName);
+
+	void addTopicInterested(String empGuid, Long topicId, String topicName);
+
+	void addTrainingsAttended(String empGuid, Long trainingId, String trainingName);
+
+	void addTrainingsInterestedIn(String empGuid, Long trainingId, String trainingName);
+
+	void addTrainingsImparted(String empGuid, Long trainingId, String trainingName);
 
 	boolean updateByFieldName(String empGuid, SimpleFieldEntry simpleFieldEntry);
 
-	void updateTopics(Long topicId, String s);
+	void updateTopics(Long topicId, String topicName, String topicStr);
 
-	void updateTrainings(Long trainingId, String trainingName);
+	void updateTrainings(Long trainingId, String trainingName, String trainingStr);
+
+	List<Employee> findAllByRoles(List<String> roles);
 }

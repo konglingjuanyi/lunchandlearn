@@ -1,11 +1,14 @@
 <span ng-class="{'mini-tag-form-container': !linkable}">
     <span class="btn-group mini-tag-simple-container" ng-repeat="(key, value) in items">
-        <a class="mini-tag-simple mini-tag-advance" ng-if="linkable" ng-href="#/{{sectionUrl}}/{{key}}">
-            {{value}}<span ng-if="onRemove" class="a-lnk-icon-mini" ng-click="self.removeProperty($event, items, key);">
+        <a class="mini-tag-simple mini-tag-advance" uib-popover="{{value}}" popover-trigger="mouseenter" popover-enable="{{value.length > 40}}"
+           ng-if="linkable" ng-href="#/{{sectionUrl}}/{{key}}">
+            <i class="nc-icon-outline {{tagIcon}}"></i>
+            {{value}}<span ng-if="onRemove" class="a-lnk-icon-mini" ng-click="removeProperty($event, items, key);">
              <i class="nc-icon-mini ui-1_simple-remove"></i></span>
         </a>
-        <span class="mini-tag-simple" ng-if="!linkable">
-            {{value}}<span ng-if="onRemove" class="a-lnk a-lnk-icon-mini" ng-click="self.removeProperty($event, items, key);">
+        <span class="mini-tag-simple" ng-if="!linkable" uib-popover="{{value}}" popover-trigger="mouseenter" popover-enable="{{value.length > 40}}">
+            <i class="nc-icon-outline {{tagIcon}}"></i>
+            {{value}}<span ng-if="onRemove" class="a-lnk a-lnk-icon-mini" ng-click="removeProperty($event, items, key);">
              <i class="nc-icon-mini ui-1_simple-remove"></i></span>
         </span>
     </span>

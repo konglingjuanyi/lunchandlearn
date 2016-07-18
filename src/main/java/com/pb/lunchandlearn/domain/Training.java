@@ -1,6 +1,5 @@
 package com.pb.lunchandlearn.domain;
 
-import com.pb.lunchandlearn.utils.CommonUtil;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
@@ -11,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,6 @@ public final class Training {
 	private Map<String, String> likedBy;//empId, name
 
 	@Max(500)
-	@Indexed
 	@TextIndexed
 	private String desc;
 
@@ -54,8 +53,12 @@ public final class Training {
 	private Map<Long, String> prerequisites;//topicId, name
 
 	@NotNull
-	private String createdBy;
-	private String lastModifiedBy;
+	private String createdByGuid;
+	@NotNull
+	private String createdByName;
+
+	private String lastModifiedByGuid;
+	private String lastModifiedByName;
 
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private Date lastModifiedOn;
@@ -63,6 +66,20 @@ public final class Training {
 	private List<Comment> comments;
 
 	private List<FileAttachmentInfo> attachmentInfos;
+
+	private String agenda;
+
+	@NotNull
+	@Indexed
+	private TrainingStatus status;
+
+	private List<Long> feedBackList;
+
+	private Float duration;
+
+	private String location;
+	@Indexed
+	private Integer likesCount;
 
 	@Override
 	public String toString() {
@@ -78,14 +95,18 @@ public final class Training {
 				", trainees=" + trainees +
 				", topics=" + topics +
 				", prerequisites=" + prerequisites +
-				", createdBy='" + createdBy + '\'' +
-				", lastModifiedBy='" + lastModifiedBy + '\'' +
+				", createdByGuid='" + createdByGuid + '\'' +
+				", createdByName='" + createdByName + '\'' +
+				", lastModifiedByGuid='" + lastModifiedByGuid + '\'' +
+				", lastModifiedByName='" + lastModifiedByName + '\'' +
 				", lastModifiedOn=" + lastModifiedOn +
 				", comments=" + comments +
 				", attachmentInfos=" + attachmentInfos +
+				", agenda='" + agenda + '\'' +
 				", status=" + status +
 				", feedBackList=" + feedBackList +
 				", duration=" + duration +
+				", location='" + location + '\'' +
 				", likesCount=" + likesCount +
 				'}';
 	}
@@ -97,7 +118,6 @@ public final class Training {
 
 		Training training = (Training) o;
 
-		if (Float.compare(training.duration, duration) != 0) return false;
 		if (id != null ? !id.equals(training.id) : training.id != null) return false;
 		if (name != null ? !name.equals(training.name) : training.name != null) return false;
 		if (likedBy != null ? !likedBy.equals(training.likedBy) : training.likedBy != null) return false;
@@ -112,17 +132,25 @@ public final class Training {
 		if (topics != null ? !topics.equals(training.topics) : training.topics != null) return false;
 		if (prerequisites != null ? !prerequisites.equals(training.prerequisites) : training.prerequisites != null)
 			return false;
-		if (createdBy != null ? !createdBy.equals(training.createdBy) : training.createdBy != null) return false;
-		if (lastModifiedBy != null ? !lastModifiedBy.equals(training.lastModifiedBy) : training.lastModifiedBy != null)
+		if (createdByGuid != null ? !createdByGuid.equals(training.createdByGuid) : training.createdByGuid != null)
+			return false;
+		if (createdByName != null ? !createdByName.equals(training.createdByName) : training.createdByName != null)
+			return false;
+		if (lastModifiedByGuid != null ? !lastModifiedByGuid.equals(training.lastModifiedByGuid) : training.lastModifiedByGuid != null)
+			return false;
+		if (lastModifiedByName != null ? !lastModifiedByName.equals(training.lastModifiedByName) : training.lastModifiedByName != null)
 			return false;
 		if (lastModifiedOn != null ? !lastModifiedOn.equals(training.lastModifiedOn) : training.lastModifiedOn != null)
 			return false;
 		if (comments != null ? !comments.equals(training.comments) : training.comments != null) return false;
 		if (attachmentInfos != null ? !attachmentInfos.equals(training.attachmentInfos) : training.attachmentInfos != null)
 			return false;
+		if (agenda != null ? !agenda.equals(training.agenda) : training.agenda != null) return false;
 		if (status != training.status) return false;
 		if (feedBackList != null ? !feedBackList.equals(training.feedBackList) : training.feedBackList != null)
 			return false;
+		if (duration != null ? !duration.equals(training.duration) : training.duration != null) return false;
+		if (location != null ? !location.equals(training.location) : training.location != null) return false;
 		return likesCount != null ? likesCount.equals(training.likesCount) : training.likesCount == null;
 
 	}
@@ -140,16 +168,52 @@ public final class Training {
 		result = 31 * result + (trainees != null ? trainees.hashCode() : 0);
 		result = 31 * result + (topics != null ? topics.hashCode() : 0);
 		result = 31 * result + (prerequisites != null ? prerequisites.hashCode() : 0);
-		result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
-		result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
+		result = 31 * result + (createdByGuid != null ? createdByGuid.hashCode() : 0);
+		result = 31 * result + (createdByName != null ? createdByName.hashCode() : 0);
+		result = 31 * result + (lastModifiedByGuid != null ? lastModifiedByGuid.hashCode() : 0);
+		result = 31 * result + (lastModifiedByName != null ? lastModifiedByName.hashCode() : 0);
 		result = 31 * result + (lastModifiedOn != null ? lastModifiedOn.hashCode() : 0);
 		result = 31 * result + (comments != null ? comments.hashCode() : 0);
 		result = 31 * result + (attachmentInfos != null ? attachmentInfos.hashCode() : 0);
+		result = 31 * result + (agenda != null ? agenda.hashCode() : 0);
 		result = 31 * result + (status != null ? status.hashCode() : 0);
 		result = 31 * result + (feedBackList != null ? feedBackList.hashCode() : 0);
-		result = 31 * result + (duration != +0.0f ? Float.floatToIntBits(duration) : 0);
+		result = 31 * result + (duration != null ? duration.hashCode() : 0);
+		result = 31 * result + (location != null ? location.hashCode() : 0);
 		result = 31 * result + (likesCount != null ? likesCount.hashCode() : 0);
 		return result;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public String getCreatedByName() {
+		return createdByName;
+	}
+
+	public void setCreatedByName(String createdByName) {
+		this.createdByName = createdByName;
+	}
+
+	public String getLastModifiedByName() {
+		return lastModifiedByName;
+	}
+
+	public void setLastModifiedByName(String lastModifiedByName) {
+		this.lastModifiedByName = lastModifiedByName;
+	}
+
+	public String getAgenda() {
+		return agenda;
+	}
+
+	public void setAgenda(String agenda) {
+		this.agenda = agenda;
 	}
 
 	public Float getScore() {
@@ -186,17 +250,19 @@ public final class Training {
 	}
 
 	public Training() {
-		createDateTime = new Date();
-		likesCount = 0;
-		comments = CommonUtil.EMPTY_COMMENT_LIST;
 	}
 
-	public String getLastModifiedBy() {
-		return lastModifiedBy;
+	public Training(Long id, TrainingStatus status) {
+		this.id = id;
+		this.status = status;
 	}
 
-	public void setLastModifiedBy(String lastModifiedBy) {
-		this.lastModifiedBy = lastModifiedBy;
+	public String getLastModifiedByGuid() {
+		return lastModifiedByGuid;
+	}
+
+	public void setLastModifiedByGuid(String lastModifiedByGuid) {
+		this.lastModifiedByGuid = lastModifiedByGuid;
 	}
 
 	public Date getLastModifiedOn() {
@@ -207,12 +273,12 @@ public final class Training {
 		this.lastModifiedOn = lastModifiedOn;
 	}
 
-	public String getCreatedBy() {
-		return createdBy;
+	public String getCreatedByGuid() {
+		return createdByGuid;
 	}
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
+	public void setCreatedByGuid(String createdByGuid) {
+		this.createdByGuid = createdByGuid;
 	}
 
 	public Map<String, String> getLikedBy() {
@@ -223,14 +289,6 @@ public final class Training {
 	public void setLikedBy(Map<String, String> likedBy) {
 		this.likedBy = likedBy;
 	}
-
-	@NotNull
-	private TrainingStatus status;
-	private List<FeedBack> feedBackList;
-	@NotNull
-	private float duration;
-
-	private Integer likesCount;
 
 	public Integer getLikesCount() {
 		return likesCount;
@@ -248,11 +306,11 @@ public final class Training {
 		this.topics = topics;
 	}
 
-	public float getDuration() {
+	public Float getDuration() {
 		return duration;
 	}
 
-	public void setDuration(float duration) {
+	public void setDuration(Float duration) {
 		this.duration = duration;
 	}
 
@@ -292,11 +350,11 @@ public final class Training {
 		this.createDateTime = createDateTime;
 	}
 
-	public List<FeedBack> getFeedBackList() {
+	public List<Long> getFeedBackList() {
 		return feedBackList;
 	}
 
-	public void setFeedBackList(List<FeedBack> feedBackList) {
+	public void setFeedBackList(List<Long> feedBackList) {
 		this.feedBackList = feedBackList;
 	}
 
@@ -326,71 +384,5 @@ public final class Training {
 
 	public void setTrainees(Map<String, String> trainees) {
 		this.trainees = trainees;
-	}
-
-	public class FeedBack {
-		@Id
-		private Long id;
-		@NotNull
-		private Map<String, String> trainee;
-		private Map<String, Integer> ratings;//RatingName with point
-		private String comment;
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (!(o instanceof FeedBack)) return false;
-
-			FeedBack feedBack = (FeedBack) o;
-
-			if (!id.equals(feedBack.id)) return false;
-			if (!trainee.equals(feedBack.trainee)) return false;
-			if (ratings != null ? !ratings.equals(feedBack.ratings) : feedBack.ratings != null) return false;
-			if (comment != null ? !comment.equals(feedBack.comment) : feedBack.comment != null) return false;
-
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			int result = id.hashCode();
-			result = 31 * result + trainee.hashCode();
-			result = 31 * result + (ratings != null ? ratings.hashCode() : 0);
-			result = 31 * result + (comment != null ? comment.hashCode() : 0);
-			return result;
-		}
-
-		public Long getId() {
-
-			return id;
-		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-
-		public Map<String, String> getTrainee() {
-			return trainee;
-		}
-
-		public void setTrainee(Map<String, String> trainee) {
-			this.trainee = trainee;
-		}
-
-		public Map<String, Integer> getRatings() {
-			return ratings;
-		}
-
-		public void setRatings(Map<String, Integer> ratings) {
-			this.ratings = ratings;
-		}
-
-		public String getComment() {
-			return comment;
-		}
-
-		public void setComment(String comment) {
-			this.comment = comment;
-		}
 	}
 }

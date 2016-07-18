@@ -1,4 +1,4 @@
-<div class="container main" ng-click="self.saveByField('scheduledOn')">
+<div class="container main">
     <h1 class="specifications">Training</h1>
     <div class="row spacer-top-md">
         <div class="col-md-8">
@@ -9,11 +9,13 @@
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-12">
-                                        <span class="field-editable" ng-show="!self.editName"
-                                              ng-click="self.editName = true">{{self.item.name}}</span>
+                                <span ng-class="{'field-editable': !self.isTrainingComplete && (!self.isTrainingComplete && (self.isEditable || self.isAdmin))}"
+                                      ng-show="!self.editName"
+                                      ng-click="self.setEditStatus('Name', true)">{{item.name}}</span>
                                 <input type="text" class="form-control" ng-show="self.editName"
-                                       ng-model="self.item.name" autofocus="true"
+                                       ng-model="item.name" autofocus="true"
                                        ng-blur="self.saveByField('name')">
+                                <span class="help-block" ng-show="self.errorName">{{self.errorName}}</span>
                             </div>
                         </div>
                     </div>
@@ -23,10 +25,13 @@
                         <div class="col-md-12">
                             <label class="form-label">Description</label>
                             <div class="form-group">
-                                <span class="field-editable" ng-show="!self.editDesc"
-                                      ng-click="self.editDesc = true">{{self.item.desc}}</span>
-                                <textarea class="form-control" ng-show="self.editDesc" ng-model="self.item.desc"
+                                <span ng-class="{'field-editable': !self.isTrainingComplete && (self.isEditable || self.isAdmin)}"
+                                      ng-show="!self.editDesc"
+                                      ng-click="self.setEditStatus('Desc', true)">{{item.desc}}</span>
+                                <textarea class="form-control" ng-show="self.editDesc"
+                                          ng-model="item.desc"
                                           rows="5" autofocus="true" ng-blur="self.saveByField('desc')"/>
+                                <span class="help-block has-error" ng-show="self.errorDesc">{{self.errorDesc}}</span>
                             </div>
                         </div>
                     </div>
@@ -36,12 +41,17 @@
                         <div class="col-md-6">
                             <label class="form-label">Topics</label>
                             <div class="form-group">
-                                <simple-tag items="self.item.topics" linkable="true"
+                                <simple-tag items="item.topics" linkable="true"
                                             section="'topics'" section-url="'topics'"
-                                            on-remove="self.saveByField"></simple-tag>
+                                            on-remove="self.saveByField" ng-if="!self.isTrainingComplete && 
+                                            (self.isEditable || self.isAdmin)"></simple-tag>
+                                <simple-tag items="item.topics" linkable="true"
+                                            section="'topics'" section-url="'topics'"
+                                            ng-if="self.isTrainingComplete || !self.isEditable"></simple-tag>
                                 <span class="btn-group mini-tag-simple-container"
-                                      ng-show="!self.editTopics" ng-click="self.editTopics = true">
-                                    <span class="mini-tag-simple">
+                                      ng-show="!self.editTopics" ng-click="self.setEditStatus('Topics', true)">
+                                    <span class="mini-tag-simple"
+                                          ng-if="!self.isTrainingComplete && (self.isEditable || self.isAdmin)">
                                         <span class="a-lnk a-lnk-icon-mini"><i
                                                 class="nc-icon-mini ui-1_simple-add"></i></span>
                                     </span>
@@ -55,22 +65,31 @@
                                         <span ng-bind-html="topic.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
+                                <span class="help-block has-error"
+                                      ng-show="self.errorTopics">{{self.errorTopics}}</span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">PreRequisites</label>
                             <div class="form-group">
-                                <simple-tag items="self.item.prerequisites" linkable="true"
+                                <simple-tag items="item.prerequisites" linkable="true"
                                             section-url="'topics'" section="'prerequisites'"
-                                            on-remove="self.saveByField"></simple-tag>
+                                            on-remove="self.saveByField"
+                                            ng-if="!self.isTrainingComplete && (self.isEditable || self.isAdmin)"></simple-tag>
+                                <simple-tag items="item.prerequisites" linkable="true"
+                                            section-url="'topics'" section="'prerequisites'"
+                                            ng-if="self.isTrainingComplete || !self.isEditable"></simple-tag>
                                 <span class="btn-group mini-tag-simple-container"
-                                      ng-show="!self.editPrerequisites" ng-click="self.editPrerequisites = true">
-                                    <span class="mini-tag-simple">
+                                      ng-show="!self.editPrerequisites"
+                                      ng-click="self.setEditStatus('Prerequisites', true)">
+                                    <span class="mini-tag-simple"
+                                          ng-if="!self.isTrainingComplete && (self.isEditable || self.isAdmin)">
                                         <span class="a-lnk a-lnk-icon-mini"><i
                                                 class="nc-icon-mini ui-1_simple-add"></i></span>
                                     </span>
                                 </span>
-                                <ui-select ng-model="selected.prerequisite" ng-show="self.editPrerequisites">
+                                <ui-select ng-model="selected.prerequisite"
+                                           ng-show="self.editPrerequisites">
                                     <ui-select-match>
                                         <span ng-bind="$select.selected.name"></span>
                                     </ui-select-match>
@@ -79,6 +98,7 @@
                                         <span ng-bind-html="prerequisite.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
+                                <span class="help-block has-error" ng-show="self.errorPrerequisites">{{self.errorPrerequisites}}</span>
                             </div>
                         </div>
                     </div>
@@ -88,12 +108,18 @@
                         <div class="col-md-6">
                             <label class="form-label">Trainers</label>
                             <div class="form-group">
-                                <simple-tag items="self.item.trainers" linkable="true"
+                                <simple-tag items="item.trainers" linkable="true"
                                             section="'trainers'" section-url="'employees'"
-                                            on-remove="self.saveByField"></simple-tag>
+                                            on-remove="self.saveByField" ng-if="!self.isTrainingComplete &&
+                                            (self.isEditable || self.isAdmin)"></simple-tag>
+                                <simple-tag items="item.trainers" linkable="true"
+                                            section="'trainers'" section-url="'employees'"
+                                            ng-if="self.isTrainingComplete || !self.isEditable"></simple-tag>
                                 <span class="btn-group mini-tag-simple-container"
-                                      ng-show="!self.editTrainers" ng-click="self.editTrainers = true">
-                                    <span class="mini-tag-simple">
+                                      ng-show="!self.editTrainers"
+                                      ng-click="self.setEditStatus('Trainers', true)">
+                                    <span class="mini-tag-simple"
+                                          ng-if="!self.isTrainingComplete && (self.isEditable || self.isAdmin)">
                                         <span class="a-lnk a-lnk-icon-mini"><i
                                                 class="nc-icon-mini ui-1_simple-add"></i></span>
                                     </span>
@@ -103,48 +129,134 @@
                                         <span ng-bind="$select.selected.name"></span>
                                     </ui-select-match>
                                     <ui-select-choices
-                                            repeat="trainer in (self.trainers | filter: $select.search)">
+                                            repeat="trainer in (self.employees | filter: $select.search)">
                                         <span ng-bind-html="trainer.name | highlight: $select.search"></span>
                                         <small ng-bind-html="trainer.emailId | highlight: $select.search"></small>
                                     </ui-select-choices>
                                 </ui-select>
+                                <span class="help-block has-error"
+                                      ng-show="self.errorTrainers">{{self.errorTrainers}}</span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Scheduled On</label>
                             <div class="form-group">
-                                <a class="btn btn-link" ng-show="!self.editScheduledOn"
-                                   ng-click="self.editScheduledOn = true">
+                                <span class="btn btn-link" ng-show="!self.editScheduledOn"
+                                       ng-class="{'btn btn-link': self.isAdmin && !self.isTrainingComplete}"
+                                      ng-click="self.setEditStatus('ScheduledOn', true)">
                                     <i class="nc-icon-mini nc-fw ui-1_calendar-57"></i>
                                     {{scheduledOnView}}
-                                </a>
-                                <p class="input-group" ng-show="self.editScheduledOn">
+                                </span>
+                                <p class="input-group" ng-show="(self.isAdmin || (self.isEditable &&
+                                item.status === 'NOMINATED')) && self.editScheduledOn">
                                     <input type="text" class="form-control" datetime-picker="dd-MMM-yy, hh:mm a"
                                            ng-model="scheduledOn" is-open="self.isDatePickerOpen"
-                                           ng-blur="self.saveByField('scheduledOn')"
+                                           ng-change="self.saveByField('scheduledOn')"
                                            datepicker-options="self.datePickerOptions"/>
-                                        <span class="input-group-btn">
-                                            <button type="button" class="btn btn-default"
-                                                    ng-click="self.openDatePicker($event, prop)"><i
-                                                    class="nc-icon-mini nc-fw ui-1_calendar-57"></i></button>
-                                        </span>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default"
+                                                ng-click="self.openDatePicker($event, prop)"><i
+                                                class="nc-icon-mini nc-fw ui-1_calendar-57"></i></button>
+                                    </span>
                                 </p>
+                                <span class="help-block has-error" ng-show="self.errorScheduledOn">{{self.errorScheduledOn}}</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <uib-tabset justified="true" class="spacer-top-md">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Created By</label>
+                                <div class="form-group">
+                                    <simple-tag items="self.createdBy" linkable="true"
+                                                section="'employees'" section-url="'employees'"></simple-tag>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" ng-if="self.lastModifiedBy">
+                            <div class="form-group">
+                                <label class="form-label">Modified By</label>
+                                <div class="form-group">
+                                    <simple-tag items="self.lastModifiedBy" linkable="true"
+                                                section="'employees'" section-url="'employees'"></simple-tag>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Duration</label>
+                                <div class="form-group">
+                                <span class="btn btn-link"
+                                      ng-show="!self.editDuration" ng-class="{'btn btn-link': self.isAdmin &&
+                                    !self.isTrainingComplete}" ng-click="self.openStepper($event);">
+                                     <i class="nc-icon-mini nc-fw ui-2_time-clock"></i>
+                                    {{item.duration == undefined ? 'None' :
+                                    item.duration > 1 ? item.duration + ' hours' :
+                                    item.duration + ' hour'}}
+                                </span>
+                                    <span ng-show="self.editDuration">
+                                        <input type="number" class="form-control short-stepper" stepper
+                                               options="self.stepperOptions" ng-model="selected.duration">
+                                        <span class="help-block has-error" ng-show="self.errorDuration">{{self.errorDuration}}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group" ng-class="{'has-error': self.errorLocation}">
+                                <label class="form-label">Location</label>
+                                <div class="form-group">
+                                    <span ng-show="!self.editLocation" ng-class="{'btn btn-link': self.isAdmin &&
+                                    !self.isTrainingComplete}" ng-click="self.setEditStatus('Location', true)">
+                                        <i class="nc-icon-mini nc-fw location_flag-simple"></i>
+                                        {{self.trainingCurrentLocation}}
+                                    </span>
+                                    <select ng-change="self.saveByField('location');"
+                                            ng-model="item.location" ng-show="self.editLocation"
+                                            ng-options="location.code as location.label for location in self.trainingLocations"></select>
+                                    <span class="help-block" ng-show="self.errorLocation">{{self.errorLocation}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group" ng-class="{'has-error': self.errorStatus}">
+                                <label class="form-label">Status</label>
+                                <div class="form-group">
+                                <span ng-class="{'field-editable': self.isAdmin}"
+                                      ng-show="!self.editStatus"
+                                      ng-click="self.setEditStatus('Status', true)">{{self.trainingCurrentStatus}}</span>
+                                    <select ng-change="self.saveByField('status');"
+                                            ng-model="item.status" ng-show="self.editStatus"
+                                            ng-options="status.code as status.label for status in self.trainingStatus"></select>
+                                    <span class="help-block" ng-show="self.errorStatus">{{self.errorStatus}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <uib-tabset justified="true" class="training-tab">
                         <uib-tab>
                             <uib-tab-heading><i class="nc-icon-mini ui-3_bullet-list"></i>
                                 Agenda
                             </uib-tab-heading>
+                            <ng-include src="'/lunchandlearn/html/training/agenda.html'"></ng-include>
                         </uib-tab>
 
                         <uib-tab>
                             <uib-tab-heading><i class="nc-icon-mini ui-1_attach-86"></i>
-                                Attachments ({{self.item.attachments.length}})
+                                Attachments ({{item.attachments.length}})
                             </uib-tab-heading>
                             <ng-include src="'/lunchandlearn/html/training/attachments.html'"></ng-include>
                         </uib-tab>
@@ -153,19 +265,23 @@
                             <uib-tab-heading><i class="nc-icon-mini ui-3_chat-33"></i>
                                 Comments ({{commentsCount}})
                             </uib-tab-heading>
-                            <comments parent-id="self.trainingId" section-name="trainings" comments-count="commentsCount"></comments>
+                            <comments parent-id="self.trainingId" section-name="trainings"
+                                      comments-count="commentsCount"></comments>
                         </uib-tab>
 
                         <uib-tab>
                             <uib-tab-heading><i class="nc-icon-mini users_multiple-19"></i>
-                                Trainees
+                                Trainees ({{self.traineesCount}})
                             </uib-tab-heading>
+                            <ng-include src="'/lunchandlearn/html/training/trainees.html'"></ng-include>
                         </uib-tab>
 
                         <uib-tab>
                             <uib-tab-heading><i class="nc-icon-mini design_bullet-list-69"></i>
-                                Feedback
+                                Feedback ({{feedbackCount}})
                             </uib-tab-heading>
+                            <feedback parent-id="self.trainingId" training="item"
+                                      feedback-count="feedbackCount"></feedback>
                         </uib-tab>
                     </uib-tabset>
                 </div>

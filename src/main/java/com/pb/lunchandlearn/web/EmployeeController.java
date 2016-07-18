@@ -5,8 +5,8 @@ package com.pb.lunchandlearn.web;
  */
 import com.pb.lunchandlearn.domain.Employee;
 import com.pb.lunchandlearn.domain.SimpleFieldEntry;
-import com.pb.lunchandlearn.exception.ResourceNotFoundException;
 import com.pb.lunchandlearn.service.EmployeeService;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.List;
 
@@ -47,6 +46,11 @@ public class EmployeeController {
 	@RequestMapping(value = "/names", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Employee> listNames() {
 		return employeeService.getAllNames();
+	}
+
+	@RequestMapping(value = "/managers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public JSONArray listManagers() {
+		return employeeService.getAllManagers();
 	}
 
 	@RequestMapping(value="/count", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -75,8 +79,8 @@ public class EmployeeController {
 
 	@RequestMapping(value="/employee/{guid}", method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
-	public void editEmployee(@RequestBody  Employee employee) {
-		employeeService.editEmployee(employee);
+	public void updateEmployee(@RequestBody  Employee employee) {
+		employeeService.update(employee);
 	}
 
 	@RequestMapping(value="/employee/{guid}", method = RequestMethod.DELETE)
@@ -92,8 +96,8 @@ public class EmployeeController {
 
 	@RequestMapping(value = "/employee/{guid}/field", method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
-	public void editTrainingByField(@PathVariable("guid") String employeeGuid,
-									@RequestBody SimpleFieldEntry fieldEntry) throws ParseException {
-		employeeService.editTrainingField(employeeGuid, fieldEntry);
+	public void updateTrainingByField(@PathVariable("guid") String employeeGuid,
+									  @RequestBody SimpleFieldEntry fieldEntry) throws ParseException {
+		employeeService.updateField(employeeGuid, fieldEntry);
 	}
 }

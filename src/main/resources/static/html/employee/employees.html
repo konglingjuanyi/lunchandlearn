@@ -43,7 +43,11 @@
                         self.sort.name !== 'emailId', 'arrows-1_small-triangle-down': self.sort.name === 'emailId' &&
                         self.sort.direction === 'asc', 'arrows-1_small-triangle-up': self.sort.name === 'emailId' &&
                         self.sort.direction === 'desc'}"></span></a></th>
-                        <th><a href="" ng-click="self.sortList('managers');" class="a-lnk">Manager&nbsp;&nbsp;
+                        <th><a href="" ng-click="self.sortList('roles');" class="a-lnk">Roles&nbsp;&nbsp;
+                            <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'roles',
+                         'arrows-1_small-triangle-down': self.sort.name === 'roles' && self.sort.direction === 'desc',
+                         'arrows-1_small-triangle-up': self.sort.name === 'roles' && self.sort.direction === 'asc'}"></span></a></th>
+                        <th><a href="" ng-click="self.sortList('managers');" class="a-lnk">Managers&nbsp;&nbsp;
                             <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'managers',
                          'arrows-1_small-triangle-down': self.sort.name === 'managers' && self.sort.direction === 'desc',
                          'arrows-1_small-triangle-up': self.sort.name === 'managers' && self.sort.direction === 'asc'}"></span></a></th>
@@ -58,6 +62,7 @@
                         <td>{{employee.guid}}</td>
                         <td>{{employee.name}}</td>
                         <td><a ng-href="mailto: {{employee.emailId}}" ng-click="$event.stopPropagation();">{{employee.emailId}}</a></td>
+                        <td><span ng-repeat="role in employee.roles"><span ng-if="$index !== 0">, </span><span>{{role | propercase}}</span></span></td>
                         <td><span ng-repeat="(key, value) in employee.managers"><span ng-if="$index !== 0">, </span><span>{{value}}</span></span></td>
                         <td><span ng-repeat="knowTopic in employee.topics" class="label label-default"></span>{{knowTopic}}</td>
                         <td>

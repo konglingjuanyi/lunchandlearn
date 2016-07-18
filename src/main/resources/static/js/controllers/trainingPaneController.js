@@ -1,5 +1,5 @@
 angular.module('controllers').controller('trainingPaneController', [
-	'$scope', 'trainingService', function($scope, trainingService) {
+	'$scope', 'trainingService', 'utilitiesService', function($scope, trainingService, utilitiesService) {
 		var self = this;
 
 		self.init = function () {
@@ -9,8 +9,10 @@ angular.module('controllers').controller('trainingPaneController', [
 		};
 
 		self.getRecentTrainings = function() {
-			trainingService.listTrainings({url: '/recent'}).then(function(response) {
-				self.recentTrainings = {data: response.data.content};
+			trainingService.listTrainings({url: '/nominated'}).then(function(response) {
+				if(angular.isDefined(response.data)) {
+					self.recentTrainings = {data: response.data.content};
+				}
 			});
 		};
 
@@ -18,21 +20,25 @@ angular.module('controllers').controller('trainingPaneController', [
 			var ids = trainingService.getRecentTrainingsId();
 			if(!_.isEmpty(ids)) {
 				trainingService.listTrainings({url: '/ids', params: {ids: ids}}).then(function(response) {
-					self.viewedTrainings = {data: []};
-					var trainings = response.data.content;
-					_.forEach(ids, function(id) {
-						var training = _.find(trainings, {'id': id});
-						if(!_.isUndefined(training)) {
-							self.viewedTrainings.data.push(training);
-						}
-					});
+					if(angular.isDefined(response.data)) {
+						self.viewedTrainings = {data: []};
+						var trainings = response.data.content;
+						_.forEach(ids, function (id) {
+							var training = _.find(trainings, {'id': id});
+							if (!_.isUndefined(training)) {
+								self.viewedTrainings.data.push(training);
+							}
+						});
+					}
 				});
 			}
 		};
 
 		self.getTopLikesTrainings = function() {
 			trainingService.listTrainings({url: '/likes'}).then(function(response) {
-				self.trendingTrainings = {data: response.data.content};
+				if(angular.isDefined(response.data)) {
+					self.trendingTrainings = {data: utilitiesService.filterByLikeCount(response.data.content)};
+				}
 			});
 		}
 		self.init();

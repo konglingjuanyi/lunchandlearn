@@ -14,15 +14,24 @@ angular.module('directives').directive('comments', function() {
         controllerAs: 'self'
     };
 }).controller('commentController',
-    [ '$scope', 'trainingService', function($scope, trainingService) {
+    [ '$scope', 'trainingService', 'restService', 'utilitiesService', function($scope, trainingService,
+                                                                               restService, utilitiesService) {
         var self = this;
         self.parentId = $scope.parentId;
         self.sectionName = $scope.sectionName;
+
+        restService.getLoggedInUser().then(function(user) {
+            if(user) {
+                self.userGuid = user.guid;
+                self.isAdmin = utilitiesService.isAdminUser(user.roles);
+            }
+        });
+
         self.getComments = function () {
             if(self.sectionName === 'trainings') {
                 trainingService.getComments(self.parentId).then(function (response) {
                     self.comments = response.data;
-                    $scope.commentsCount = self.comments.length;
+                    $scope.commentsCount = self.comments ? self.comments.length : 0;
                 });
             }
         };

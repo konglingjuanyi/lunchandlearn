@@ -1,6 +1,7 @@
 package com.pb.lunchandlearn.repository;
 
 import com.pb.lunchandlearn.config.LikeType;
+import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
 
 import java.io.IOException;
@@ -14,9 +15,9 @@ import java.util.Map;
  * Created by DE007RA on 6/6/2016.
  */
 public interface CustomTrainingRepository {
-	Training updateLikes(Long trainingId, LikeType type, String userName, String userEmailId);
+	Training updateLikes(Long trainingId, LikeType type, String userName, String userGuid);
 	List<Training> getAllByIds(List<Long> topicIds);
-	boolean updateByFieldName(Long trainingId, SimpleFieldEntry simpleFieldEntry);
+	boolean updateByFieldName(Long trainingId, SimpleFieldEntry simpleFieldEntry, SecuredUser user);
 
 	Training findTrainingById(Long id);
 
@@ -47,4 +48,8 @@ public interface CustomTrainingRepository {
 	FileAttachmentInfo getAttachedFileInfo(Long trainingId, String fileName);
 
 	Training getTrainersById(Long trainingId);
+
+	Training setTrainingStatus(Long trainingId, TrainingStatus trainingStatus);
+
+	boolean addFeedBack(FeedBack feedBack);
 }

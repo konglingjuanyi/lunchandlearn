@@ -1,12 +1,14 @@
 <div class="panel">
-    <div class="panel-heading"><i class="nc-icon-outline sport_crown"></i>&nbsp;&nbsp;New Topics</div>
+    <div class="panel-heading"><i class="nc-icon-outline location_bookmark-add"></i>&nbsp;&nbsp;New Topics</div>
     <div class="panel-body">
         <span ng-repeat="topic in self.newTopics" topic-tag topic="topic">
         </span>
+        <span class="text-none" ng-if="!self.newTopics || self.newTopics.length === 0">None</span>
     </div>
     <div class="panel-heading"><i class="nc-icon-outline location_bookmark"></i>&nbsp;&nbsp;Trending Topics</div>
     <div class="panel-body">
         <span ng-repeat="topic in self.trendingTopics" topic-tag topic="topic">
         </span>
+        <span class="text-none" ng-if="!self.trendingTopics || self.trendingTopics.length === 0">None</span>
     </div>
 </div>

@@ -3,7 +3,7 @@
     <div class="row spacer-top-md">
         <div class="col-md-8">
             <ng-include src="'/lunchandlearn/html/main/error.html'" ng-show="self.error"></ng-include>
-            <form novalidate>
+            <form novalidate ng-show="!self.error">
                 <div class="form-group">
                     <label class="form-label">Name</label>
                     <div class="form-group">
@@ -19,7 +19,8 @@
                     <div class="form-group">
                         <div class="row">
                             <div class="col-md-12">
-                                <span>{{self.item.emailId}}</span>
+                                <a ng-href="mailto: {{self.item.emailId}}" class="a-lnk">
+                                    <i class="nc-icon-outline ui-1_email-84"></i>&nbsp;{{self.item.emailId}}</a>
                             </div>
                         </div>
                     </div>
@@ -27,18 +28,40 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-md-6">
-                            <label class="form-label">Topics</label>
+                            <label class="form-label">Managers</label>
                             <div class="form-group">
-                                <simple-tag items="self.item.topics" linkable="true"
-                                            section-url="'topics'" section="'topics'" on-remove="self.saveByField"></simple-tag>
+                                <simple-tag items="self.item.managers" linkable="true"
+                                            section="'managers'" section-url="'employees'"></simple-tag>
+                                <span class="text-none" ng-if="!self.item.managers">None</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Roles</label>
+                            <div class="form-group">
+                                <simple-tag items="self.item.roles"></simple-tag>
+                                <span class="text-none" ng-if="!self.item.roles">None</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Known Topics</label>
+                            <div class="form-group">
+                                <span class="text-none" ng-if="!self.isEditable && !self.item.topicsKnown">None</span>
+                                <simple-tag items="self.item.topicsKnown" linkable="true"
+                                            section-url="'topics'" section="'topicsKnown'"
+                                            on-remove="self.saveByField"></simple-tag>
                                 <span class="btn-group mini-tag-simple-container"
-                                      ng-show="!self.editTopics" ng-click="self.editTopics = true">
+                                      ng-show="self.isEditable && !self.editTopicsKnown" ng-click="self.editTopicsKnown = true">
                                     <span class="mini-tag-simple">
                                         <span class="a-lnk a-lnk-icon-mini"><i
                                                 class="nc-icon-mini ui-1_simple-add"></i></span>
                                     </span>
                                 </span>
-                                <ui-select ng-model="selected.topic" ng-show="self.editTopics">
+                                <ui-select ng-model="selected.topicKnown" ng-show="self.isEditable && self.editTopicsKnown">
                                     <ui-select-match>
                                         <span ng-bind="$select.selected.name"></span>
                                     </ui-select-match>
@@ -50,45 +73,55 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Managers</label>
+                            <label class="form-label">Topics Interested In</label>
                             <div class="form-group">
-                                <simple-tag items="self.item.managers" linkable="true"
-                                            section="'managers'" section-url="'managers'" on-remove="self.saveByField"></simple-tag>
+                                <span class="text-none" ng-if="!self.isEditable && !self.item.topicsInterestedIn">None</span>
+                                <simple-tag items="self.item.topicsInterestedIn" linkable="true"
+                                            section-url="'topics'" section="'topicsInterestedIn'"
+                                            on-remove="self.saveByField"></simple-tag>
                                 <span class="btn-group mini-tag-simple-container"
-                                      ng-show="!self.editManagers" ng-click="self.editManagers = true">
+                                      ng-show="self.isEditable && !self.editTopicsInterestedIn"
+                                      ng-click="self.editTopicsInterestedIn = true">
                                     <span class="mini-tag-simple">
                                         <span class="a-lnk a-lnk-icon-mini"><i
                                                 class="nc-icon-mini ui-1_simple-add"></i></span>
                                     </span>
                                 </span>
-                                <ui-select ng-model="selected.manager" ng-show="self.editManagers">
+                                <ui-select ng-model="selected.topicInterestedIn" ng-show="self.isEditable && self.editTopicsInterestedIn">
                                     <ui-select-match>
                                         <span ng-bind="$select.selected.name"></span>
                                     </ui-select-match>
                                     <ui-select-choices
-                                            repeat="manager in (self.managers | filter: $select.search)">
-                                        <span ng-bind-html="manager.name | highlight: $select.search"></span>
-                                        <small ng-bind-html="manager.emailId | highlight: $select.search"></small>
+                                            repeat="topic in (self.topics | filter: $select.search)">
+                                        <span ng-bind-html="topic.name | highlight: $select.search"></span>
                                     </ui-select-choices>
                                 </ui-select>
                             </div>
                         </div>
                     </div>
                 </div>
-                <uib-tabset justified="true">
-                    <uib-tab heading="Agenda">
-                    </uib-tab>
-
-                    <uib-tab heading="Attachments">
-                        <ng-include src="'/lunchandlearn/html/training/attachments.html'"></ng-include>
-                    </uib-tab>
-
-                    <uib-tab heading="Trainees">
-                    </uib-tab>
-
-                    <uib-tab heading="Feedback">
-                    </uib-tab>
-                </uib-tabset>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Trainings Imparted</label>
+                            <div class="form-group">
+                                <simple-tag items="self.item.trainingsImparted" linkable="true"
+                                            section-url="'trainings'" section="'trainingsImparted'"
+                                            ng-if="self.item.trainingsImparted"></simple-tag>
+                                <span class="text-none" ng-if="!self.item.trainingsImparted">None</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Trainings Attended</label>
+                            <div class="form-group">
+                                <simple-tag items="self.item.trainingsAttended" linkable="true"
+                                            section="'trainings'" section-url="'trainings'"
+                                            ng-if="self.item.trainingsAttended"></simple-tag>
+                                <span class="text-none" ng-if="!self.item.trainingsAttended">None</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
         <div class="col-md-4">

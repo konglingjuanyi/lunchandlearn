@@ -29,19 +29,40 @@ lunchAndLearnControllers.controller('modalController',
             }
         });
 
+        $scope.$watch('selected.manager', function () {
+            if ($scope.selected.manager) {
+                $scope.item.managers = utilitiesService.addUnique($scope.item.managers, $scope.selected.manager, 'guid', 'name');
+                $scope.editManagers = false;
+            }
+        });
+
+        $scope.$watch('selected.role', function () {
+            if ($scope.selected.role) {
+                $scope.item.roles = utilitiesService.addUnique($scope.item.roles, $scope.selected.role, 'code', 'label');
+                $scope.editRoles = false;
+            }
+        });
+
         $scope.selected = {};
 
         $scope.yes = function() {
             $uibModalInstance.close($scope.item);
         };
 
-        $scope.removeManager = function(index, item) {
+        $scope.removeManager = function(index) {
             $scope.item.managers.splice(index, 1);
-            // $scope.setShowStatusMsg(false);
+        };
+
+        $scope.removeRole = function(index) {
+            $scope.item.roles.splice(index, 1);
         };
 
         $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
+        };
+
+        $scope.reset = function() {
+            $scope.item = {};
         };
 
         $scope.isDatePickerOpen = false;
@@ -52,20 +73,4 @@ lunchAndLearnControllers.controller('modalController',
             $scope.isDatePickerOpen = true;
         };
     }
-]).directive('addManager', ['$compile', function ($compile) {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attrs) {
-            $("#btn_add_manager").bind('click', function () {
-                if(scope.item.managers == null) {
-                    scope.item.managers = [];
-                }
-                scope.item.managers[scope.item.managers.length] = "";
-                var select = '<select name="manager" class="dynamic-select" ng-model="item.managers[' + (scope.item.managers.length - 1) + ']" '+
-                    'ng-options="managers.guid as managers.name for managers in options.managers"></select>'+
-                    '<button class="btn btn-inline btn-default btn-xs dynamic-remove" ng-click="removeManager(' + (scope.item.managers.length - 1) + ')">x</button>'
-                $compile(select)(scope);
-            });
-        }
-    }
-}]);
+]);

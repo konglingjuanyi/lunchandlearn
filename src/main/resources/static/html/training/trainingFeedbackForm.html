@@ -1,0 +1,118 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="cancel('cancel')">
+        <span aria-hidden="true"></span>
+        <span class="sr-only">Close</span>
+    </button>
+    <h4>Training Feedback</h4>
+</div>
+<div class="modal-body">
+    <div class="container-fluid">
+        <form novalidate class="form-horizontal">
+            <div class="form-group">
+                <label class="form-label">Name</label>
+                <div>
+                    <span training-tag training="options.training" target="_blank">
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Did the training meet your overall expectations?</span>
+                    <span class="required">*</span>
+                </label>
+                <table class="col-md-12 table table-open table-striped">
+                    <thead>
+                    <td></td>
+                    <td ng-repeat="n in options.range">{{n}}</td>
+                    <td></td>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>No</td>
+                        <td ng-repeat="n in options.range"><input type="radio" name="overallExpectation"
+                                                                  ng-model="item.ratings.overallExpectation"
+                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                        <td>Fully Met Expectations</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Please rate the content on a scale of 1 to 5</span>
+                    <span class="required">*</span>
+                    <div class="sub-text">5 being the highest</div>
+                </label>
+                <table class="col-md-12 table table-open table-striped">
+                    <thead>
+                    <td></td>
+                    <td ng-repeat="n in options.range">{{n}}</td>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Was the content relevant</td>
+                        <td ng-repeat="n in options.range"><input type="radio" name="relevancy"
+                                                                  ng-model="item.ratings.relevancy"
+                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                    </tr>
+                    <tr>
+                        <td>Will you be able to apply the learning to your work</td>
+                        <td ng-repeat="n in options.range"><input type="radio" name="applicability"
+                                                                  ng-model="item.ratings.applicability"
+                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                    </tr>
+                    <tr>
+                        <td>Was the training structured appropriately</td>
+                        <td ng-repeat="n in options.range"><input type="radio" name="appropriateness"
+                                                                  ng-model="item.ratings.appropriateness"
+                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Please rate the presenter on a Scale of 1 to 5</span>
+                    <span class="required">*</span>
+                </label>
+                <table class="col-md-12 table table-open table-striped">
+                    <thead>
+                    <td></td>
+                    <td ng-repeat="n in options.range">{{n}}</td>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Facilitation skills of the presenter</td>
+                        <td ng-repeat="n in options.range"><input type="radio" name="facilitation"
+                                                                  ng-model="item.ratings.facilitation"
+                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                    </tr>
+                    <tr>
+                        <td>Was the trainer able to answer all queries</td>
+                        <td ng-repeat="n in options.range"><input type="radio" name="answerAllQueries"
+                                                                  ng-model="item.ratings.answerAllQueries"
+                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                    </tr>
+                    <tr>
+                        <td>Was the trainer well prepared for the training</td>
+                        <td ng-repeat="n in options.range"><input type="radio" name="preparedness"
+                                                                  ng-model="item.ratings.preparedness"
+                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Any Comments about the training?</label>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <textarea ng-model="item.comment" class="new-comment" rows="5" placeholder="your comments.."
+                                  ng-disabled="mode=='view'"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="yes()" ng-if="mode!='view'">Submit</button>
+    <button class="btn btn-default" ng-click="reset()" ng-if="mode!='view'">Reset</button>
+    <button class="btn btn-default" ng-click="cancel()" ng-if="mode=='view'">Cancel</button>
+</div>

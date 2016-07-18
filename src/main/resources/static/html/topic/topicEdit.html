@@ -1,9 +1,9 @@
-<div class="container main">
+    <div class="container main">
     <h1 class="specifications">Topic</h1>
     <div class="row spacer-top-md">
         <div class="col-md-8">
             <ng-include src="'/lunchandlearn/html/main/error.html'" ng-show="self.error"></ng-include>
-            <form novalidate>
+            <form novalidate ng-show="!self.error">
                 <div class="form-group">
                     <div class="row">
                         <div class="col-md-12">
@@ -39,38 +39,25 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" ng-if="self.item.upcomingTrainings">
+                <div class="form-group">
                     <div class="row">
-                        <div class="col-md-12">
-                            <label class="form-label">Upcoming Trainings</label>
+                        <div class="col-md-6">
+                            <label class="form-label">Created By</label>
                             <div class="form-group">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <span class="label label-default"
-                                              ng-repeat="miniTraining in self.item.upcomingTrainings">{{miniTraining.name}}
-                                        On {{miniTraining.scheduledOn}}</span>
-                                    </div>
-                                </div>
+                                <simple-tag items="self.createdBy" linkable="true"
+                                            section-url="'employees'" section="'employees'"></simple-tag>
+                            </div>
+                        </div>
+                        <div class="col-md-6" ng-if="self.lastModifiedBy">
+                            <label class="form-label">Modified By</label>
+                            <div class="form-group">
+                                <simple-tag items="self.lastModifiedBy" linkable="true"
+                                            section-url="'employees'" section="'employees'"></simple-tag>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" ng-if="self.item.passedTrainings">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <label class="form-label">Passed Trainings</label>
-                            <div class="form-group">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <span class="label label-default"
-                                              ng-repeat="miniTraining in self.item.passedTrainings">{{miniTraining.name}}
-                                        On {{miniTraining.scheduledOn}}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
                 <div class="form-group" ng-if="self.item.interestedEmployees">
                     <div class="row">
                         <div class="col-md-12">
@@ -82,7 +69,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" ng-if="self.item.employeesKnowAbout">
+                <div class="form-group" ng-if="!self.employeesKnowAboutEmpty">
                     <div class="row">
                         <div class="col-md-12">
                             <label class="form-label">Employees Know About</label>
@@ -93,17 +80,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group spacer-top-md">
                     <div class="row">
                         <div class="col-md-12">
-                            <h2>Trainings
-                                <span ng-controller="trainingsController as tc" class="pull-right">
+                            <h3>Related Trainings
+                                <span ng-controller="trainingsController as tc">
                                     <button class="btn btn-link" ng-click="tc.showAdd();">
                                         <i class="nc-icon-mini ui-e-2_calendar-add"></i>
                                         Add Training
                                     </button>
                                 </span>
-                            </h2>
+                            </h3>
                             <uib-tabset justified="true">
                                 <uib-tab>
                                     <uib-tab-heading><i class="nc-icon-mini design_album"></i>

@@ -4,4 +4,5 @@
         <span ng-repeat="topic in topics.data" topic-tag topic="topic">
         </span>
     </div>
+    <span class="text-none" ng-if="!topics.data || topics.data.length === 0">None</span>
 </div>

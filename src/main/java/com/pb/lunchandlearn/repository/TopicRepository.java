@@ -23,4 +23,7 @@ public interface TopicRepository extends MongoRepository<Topic, String>, CustomT
 
 	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
 	Page<Training> findAllByStatusOrderByScore(TrainingStatus status, TextCriteria textCriteria, Pageable pageable);
+
+	@Query(fields = "{'name': 1, 'id': 0}")
+	Topic findNameById(Long topicId);
 }

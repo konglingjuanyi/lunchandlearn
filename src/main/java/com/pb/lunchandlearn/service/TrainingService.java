@@ -1,9 +1,14 @@
 package com.pb.lunchandlearn.service;
 
 import com.pb.lunchandlearn.config.LikeType;
+import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
-import com.pb.lunchandlearn.exception.DuplicateFileAttachmentException;
+import com.pb.lunchandlearn.exception.DuplicateResourceException;
+import com.pb.lunchandlearn.exception.InvalidOperationException;
+import com.pb.lunchandlearn.exception.ResourceNotFoundException;
+import com.pb.lunchandlearn.repository.FeedbackRepository;
 import com.pb.lunchandlearn.repository.TrainingRepository;
+import com.pb.lunchandlearn.service.mail.MailService;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -12,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +26,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-import static com.pb.lunchandlearn.utils.CommonUtil.updateOldNewMapValues;
+import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
 
 /**
  * Created by de007ra on 5/1/2016.
@@ -28,24 +34,29 @@ import static com.pb.lunchandlearn.utils.CommonUtil.updateOldNewMapValues;
 @Service
 public class TrainingService {
 	@Autowired
-	TrainingRepository trainingRepository;
+	private TrainingRepository trainingRepository;
 
 	@Autowired
-	TopicService topicService;
+	private TopicService topicService;
 
 	@Autowired
-	EmployeeService employeeService;
+	private EmployeeService employeeService;
+
+	@Autowired
+	private FeedbackRepository feedbackRepository;
+
+	@Autowired
+	private MailService mailService;
 
 	public List<Training> getAll() {
 		return trainingRepository.findAll();
 	}
 
 	public JSONObject getAll(Pageable pageable, boolean contentOnly, String trainingStatus) {
-		if(trainingStatus == null) {
+		if (StringUtils.isEmpty(trainingStatus)) {
 			return getTrainingsJSON(trainingRepository.findAll(pageable), contentOnly);
-		}
-		else {
-			TrainingStatus status = TrainingStatus.valueOf(trainingStatus);
+		} else {
+			TrainingStatus status = TrainingStatus.valueOf(trainingStatus.toUpperCase());
 			return getTrainingsJSON(trainingRepository.findAllByStatusOrderByScore(status, pageable), contentOnly);
 		}
 	}
@@ -69,12 +80,12 @@ public class TrainingService {
 	public Training add(Training training) {
 		Training tran = trainingRepository.insert(training);
 		if (tran != null) {
-			topicService.addTrainingTo((Map) tran.getTopics(), tran);
+			topicService.addTrainingTo(tran.getTopics(), tran);
 		}
 		return tran;
 	}
 
-	public Training editTraining(Training training) {
+	public Training update(Training training) {
 		return trainingRepository.save(training);
 	}
 
@@ -113,7 +124,8 @@ public class TrainingService {
 	}
 
 	public JSONObject updateLikes(Long trainingId, LikeType type) {
-		return CommonUtil.getTrainingJsonBrief(trainingRepository.updateLikes(trainingId, type, "Deepak Rana", "de007ra"));
+		SecuredUser user = getLoggedInUser();
+		return CommonUtil.getTrainingJsonBrief(trainingRepository.updateLikes(trainingId, type, user.getUsername(), user.getGuid()));
 	}
 
 	public static Pageable getRecentPageable() {
@@ -128,86 +140,105 @@ public class TrainingService {
 		return trainingRepository.findById(trainingId);
 	}
 
-	public boolean editTrainingField(Long trainingId, SimpleFieldEntry simpleFieldEntry) throws ParseException {
-		Map<Object, Object> oldValues = null;
-		boolean isNameField = false;
+	public boolean updateField(Long trainingId, SimpleFieldEntry simpleFieldEntry) throws ParseException {
 		switch (simpleFieldEntry.getName()) {
-			case "name":
-				isNameField = true;
-				break;
 			case "scheduledOn":
 				if (simpleFieldEntry.getValue() != null) {
 					simpleFieldEntry.setValue(CommonUtil.parseDate(simpleFieldEntry.getValue().toString()));
 				}
 				break;
-			case "topics":
-				oldValues = (Map) trainingRepository.getTopicsById(trainingId).getTopics();
-				updateEntries(trainingId, simpleFieldEntry.getName(), oldValues, (Map) simpleFieldEntry.getValue());
-				break;
-			case "trainers":
-				oldValues = (Map) trainingRepository.getTrainersById(trainingId).getTrainers();
-				updateEntries(trainingId, simpleFieldEntry.getName(), oldValues, (Map) simpleFieldEntry.getValue());
+			case "status":
+				TrainingStatus status = TrainingStatus.valueOf(simpleFieldEntry.getValue().toString());
+				if(!isValidStatus(trainingId, status)) {
+					throw new InvalidOperationException("Status can't be set to " +status.toString());
+				}
 				break;
 		}
-		if (trainingRepository.updateByFieldName(trainingId, simpleFieldEntry)) {
-			if (isNameField) {
+		SecuredUser user = getLoggedInUser();
+		if (!trainingRepository.updateByFieldName(trainingId, simpleFieldEntry, user)) {
+			return false;
+		}
+
+		switch (simpleFieldEntry.getName()) {
+			case "name":
 				employeeService.updateTrainings(trainingId, simpleFieldEntry.getValue().toString());
-			}
-			return true;
+				break;
+			case "status":
+				//update topics
+				Training training = trainingRepository.findById(trainingId);
+				topicService.addTrainingTo(training.getTopics(), training);
+				if(TrainingStatus.COMPLETED == training.getStatus()) {
+					//update trainers
+					employeeService.addTrainingTo(training.getTrainers(), training, "trainingsImparted");
+				}
+				else if(training.getStatus() == TrainingStatus.SCHEDULED) {
+					//send training invites
+					//update trainees
+//						employeeService.addTrainingTo(training.getTrainees(), training, "trainingsAttended");
+				}
+				else if(training.getStatus() == TrainingStatus.CANCELLED ||
+						training.getStatus() == TrainingStatus.POSTPONED) {
+					//send training invites
+					mailService.sendMail(MailService.MailType.TRAINING_CANCELLED, training);
+					//update trainees
+//						employeeService.addTrainingTo(training.getTrainees(), training, "trainingsAttended");
+				}
+				break;
 		}
-		return false;
+		return true;
 	}
 
-	private void updateEntries(Long trainingId, String fieldName, Map<Object, Object> oldEntries, Map<Object, Object> newEntries) {
-		Map<Object, Object> addedEntries = null;
-		addedEntries = updateOldNewMapValues(oldEntries, newEntries, addedEntries);
-		switch (fieldName) {
-			case "topics":
-				if (oldEntries != null && oldEntries.size() > 0) {
-					topicService.removeTrainingFrom((Map) oldEntries, trainingId);
-				}
-				if (addedEntries != null && addedEntries.size() > 0) {
-					topicService.addTrainingTo((Map) addedEntries, trainingRepository.findByTheTrainingsId(trainingId));
-				}
-				break;
-			case "trainers":
-				if (oldEntries != null && oldEntries.size() > 0) {
-					employeeService.removeTrainingFrom((Map) oldEntries, trainingId);
-				}
-				if (addedEntries != null && addedEntries.size() > 0) {
-					employeeService.addTrainingTo((Map) addedEntries, trainingRepository.findByTheTrainingsId(trainingId));
-				}
-				break;
+	private boolean isValidStatus(Long trainingId, TrainingStatus statusToSet) {
+		Training training = trainingRepository.getStatusById(trainingId);
+		TrainingStatus status = training.getStatus();
+		if(status == statusToSet) {
+			return false;
 		}
+		if(status == TrainingStatus.COMPLETED) {
+			return false;
+		}
+		if(statusToSet == TrainingStatus.SCHEDULED && (status != TrainingStatus.CANCELLED &&
+				status != TrainingStatus.POSTPONED && status != TrainingStatus.NOMINATED)) {
+			return false;
+		}
+		return true;
 	}
 
 	public List<Training> getTrendingTrainings() {
 		return trainingRepository.findAll();
 	}
 
-	public Comment addComment(Comment comment, Long trainingId) {
+	public Comment add(Comment comment, Long trainingId) {
 		return trainingRepository.addComment(trainingId, setOwner(comment));
 	}
 
 	private Comment setOwner(Comment comment) {
-		comment.setOwnerName("Deepak Rana");
-		comment.setOwnerGuid("de007ra");
+		SecuredUser user = getLoggedInUser();
+		comment.setOwnerName(user.getUsername());
+		comment.setOwnerGuid(user.getGuid());
 		return comment;
 	}
 
-	public Comment addCommentReply(Comment comment, Long trainingId, Long parentCommentId) {
+	public Comment add(Comment comment, Long trainingId, Long parentCommentId) {
 		return trainingRepository.addCommentReply(setOwner(comment), trainingId, parentCommentId);
 	}
 
-	public boolean attachFile(Long trainingId, String fileName, InputStream is) {
+	public FileAttachmentInfo add(Long trainingId, String fileName, InputStream is) {
 		if (trainingRepository.isFileAttachmentExist(trainingId, fileName)) {
-			throw new DuplicateFileAttachmentException(MessageFormat.format("File " +
+			throw new DuplicateResourceException(MessageFormat.format("File " +
 					"{0} already exist!", fileName));
 		}
 		FileAttachmentInfo fileInfo = trainingRepository.attachFile(is, fileName, trainingId);
-		return trainingRepository.addFileAttachmentInfo(trainingId, fileInfo);
+		trainingRepository.addFileAttachmentInfo(trainingId, fileInfo);
+		return fileInfo;
 	}
 
+	public JSONObject getRatings(Long trainingId) {
+		List<FeedBack> feedBacks = feedbackRepository.findAllByParentId(trainingId);
+		for(FeedBack feedBack : feedBacks) {
+			
+		}
+	}
 	public JSONArray getAttachedFiles(Long trainingId) {
 		List<FileAttachmentInfo> fileInfos = trainingRepository.getAttachedFiles(trainingId);
 		return CommonUtil.getFileAttachmentInfosBrief(fileInfos);
@@ -231,5 +262,42 @@ public class TrainingService {
 
 	public FileAttachmentInfo getAttachmentFileInfoWithFile(Long trainingId, String fileName) throws IOException {
 		return trainingRepository.getAttachmentFileInfoWithFile(trainingId, fileName);
+	}
+
+	public boolean setTrainingStatus(Long trainingId, TrainingStatus status) {
+		Training training = trainingRepository.setTrainingStatus(trainingId, status);
+		if (training == null) {
+			throw new ResourceNotFoundException(MessageFormat.format("Training with Id: {0} does not exist", trainingId));
+		} else if (training.getStatus() != status) {
+			throw new InvalidOperationException(MessageFormat.format("Training can't set to status: {0}", training.getStatus().toString()));
+		}
+		return true;
+	}
+
+	public Map<String, String> getTraineesById(Long trainingId) {
+		return trainingRepository.findTraineesById(trainingId).getTrainees();
+	}
+
+	public FeedBack add(FeedBack feedBack) {
+		return feedbackRepository.insert(feedBack);
+	}
+
+	public JSONArray getFeedBacks(Long trainingId) {
+		SecuredUser user = getLoggedInUser();
+		if(user.isAdmin()) {
+			return CommonUtil.getFeedbacks(feedbackRepository.findAllByParentId(trainingId));
+		}
+		else {
+			return CommonUtil.getFeedbacks(feedbackRepository.
+					findAllByParentIdAndRespondentGuid(trainingId, user.getGuid()));
+		}
+	}
+
+	public FeedBack getFeedBack(Long feedbackId) {
+		return feedbackRepository.findOne(feedbackId);
+	}
+
+	public JSONObject getTrainingMinimal(Long trainingId) {
+		return CommonUtil.getTrainingJsonBrief(trainingRepository.findByTheTrainingsId(trainingId));
 	}
 }

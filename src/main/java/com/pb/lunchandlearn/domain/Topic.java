@@ -1,6 +1,7 @@
 package com.pb.lunchandlearn.domain;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +22,7 @@ public final class Topic {
 	@NotNull()
 	@Size(min = 2, max = 20)
 	@TextIndexed
+	@Indexed
 	private String name;
 	@TextIndexed
 	private String desc;
@@ -31,8 +33,10 @@ public final class Topic {
 	private Integer likesCount;
 
 	@NotNull
-	private String createdBy;
-	private String lastModifiedBy;
+	private String createdByGuid;
+	private String createdByName;
+	private String lastModifiedByGuid;
+	private String lastModifiedByName;
 
 	@NotNull
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -50,8 +54,10 @@ public final class Topic {
 				", employeesKnowAbout=" + employeesKnowAbout +
 				", trainings=" + trainings +
 				", likesCount=" + likesCount +
-				", createdBy='" + createdBy + '\'' +
-				", lastModifiedBy='" + lastModifiedBy + '\'' +
+				", createdByGuid='" + createdByGuid + '\'' +
+				", createdByName='" + createdByName + '\'' +
+				", lastModifiedByGuid='" + lastModifiedByGuid + '\'' +
+				", lastModifiedByName='" + lastModifiedByName + '\'' +
 				", createDateTime=" + createDateTime +
 				", lastModifiedOn=" + lastModifiedOn +
 				'}';
@@ -62,23 +68,28 @@ public final class Topic {
 		if (this == o) return true;
 		if (!(o instanceof Topic)) return false;
 
-		Topic topicNew = (Topic) o;
+		Topic topic = (Topic) o;
 
-		if (id != null ? !id.equals(topicNew.id) : topicNew.id != null) return false;
-		if (name != null ? !name.equals(topicNew.name) : topicNew.name != null) return false;
-		if (desc != null ? !desc.equals(topicNew.desc) : topicNew.desc != null) return false;
-		if (interestedEmployees != null ? !interestedEmployees.equals(topicNew.interestedEmployees) : topicNew.interestedEmployees != null)
+		if (id != null ? !id.equals(topic.id) : topic.id != null) return false;
+		if (name != null ? !name.equals(topic.name) : topic.name != null) return false;
+		if (desc != null ? !desc.equals(topic.desc) : topic.desc != null) return false;
+		if (interestedEmployees != null ? !interestedEmployees.equals(topic.interestedEmployees) : topic.interestedEmployees != null)
 			return false;
-		if (employeesKnowAbout != null ? !employeesKnowAbout.equals(topicNew.employeesKnowAbout) : topicNew.employeesKnowAbout != null)
+		if (employeesKnowAbout != null ? !employeesKnowAbout.equals(topic.employeesKnowAbout) : topic.employeesKnowAbout != null)
 			return false;
-		if (trainings != null ? !trainings.equals(topicNew.trainings) : topicNew.trainings != null) return false;
-		if (likesCount != null ? !likesCount.equals(topicNew.likesCount) : topicNew.likesCount != null) return false;
-		if (createdBy != null ? !createdBy.equals(topicNew.createdBy) : topicNew.createdBy != null) return false;
-		if (lastModifiedBy != null ? !lastModifiedBy.equals(topicNew.lastModifiedBy) : topicNew.lastModifiedBy != null)
+		if (trainings != null ? !trainings.equals(topic.trainings) : topic.trainings != null) return false;
+		if (likesCount != null ? !likesCount.equals(topic.likesCount) : topic.likesCount != null) return false;
+		if (createdByGuid != null ? !createdByGuid.equals(topic.createdByGuid) : topic.createdByGuid != null)
 			return false;
-		if (createDateTime != null ? !createDateTime.equals(topicNew.createDateTime) : topicNew.createDateTime != null)
+		if (createdByName != null ? !createdByName.equals(topic.createdByName) : topic.createdByName != null)
 			return false;
-		return lastModifiedOn != null ? lastModifiedOn.equals(topicNew.lastModifiedOn) : topicNew.lastModifiedOn == null;
+		if (lastModifiedByGuid != null ? !lastModifiedByGuid.equals(topic.lastModifiedByGuid) : topic.lastModifiedByGuid != null)
+			return false;
+		if (lastModifiedByName != null ? !lastModifiedByName.equals(topic.lastModifiedByName) : topic.lastModifiedByName != null)
+			return false;
+		if (createDateTime != null ? !createDateTime.equals(topic.createDateTime) : topic.createDateTime != null)
+			return false;
+		return lastModifiedOn != null ? lastModifiedOn.equals(topic.lastModifiedOn) : topic.lastModifiedOn == null;
 
 	}
 
@@ -91,11 +102,29 @@ public final class Topic {
 		result = 31 * result + (employeesKnowAbout != null ? employeesKnowAbout.hashCode() : 0);
 		result = 31 * result + (trainings != null ? trainings.hashCode() : 0);
 		result = 31 * result + (likesCount != null ? likesCount.hashCode() : 0);
-		result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
-		result = 31 * result + (lastModifiedBy != null ? lastModifiedBy.hashCode() : 0);
+		result = 31 * result + (createdByGuid != null ? createdByGuid.hashCode() : 0);
+		result = 31 * result + (createdByName != null ? createdByName.hashCode() : 0);
+		result = 31 * result + (lastModifiedByGuid != null ? lastModifiedByGuid.hashCode() : 0);
+		result = 31 * result + (lastModifiedByName != null ? lastModifiedByName.hashCode() : 0);
 		result = 31 * result + (createDateTime != null ? createDateTime.hashCode() : 0);
 		result = 31 * result + (lastModifiedOn != null ? lastModifiedOn.hashCode() : 0);
 		return result;
+	}
+
+	public String getLastModifiedByName() {
+		return lastModifiedByName;
+	}
+
+	public void setLastModifiedByName(String lastModifiedByName) {
+		this.lastModifiedByName = lastModifiedByName;
+	}
+
+	public String getCreatedByName() {
+		return createdByName;
+	}
+
+	public void setCreatedByName(String createdByName) {
+		this.createdByName = createdByName;
 	}
 
 	public Date getCreateDateTime() {
@@ -147,20 +176,20 @@ public final class Topic {
 		this.likesCount = likesCount;
 	}
 
-	public String getCreatedBy() {
-		return createdBy;
+	public String getCreatedByGuid() {
+		return createdByGuid;
 	}
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
+	public void setCreatedByGuid(String createdByGuid) {
+		this.createdByGuid = createdByGuid;
 	}
 
-	public String getLastModifiedBy() {
-		return lastModifiedBy;
+	public String getLastModifiedByGuid() {
+		return lastModifiedByGuid;
 	}
 
-	public void setLastModifiedBy(String lastModifiedBy) {
-		this.lastModifiedBy = lastModifiedBy;
+	public void setLastModifiedByGuid(String lastModifiedByGuid) {
+		this.lastModifiedByGuid = lastModifiedByGuid;
 	}
 
 	public Topic() {

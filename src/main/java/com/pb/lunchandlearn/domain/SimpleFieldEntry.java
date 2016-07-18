@@ -14,6 +14,11 @@ public final class SimpleFieldEntry {
 		this.value = value;
 	}
 
+	public SimpleFieldEntry(String name, Object value) {
+		this.name = name;
+		this.value = value;
+	}
+
 	public SimpleFieldEntry() {
 
 	}

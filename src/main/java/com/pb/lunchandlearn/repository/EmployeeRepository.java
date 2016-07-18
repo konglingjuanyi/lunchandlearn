@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by de007ra on 5/1/2016.
@@ -27,9 +28,19 @@ public interface EmployeeRepository extends MongoRepository<Employee, String>, C
 	@Query(fields = "{'name': 1, 'guid': 1, 'emailId': 1}")
 	List<Employee> findAllByEmailIdNotNull();
 
-	Employee findByName(String name);
+	@Query(fields = "{'name': 1, 'guid': 1, 'emailId': 1, 'roles': 1}")
+	Employee findByGuid(String guid);
 
 	Page<Training> findAllByStatusOrderByScore(TrainingStatus status, TextCriteria textCriteria, Pageable pageable);
 
 	Page<Employee> findAllBy(TextCriteria textCriteria, Pageable pageable);
+
+	@Query(value="{ 'guid' : ?0 }", fields="{ 'name' : 1}")
+	Employee findByTheEmployeesId(String empGuid);
+
+	@Query(fields="{ 'guid' : 1}")
+	Employee findByRoles(List<String> adminRole);
+
+	@Query(fields="{ 'guid' : 1, 'emailId': 1}")
+	List<Employee> findAllByGuidIn(List<String> guids);
 }

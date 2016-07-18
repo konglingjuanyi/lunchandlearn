@@ -16,103 +16,62 @@ import java.util.Map;
  * Created by de007ra on 4/28/2016.
  */
 @Document(collection = "employees")
-public final class Employee {
+public final class Employee extends User {
 
 	@Id
 	@NotNull
 	@Size(min = 4, max = 10)
-	@Indexed
 	@TextIndexed
 	private String guid;
 
-	@Size(min = 4, max = 20)
-	@NotNull
-	@Indexed
-	@TextIndexed
-	private String name;
-
-	@NotNull
-	@Email
-	@Size(min = 7, max = 26)
-	@Indexed
-	@TextIndexed
-	private String emailId;
-
-	@Indexed
 	@TextIndexed
 	private Map<String, String> managers;//guid, name
 
-	@Indexed
 	@TextIndexed
 	private List<MiniTrainingDetail> trainingsInterestedIn;
 
-	@Indexed
 	@TextIndexed
-	private List<MiniTrainingDetail> trainingsTaken;
+	private List<MiniTrainingDetail> trainingsAttended;
 
-	@Indexed
+	@TextIndexed
+	private List<MiniTrainingDetail> trainingsImparted;
+
 	@TextIndexed
 	private Map<Long, String> topicsKnown;
 
-	@Indexed
 	@TextIndexed
 	private Map<Long, String> topicsInterestedIn;
 
 	@TextScore
 	private Float score;
 
-	public Employee() {}
-
 	@Override
 	public String toString() {
-		return "Employee{" +
+		return "Employee{" + super.toString() +
 				"guid='" + guid + '\'' +
-				", name='" + name + '\'' +
-				", emailId='" + emailId + '\'' +
 				", managers=" + managers +
 				", trainingsInterestedIn=" + trainingsInterestedIn +
-				", trainingsTaken=" + trainingsTaken +
+				", trainingsAttended=" + trainingsAttended +
+				", trainingsImparted=" + trainingsImparted +
 				", topicsKnown=" + topicsKnown +
 				", topicsInterestedIn=" + topicsInterestedIn +
 				", score=" + score +
 				'}';
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Employee)) return false;
+	public Employee() {}
 
-		Employee employee = (Employee) o;
-
-		if (guid != null ? !guid.equals(employee.guid) : employee.guid != null) return false;
-		if (name != null ? !name.equals(employee.name) : employee.name != null) return false;
-		if (emailId != null ? !emailId.equals(employee.emailId) : employee.emailId != null) return false;
-		if (managers != null ? !managers.equals(employee.managers) : employee.managers != null) return false;
-		if (trainingsInterestedIn != null ? !trainingsInterestedIn.equals(employee.trainingsInterestedIn) : employee.trainingsInterestedIn != null)
-			return false;
-		if (trainingsTaken != null ? !trainingsTaken.equals(employee.trainingsTaken) : employee.trainingsTaken != null)
-			return false;
-		if (topicsKnown != null ? !topicsKnown.equals(employee.topicsKnown) : employee.topicsKnown != null)
-			return false;
-		if (topicsInterestedIn != null ? !topicsInterestedIn.equals(employee.topicsInterestedIn) : employee.topicsInterestedIn != null)
-			return false;
-		return score != null ? score.equals(employee.score) : employee.score == null;
-
+	public Employee(String guid, String name, String emailId, List<String> roles) {
+		super(name, emailId, roles);
+		this.guid = guid.toUpperCase();
 	}
 
-	@Override
-	public int hashCode() {
-		int result = guid != null ? guid.hashCode() : 0;
-		result = 31 * result + (name != null ? name.hashCode() : 0);
-		result = 31 * result + (emailId != null ? emailId.hashCode() : 0);
-		result = 31 * result + (managers != null ? managers.hashCode() : 0);
-		result = 31 * result + (trainingsInterestedIn != null ? trainingsInterestedIn.hashCode() : 0);
-		result = 31 * result + (trainingsTaken != null ? trainingsTaken.hashCode() : 0);
-		result = 31 * result + (topicsKnown != null ? topicsKnown.hashCode() : 0);
-		result = 31 * result + (topicsInterestedIn != null ? topicsInterestedIn.hashCode() : 0);
-		result = 31 * result + (score != null ? score.hashCode() : 0);
-		return result;
+	public List<MiniTrainingDetail> getTrainingsImparted() {
+		return trainingsImparted;
+	}
+
+	public void setTrainingsImparted(List<MiniTrainingDetail> trainingsImparted) {
+		this.trainingsImparted = trainingsImparted;
 	}
 
 	public List<MiniTrainingDetail> getTrainingsInterestedIn() {
@@ -127,6 +86,44 @@ public final class Employee {
 		return topicsInterestedIn;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Employee)) return false;
+		if (!super.equals(o)) return false;
+
+		Employee employee = (Employee) o;
+
+		if (guid != null ? !guid.equals(employee.guid) : employee.guid != null) return false;
+		if (managers != null ? !managers.equals(employee.managers) : employee.managers != null) return false;
+		if (trainingsInterestedIn != null ? !trainingsInterestedIn.equals(employee.trainingsInterestedIn) : employee.trainingsInterestedIn != null)
+			return false;
+		if (trainingsAttended != null ? !trainingsAttended.equals(employee.trainingsAttended) : employee.trainingsAttended != null)
+			return false;
+		if (trainingsImparted != null ? !trainingsImparted.equals(employee.trainingsImparted) : employee.trainingsImparted != null)
+			return false;
+		if (topicsKnown != null ? !topicsKnown.equals(employee.topicsKnown) : employee.topicsKnown != null)
+			return false;
+		if (topicsInterestedIn != null ? !topicsInterestedIn.equals(employee.topicsInterestedIn) : employee.topicsInterestedIn != null)
+			return false;
+		return score != null ? score.equals(employee.score) : employee.score == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (guid != null ? guid.hashCode() : 0);
+		result = 31 * result + (managers != null ? managers.hashCode() : 0);
+		result = 31 * result + (trainingsInterestedIn != null ? trainingsInterestedIn.hashCode() : 0);
+		result = 31 * result + (trainingsAttended != null ? trainingsAttended.hashCode() : 0);
+		result = 31 * result + (trainingsImparted != null ? trainingsImparted.hashCode() : 0);
+		result = 31 * result + (topicsKnown != null ? topicsKnown.hashCode() : 0);
+		result = 31 * result + (topicsInterestedIn != null ? topicsInterestedIn.hashCode() : 0);
+		result = 31 * result + (score != null ? score.hashCode() : 0);
+		return result;
+	}
+
 	public void setTopicsInterestedIn(Map<Long, String> topicsInterestedIn) {
 		this.topicsInterestedIn = topicsInterestedIn;
 	}
@@ -139,21 +136,12 @@ public final class Employee {
 		this.score = score;
 	}
 
-	public Employee(String guid, String name, String emailId, Map<String, String> managers, List<MiniTrainingDetail> trainingsTaken, Map<Long, String> topicsKnown) {
-		this.guid = guid;
-		this.name = name;
-		this.emailId = emailId;
-		this.managers = managers;
-		this.trainingsTaken = trainingsTaken;
-		this.topicsKnown = topicsKnown;
+	public List<MiniTrainingDetail> getTrainingsAttended() {
+		return trainingsAttended;
 	}
 
-	public List<MiniTrainingDetail> getTrainingsTaken() {
-		return trainingsTaken;
-	}
-
-	public void setTrainingsTaken(List<MiniTrainingDetail> trainingsTaken) {
-		this.trainingsTaken = trainingsTaken;
+	public void setTrainingsAttended(List<MiniTrainingDetail> trainingsAttended) {
+		this.trainingsAttended = trainingsAttended;
 	}
 
 	public Map<Long, String> getTopicsKnown() {
@@ -165,27 +153,11 @@ public final class Employee {
 	}
 
 	public String getGuid() {
-		return guid;
+		return guid.toUpperCase();
 	}
 
 	public void setGuid(String guid) {
 		this.guid = guid;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getEmailId() {
-		return emailId;
-	}
-
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
 	}
 
 	public Map<String, String> getManagers() {

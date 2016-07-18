@@ -1,11 +1,11 @@
 package com.pb.lunchandlearn.service;
 
 import com.pb.lunchandlearn.config.LikeType;
-import com.pb.lunchandlearn.domain.MiniTrainingDetail;
-import com.pb.lunchandlearn.domain.SimpleFieldEntry;
-import com.pb.lunchandlearn.domain.Topic;
-import com.pb.lunchandlearn.domain.Training;
+import com.pb.lunchandlearn.config.SecuredUser;
+import com.pb.lunchandlearn.config.SecurityConfig;
+import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.repository.TopicRepository;
+import com.pb.lunchandlearn.service.mail.MailService;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
 import static com.pb.lunchandlearn.utils.CommonUtil.SORT_BY_LIKES;
 
 /**
@@ -32,10 +33,13 @@ public class TopicService {
 	private TopicRepository topicRepository;
 
 	@Autowired
-	EmployeeService employeeService;
+	private EmployeeService employeeService;
 
 	private static Pageable recentPageable;
 	private static Pageable topByLikesPageable;
+
+	@Autowired
+	private static MailService mailService;
 
 	public JSONObject getAll(Pageable pageable, boolean contentOnly) {
 		return getTopicsJSON(topicRepository.findAll(pageable), contentOnly);
@@ -61,7 +65,7 @@ public class TopicService {
 		return topicRepository.insert(topic);
 	}
 
-	public Topic editTopic(Topic topic) {
+	public Topic update(Topic topic) {
 		return topicRepository.save(topic);
 	}
 
@@ -92,7 +96,11 @@ public class TopicService {
 	}
 
 	public JSONObject updateLikes(Long topicId, LikeType type) {
-		return CommonUtil.getTopicJsonBrief(topicRepository.updateLikes(topicId, type, "Deepak Rana", "de007ra"));
+		SecuredUser user = getLoggedInUser();
+		JSONObject json = CommonUtil.getTopicJsonBrief(topicRepository.updateLikes(topicId, type, user.getUsername(), user.getGuid()));
+		Topic topic = topicRepository.findNameById(topicId);
+		employeeService.updateTopicInterestedIn(user.getGuid(), topicId, topic.getName());
+		return json;
 	}
 
 	static {
@@ -188,8 +196,8 @@ public class TopicService {
 		return obj;
 	}
 
-	public boolean editTopicField(Long topicId, SimpleFieldEntry simpleFieldEntry) {
-		if(topicRepository.updateByFieldName(topicId, simpleFieldEntry)) {
+	public boolean updateField(Long topicId, SimpleFieldEntry simpleFieldEntry) {
+		if(topicRepository.updateByFieldName(topicId, simpleFieldEntry, getLoggedInUser())) {
 			if(simpleFieldEntry.getName() == "name") {
 				//update respective trainings and employees
 				employeeService.updateTopics(topicId, simpleFieldEntry.getValue().toString());
@@ -227,11 +235,10 @@ public class TopicService {
 		return array;
 	}
 
-	public void addTrainingTo(Map<Object, String> topics, Training training) {
+	public void addTrainingTo(Map<Long, String> topics, Training training) {
 		if(topics != null && topics.size() > 0) {
-			for(Map.Entry<Object, String> topic : topics.entrySet()) {
-				Long topicId = Long.parseLong(topic.getKey().toString());
-				topicRepository.addTraining(topicId, training);
+			for(Map.Entry<Long, String> topic : topics.entrySet()) {
+				topicRepository.upsertTraining(topic.getKey(), training);
 			}
 		}
 	}
@@ -240,6 +247,23 @@ public class TopicService {
 		if(topics != null && topics.size() > 0) {
 			for(Map.Entry<Long, String> topic : topics.entrySet()) {
 				topicRepository.removeTraining(topic.getKey(), trainingId);
+			}
+		}
+	}
+
+	public void removeEmployees(Map<Long, String> topics, String empGuid, String employeesStr) {
+		if(topics != null && topics.size() > 0) {
+			for(Map.Entry<Long, String> topic : topics.entrySet()) {
+				topicRepository.removeEmployee(topic.getKey(), empGuid, employeesStr);
+			}
+		}
+	}
+
+	public void addEmployees(Map<Object, String> topics, Employee emp, String employeesStr) {
+		if(topics != null && topics.size() > 0) {
+			for(Map.Entry<Object, String> topic : topics.entrySet()) {
+				Long topicId = Long.parseLong(topic.getKey().toString());
+				topicRepository.addEmployee(topicId, emp, employeesStr);
 			}
 		}
 	}

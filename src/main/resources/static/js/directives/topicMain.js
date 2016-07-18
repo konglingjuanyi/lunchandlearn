@@ -11,7 +11,7 @@ lunchAndLearnDirectives.directive('topicMain', function() {
 		controller : 'topicMainController as self'
 	};
 }).controller('topicMainController',
-	['$scope', 'restService', function($scope, restService) {
+	['$scope', 'restService', 'utilitiesService', function($scope, restService, utilitiesService) {
 		var self = this;
 		self.newTopicsUrl = restService.appUrl + '/topics/recent';
 		self.topTrainersUrl = restService.appUrl + '/trainings/likes';
@@ -24,8 +24,10 @@ lunchAndLearnDirectives.directive('topicMain', function() {
 
 		self.getTrendingTopics = function () {
 			restService.get(self.trendingTopicsUrl).then(function (response) {
-				if(_.isArray(response.data.content)) {
-					self.trendingTopics = response.data.content;
+				if(angular.isDefined(response.data)) {
+					if (_.isArray(response.data.content)) {
+						self.trendingTopics = utilitiesService.filterByLikeCount(response.data.content);
+					}
 				}
 			}, function (response) {
 			});
@@ -33,8 +35,10 @@ lunchAndLearnDirectives.directive('topicMain', function() {
 
 		self.getNewTopics = function () {
 			restService.get(self.newTopicsUrl).then(function (response) {
-				if(_.isArray(response.data.content)) {
-					self.newTopics = response.data.content;
+				if(angular.isDefined(response.data)) {
+					if (_.isArray(response.data.content)) {
+						self.newTopics = response.data.content;
+					}
 				}
 			}, function (response) {
 			});
@@ -42,7 +46,7 @@ lunchAndLearnDirectives.directive('topicMain', function() {
 
 		self.setTopTrainers = function () {
 			restService.get(self.topTrainersUrl).then(function (response) {
-				self.topTrainers = response.data;
+				self.topTrainers = utilitiesService.filterByLikeCount(response.data);
 			}, function (response) {
 			});
 		};

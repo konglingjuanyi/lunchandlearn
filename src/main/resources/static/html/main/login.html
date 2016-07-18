@@ -1,0 +1,56 @@
+<div class="site fullscreen signin">
+    <div class="signin-wrapper">
+        <div class="signin-body-top">
+            <div class="floating-unit">
+                <a class="signin-pb-logo" href="http://www.pb.com"></a>
+                <!-- begin white box -->
+                <div class="signin-box">
+                    <h1 class="signin-heading">Lunch & Learn</h1>
+                    <div class="alert alert-success alert-flex spacer-top-md" ng-if="self.loggedOut">
+                        You are logged out successfully.
+                    </div>
+                    <form name="loginForm" class="spacer-top-md" ng-submit="self.login();">
+                        <div class="form-group"
+                             ng-class="{'has-error': (loginForm.username.$error.required || self.credentials.error) && (loginForm.username.$dirty)}">
+                            <label>User Name</label>
+                            <input class="form-control" name="username" autofocus ng-model="self.credentials.username"
+                                   required type="text">
+                                <span class="help-block"
+                                      ng-show="loginForm.username.$dirty && loginForm.username.$error.required">Enter a username.</span>
+                        </div>
+                        <div class="form-group"
+                             ng-class="{'has-error': (loginForm.password.$dirty) && (loginForm.password.$error.required ||
+                             self.credentials.error)}">
+                            <label>Password</label>
+                            <input name="password" class="form-control" ng-model="self.credentials.password" required
+                                   type="password">
+                                <span class="help-block"
+                                      ng-show="loginForm.password.$dirty && loginForm.password.$error.required">Enter a password
+                                </span>
+                                <span class="help-block"
+                                      ng-show="self.credentials.error">Invalid user or password
+                                </span>
+                        </div>
+                        <button class="btn btn-primary btn-lg btn-block spacer-top-xs" type="submit">Sign In</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- ngInclude: 'modules/patterns/templates/includes/footer.html' -->
+        <div class="signin-footer">
+            <div class="legal">
+                Pitney&nbsp;Bowes&nbsp;Inc., the Corporate&nbsp;Logo are trademarks of
+                Pitney&nbsp;Bowes&nbsp;Inc. or a subsidiary. All other marks are the intellectual property of their
+                respective owners.
+            </div>
+
+            <div class="links">
+                <a href="">Privacy</a>&nbsp;|&nbsp;<a href="">Terms and Conditions</a>
+            </div>
+
+            <div class="copyright">
+                © 2016 Pitney Bowes Inc. All rights reserved.
+            </div>
+        </div>
+    </div>
+</div>

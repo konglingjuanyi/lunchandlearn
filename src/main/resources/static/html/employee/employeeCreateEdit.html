@@ -10,61 +10,68 @@
 
         <form class="form-horizontal">
             <div class="row form-group">
-                <label class="col-md-2"></label> <label class="col-md-3 field-label">GUID</label>
-                <span class="col-md-6" ng-if="mode == 'edit'">{{item.guid}}</span>
-                <div class="col-md-6">
+                <label class="col-md-1"></label> <label class="col-md-3 field-label">GUID</label>
+                <span class="col-md-8" ng-if="mode == 'edit'">{{item.guid}}</span>
+                <div class="col-md-8">
                     <input type="text" class="form-control" ng-show="mode == 'add'"
                            ng-model="item.guid" autofocus="true">
                 </div>
             </div>
             <div class="row form-group">
-                <label class="col-md-2"></label> <label class="col-md-3 field-label">Name</label>
-                <div class="col-md-6">
+                <label class="col-md-1"></label> <label class="col-md-3 field-label">Name</label>
+                <div class="col-md-8">
                     <input class="form-control" type="text" ng-model="item.name" required>
                 </div>
             </div>
             <div class="row form-group">
-                <label class="col-md-2"></label> <label class="col-md-3 field-label">Email</label>
-                <div class="col-md-6">
+                <label class="col-md-1"></label> <label class="col-md-3 field-label">Email</label>
+                <div class="col-md-8">
                     <input class="form-control" type="text" ng-model="item.emailId" required>
                 </div>
             </div>
             <div class="row form-group">
-                <label class="col-md-2"></label> <label class="col-md-3 field-label">Managers</label>
-                <div class="col-md-6">
-                    <div ng-repeat="manager in item.managers track by $index">
-                        <select name="manager" ng-options="manager.guid as manager.name for manager in options.managers"
-                                ng-model="item.managers[$index]" class="dynamic-select">
-                        </select><a role="button" class="btn btn-inline btn-primary btn-xs dynamic-remove"
-                                    ng-click="removeManager($index)">x</a>
-                    </div>
-                    <div add-manager>
-                        <div>
-                            <a role="button" class="btn btn-primary btn-xs"
-                               id="btn_add_manager">Add </a>
-                        </div>
-                    </div>
+                <label class="col-md-1"></label> <label class="col-md-3 field-label">Managers</label>
+                <div class="col-md-8">
+                    <simple-tag items="item.managers" section="'managers'" on-remove="true"></simple-tag>
+                        <span class="btn-group mini-tag-simple-container" ng-show="!editManagers"
+                              ng-click="editManagers = true">
+                            <span class="mini-tag-simple">
+                                <span class="a-lnk a-lnk-icon-mini"><i
+                                        class="nc-icon-mini ui-1_simple-add"></i></span>
+                            </span>
+                        </span>
+                    <ui-select ng-model="selected.manager" ng-show="editManagers">
+                        <ui-select-match>
+                            <span ng-bind="$select.selected.name"></span>
+                        </ui-select-match>
+                        <ui-select-choices
+                                repeat="manager in (options.managers | filter: $select.search)">
+                            <span ng-bind-html="manager.name | highlight: $select.search"></span>
+                            <small ng-bind-html="manager.emailId | highlight: $select.search"></small>
+                        </ui-select-choices>
+                    </ui-select>
                 </div>
             </div>
-            <div class="row form-group" ng-show="item.topicsKnown">
-                <label class="col-md-2"></label> <label class="col-md-3 field-label">Topics Known
-                </label>
-                <div class="col-md-6">
-                    <span class="label label-default" ng-repeat="(key, value) in item.topicsKnown">{{value}}</span>
-                </div>
-            </div>
-            <div class="row form-group" ng-show="item.trainings">
-                <label class="col-md-2"></label> <label class="col-md-3 field-label">Trainings Given
-                </label>
-                <div class="col-md-6">
-                    <span class="label label-default" ng-repeat="(key, value) in item.trainings">{{value}}</span>
-                </div>
-            </div>
-            <div class="row form-group" ng-show="item.trainingsTaken">
-                <label class="col-md-2"></label> <label class="col-md-3 field-label">Trainings Taken
-            </label>
-                <div class="col-md-6">
-                    <span class="label label-default" ng-repeat="(key, value) in item.trainingsTaken">{{value}}</span>
+            <div class="row form-group">
+                <label class="col-md-1"></label> <label class="col-md-3 field-label">Roles</label>
+                <div class="col-md-8">
+                    <simple-tag items="item.roles" section="'roles'" on-remove="true"></simple-tag>
+                        <span class="btn-group mini-tag-simple-container" ng-show="!editRoles"
+                              ng-click="editRoles = true">
+                            <span class="mini-tag-simple">
+                                <span class="a-lnk a-lnk-icon-mini"><i
+                                        class="nc-icon-mini ui-1_simple-add" on-remove="true"></i></span>
+                            </span>
+                        </span>
+                    <ui-select ng-model="selected.role" ng-show="editRoles">
+                        <ui-select-match>
+                            <span ng-bind="$select.selected.name"></span>
+                        </ui-select-match>
+                        <ui-select-choices
+                                repeat="role in (options.roles | filter: $select.search)">
+                            <span ng-bind-html="role.label | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
                 </div>
             </div>
         </form>

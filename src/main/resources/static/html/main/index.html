@@ -12,7 +12,7 @@
 		<link rel="stylesheet" href="/lunchandlearn/lib/bootstrap3/css/bootstrap.css"/>
 		<link rel="stylesheet" href="/lunchandlearn/lib/daterangepicker/daterangepicker.css">
 		<link rel="stylesheet" href="/lunchandlearn/lib/ui-select/select.css">
-		<link rel="stylesheet" href="/lunchandlearn/custom.css">
+		<link rel="stylesheet" href="/lunchandlearn/css/custom.css">
 
 		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_16.png" sizes="16x16">
 		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_32.png" sizes="32x32">
@@ -31,13 +31,7 @@
 		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
 
 		<link rel="stylesheet" href="/lunchandlearn/lib/designsystem/css/design_system.css">
-
-
 		<style>
-			body {
-				padding: 15px;
-			}
-
 			.select2 > .select2-choice.ui-select-match {
 				/* Because of the inclusion of Bootstrap */
 				height: 29px;
@@ -49,8 +43,8 @@
 		</style>
 	</head>
 	<body ng-app="lunchAndLearnApp">
-		<div>
-			<header>
+		<div ng-controller="loginController as self">
+			<header ng-if="authenticated">
 				<div id="header" class="navbar navbar-default custom-navbar">
 					<div class="container">
 						<div class="navbar-header">
@@ -73,42 +67,21 @@
 							<!-- navbar-nav right -->
 							<ul class="nav navbar-nav navbar-right">
 								<li class="divider-vertical hidden-xs"></li>
-								<!-- Alert menu -->
-								<li class="dropdown menu-alert">
-									<a href="" class="dropdown-toggle face" data-toggle="dropdown">
-										<svg class="hidden-lg" width="24" height="24" viewBox="0 0 24 24"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svgUserInitials" x="0" y="0"></use></svg>
-										<span><i class="nc-icon-outline ui-1_bell-54"></i></span>
-									</a>
-									<ul class="dropdown-menu" role="menu">
-										<li>
-											<a href="">Notification<br>
-												<span class="menu-text-small">Skills, Trainings</span>
-											</a>
-										</li>
-										<li role="separator" class="divider"></li>
-										<li>
-											<a href="">Notification<br>
-												<span class="menu-text-small">Skills, Trainings</span>
-											</a>
-										</li>
-									</ul>
-								</li>
 								<!-- User menu -->
 								<li class="dropdown menu-user">
 									<a href="" class="dropdown-toggle face" data-toggle="dropdown">
 										<svg class="hidden-lg" width="24" height="24" viewBox="0 0 24 24"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svgUserInitials" x="0" y="0"></use></svg>
-										<!-- <img src="modules/patterns/assets/images/128.jpg" alt="User Image"> -->
-										<span><i class="nc-icon-outline users_single-05"></i>&nbsp;&nbsp;Deepak Rana</span>
+										<span><i class="nc-icon-outline users_single-05"></i>&nbsp;&nbsp;{{user.name}}</span>
 									</a>
 									<ul class="dropdown-menu" role="menu">
 										<li>
-											<a href="">Your Account<br>
+											<a ng-href="#{{sectionUrl}}/{{key}}employees/{{user.guid}}">Your Account<br>
 												<span class="menu-text-small">Skills, Trainings</span>
 											</a>
 										</li>
 										<li role="separator" class="divider"></li>
 										<li>
-											<a href="">Sign Out</a>
+											<a ng-click="self.logout()" href="#">Sign Out</a>
 										</li>
 									</ul>
 								</li>
@@ -120,8 +93,7 @@
 			</header>
 			<div ng-view>
 			</div>
-			<br>
-			<footer style="position: fixed;" class="pb-footer">
+			<footer style="position: fixed;left: 0;right: 0;" class="pb-footer" ng-if="authenticated">
 				<div class="footer-wrapper">
 				<footer>
 					<div class="container">
@@ -158,6 +130,12 @@
 			<script src="/lunchandlearn/lib/ui-select/select.js"></script>
 			<script src="/lunchandlearn/lib/ng-file-upload/ng-file-upload-shim.min.js"></script>
 			<script src="/lunchandlearn/lib/ng-file-upload/ng-file-upload.min.js"></script>
+			<script src="/lunchandlearn/lib/numericStepper/jquery.stepper.min.js"></script>
+
+			<script src="/lunchandlearn/js/common/filters/rangeFilter.js"></script>
+			<script src="/lunchandlearn/js/common/filters/fileSizeFilter.js"></script>
+			<script src="/lunchandlearn/js/common/filters/propercaseFilter.js"></script>
+			<script src="/lunchandlearn/js/common/filters/commentDateFilter.js"></script>
 
 			<script src="/lunchandlearn/js/services/restService.js"></script>
 			<script src="/lunchandlearn/js/common/services/pagingService.js"></script>
@@ -165,10 +143,8 @@
 			<script src="/lunchandlearn/js/services/employeeService.js"></script>
 			<script src="/lunchandlearn/js/services/topicService.js"></script>
 			<script src="/lunchandlearn/js/services/trainingService.js"></script>
-			<script src="/lunchandlearn/js/common/filters/rangeFilter.js"></script>
-			<script src="/lunchandlearn/js/common/filters/fileSizeFilter.js"></script>
-			<script src="/lunchandlearn/js/common/filters/commentDateFilter.js"></script>
 			<script src="/lunchandlearn/js/controllers/modalController.js"></script>
+			<script src="/lunchandlearn/js/controllers/loginController.js"></script>
 			<script src="/lunchandlearn/js/controllers/topicController.js"></script>
 			<script src="/lunchandlearn/js/controllers/topicPaneController.js"></script>
 			<script src="/lunchandlearn/js/controllers/trainingPaneController.js"></script>
@@ -179,7 +155,9 @@
 			<script src="/lunchandlearn/js/controllers/trainingController.js"></script>
 			<script src="/lunchandlearn/js/directives/mainTile.js"></script>
 			<script src="/lunchandlearn/js/common/directives/simpleTag.js"></script>
-			<script src="/lunchandlearn/js/common/directives/comments.js"></script>
+			<script src="/lunchandlearn/js/directives/comments.js"></script>
+			<script src="/lunchandlearn/js/directives/feedback.js"></script>
+			<script src="/lunchandlearn/js/common/directives/stepper.js"></script>
 			<script src="/lunchandlearn/js/directives/topicMain.js"></script>
 			<script src="/lunchandlearn/js/directives/trainingMain.js"></script>
 			<script src="/lunchandlearn/js/directives/topicListMini.js"></script>

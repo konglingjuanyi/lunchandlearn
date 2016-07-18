@@ -85,15 +85,15 @@ public class TopicController {
 
 	@RequestMapping(value="/topic", method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
-	public void editTopic(@RequestBody Topic topic) {
-		topicService.editTopic(topic);
+	public void updateTopic(@RequestBody Topic topic) {
+		topicService.update(topic);
 	}
 
 	@RequestMapping(value="/topic/{id}/field", method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
-	public void editTopicByField(@PathVariable("id") Long topicId,
-								 @RequestBody SimpleFieldEntry fieldEntry) {
-		topicService.editTopicField(topicId, fieldEntry);
+	public void updateTopicByField(@PathVariable("id") Long topicId,
+								   @RequestBody SimpleFieldEntry fieldEntry) {
+		topicService.updateField(topicId, fieldEntry);
 	}
 
 	@RequestMapping(value="/topic/{id}", method = RequestMethod.DELETE)

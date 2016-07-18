@@ -8,9 +8,13 @@ angular.module('controllers').controller('employeesController', [
 		self.currentPage = 1;
 		self.currentPageSize = pagingService.currentPageSize;
 		self.maxPages = pagingService.maxPageSize;
+		self.roles = employeeService.roles;
 
+		employeeService.isEditable().then(function (status) {
+			self.isEditable = status;
+		});
 		var setManagers = function() {
-			employeeService.getEmployeesName().then(function(response) {
+			return employeeService.getManagers().then(function(response) {
 				self.managers = response.data;
 			});
 		};
@@ -19,11 +23,6 @@ angular.module('controllers').controller('employeesController', [
 			if($event.which === 13 || $event.keyCode === 13) {
 				self.list();
 			}
-		};
-
-		self.sortList = function(colName) {
-			self.sort.name = colName;
-			self.list();
 		};
 
 		self.savePageSize = function() {
@@ -39,33 +38,58 @@ angular.module('controllers').controller('employeesController', [
 		self.list = function() {
 			employeeService.listEmployees(pagingService.getConfigObj(self)).then(function(response) {
 				var data = response.data;
-				self.totalPages = data.totalPages;
-				self.employees = data.content;
-				self.totalCount = data.totalElements;
-				self.fromCount = (data.size * data.number) + 1;
-				self.toCount = (self.fromCount - 1) + data.numberOfElements;
+				if(angular.isDefined(data)) {
+					self.totalPages = data.totalPages;
+					self.employees = data.content;
+					self.totalCount = data.totalElements;
+					self.fromCount = (data.size * data.number) + 1;
+					self.toCount = (self.fromCount - 1) + data.numberOfElements;
+				}
 			});
 		}
 
 		self.showEdit = function(guid) {
 			employeeService.getEmployee(guid).then(function(response) {
-				self.employee = response.data;
-				self.employee.managers = _.keys(self.employee.managers);
-				self.mode = 'edit';
-				self.showModalDlg();
+				if(angular.isDefined(response.data)) {
+					self.employee = response.data;
+					// self.employee.managers = _.keys(self.employee.managers);
+					var roles = {};
+					_.each(self.employee.roles, function (role) {
+						var obj = _.find(self.roles, {code: role});
+						if(obj) {
+							roles[obj.code] = obj.label;
+						}
+					});
+					self.employee.roles = roles;
+					self.mode = 'edit';
+					self.showModalDlg();
+				}
+			}, function (response) {
+				console.log('error while fetching employee: '
+					+ guid + ' with error: ' + response);
 			});
 		}
 
 		self.save = function() {
-			self.employee.managers = employeeService.getManagersGuidWithName(self.managers, self.employee.managers);
+			// self.employee.managers = employeeService.getManagersGuidWithName(self.managers, self.employee.managers);
+			self.employee.roles = _.keys(self.employee.roles);
 			employeeService.updateEmployee(self.employee).then(function(response) {
 				self.mode = null;
 				self.list();
 			});
 		}
 
+		var getRoles = function(roles) {
+			var roles = [];
+			_.each(roles, function (v, k) {
+				roles.push(k);
+			})
+			return roles;
+		}
+
 		self.add = function() {
 			self.employee.managers = employeeService.getManagersGuidWithName(self.managers, self.employee.managers);
+			self.employee.roles = getRoles(self.employee.roles);
 			employeeService.addEmployee(self.employee).then(function(response) {
 				self.mode = null;
 				self.list();
@@ -110,27 +134,28 @@ angular.module('controllers').controller('employeesController', [
 		}
 
 		self.showModalDlg = function () {
-			setManagers();
-			var opts = {
-				templateUrl: '/lunchandlearn/html/employee/employeeCreateEdit.html',
-				backdrop: 'static',
-				controller: 'modalController as self',
-				resolve: {
-					data: function () {
-						return {item: self.employee, mode: self.mode, options: {managers : self.managers}};
+			setManagers().then(function () {
+				var opts = {
+					templateUrl: '/lunchandlearn/html/employee/employeeCreateEdit.html',
+					backdrop: 'static',
+					controller: 'modalController as self',
+					resolve: {
+						data: function () {
+							return {item: self.employee, mode: self.mode, options: {managers : self.managers, roles: self.roles}};
+						}
 					}
 				}
-			}
-			$uibModal.open(opts).result.then(function (selectedItem) {
-				self.employee = selectedItem;
-				if(self.mode === 'add') {
-					self.add();
-				}
-				else if(self.mode === 'edit') {
-					self.save();
-				}
-			}, function () {
-				console.log('confirmation modal cancelled')
+				$uibModal.open(opts).result.then(function (selectedItem) {
+					self.employee = selectedItem;
+					if(self.mode === 'add') {
+						self.add();
+					}
+					else if(self.mode === 'edit') {
+						self.save();
+					}
+				}, function () {
+					console.log('confirmation modal cancelled')
+				});
 			});
 		}
 
