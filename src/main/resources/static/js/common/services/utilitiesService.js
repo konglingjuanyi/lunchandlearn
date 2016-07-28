@@ -1,3 +1,4 @@
+
 /**
  * Created by DE007RA on 6/23/2016.
  */
@@ -56,6 +57,7 @@ angular.module('services').service('utilitiesService', ['restService', function(
         });
         return array;
     };
+
     self.toISODateString = function (momentObj) {
         if(angular.isDefined(momentObj)) {
             return momentObj.toISOString();

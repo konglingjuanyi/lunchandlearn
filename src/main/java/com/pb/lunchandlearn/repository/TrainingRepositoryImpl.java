@@ -118,7 +118,6 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 	@Override
 	public boolean removeCommentReply(Long trainingId, Long commentId, Long replyCommentId) {
 		Query query = Query.query(where("id").is(trainingId).and("comments.id").is(commentId));
-		Training trn = mongoTemplate.findOne(query, Training.class);
 		Update update = new Update().pull("comments.$.replies", new BasicDBObject("id", replyCommentId));
 		WriteResult result = mongoTemplate.updateFirst(query, update, Training.class);
 		if (result.getN() == 0) {

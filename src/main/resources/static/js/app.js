@@ -1,5 +1,6 @@
-var lunchAndLearnApp = angular.module('lunchAndLearnApp', ['ngRoute', 'filters', 'controllers', 'directives',
-	'ordinal', 'ui.select', 'ngSanitize', 'ui.bootstrap', 'ui.bootstrap.datetimepicker', 'ngFileUpload']);
+var lunchAndLearnApp = angular.module('lunchAndLearnApp', ['ngRoute', 'filters',
+	'controllers', 'directives', 'ordinal', 'ui.select', 'ngSanitize', 'ui.bootstrap',
+	'ui.bootstrap.datetimepicker', 'ngFileUpload', 'd3']);
 //Define Routing for the app
 
 lunchAndLearnApp.config(['$routeProvider', '$httpProvider',

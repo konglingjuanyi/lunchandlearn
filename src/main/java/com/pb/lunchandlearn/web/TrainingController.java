@@ -50,7 +50,7 @@ public class TrainingController {
 	}
 
 	@RequestMapping(value = "training/{id}/feedbacks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public JSONArray getFeedbacks(@PathVariable("id") Long trainingId) {
+	public JSONObject getFeedbacks(@PathVariable("id") Long trainingId) {
 		return trainingService.getFeedBacks(trainingId);
 	}
 

@@ -17,7 +17,7 @@ import java.util.List;
  * Created by de007ra on 5/1/2016.
  */
 @Repository
-public interface FeedbackRepository extends MongoRepository<FeedBack, Long> {
+public interface FeedbackRepository extends MongoRepository<FeedBack, Long>, CustomFeedbackRepository {
 
 	@Query(fields = "{'id': 1, 'respondentGuid': 1, 'respondentName': 1, 'ratings': 1}")
 	List<FeedBack> findAllByParentId(Long parentId);
@@ -25,6 +25,7 @@ public interface FeedbackRepository extends MongoRepository<FeedBack, Long> {
 	Long countByParentIdAndRespondentGuid(Long parentId, String respondentGuid);
 
 	List<FeedBack> findAllByParentIdAndRespondentGuid(Long trainingId, String guid);
+
 /*
 	FeedBack findByName(String name);
 	FeedBack findById(Long id);

@@ -9,6 +9,14 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 		maxRecentTrainingsCount: 4,
 		//training APIs
 
+		ratingsRows: [{label: 'Over All Expectation', code: 'overallExpectation', color: 'blue'},
+		{label: 'Relevancy', code: 'relevancy', color: 'crimson'},
+		{label: 'Applicability', code: 'applicability', color: 'yellowgreen'},
+		{label: 'Appropriateness', code: 'appropriateness', color: 'blueviolet'},
+		{label: 'Facilitation', code: 'facilitation', color: 'cadetblue'},
+		{label: 'Responsiveness', code: 'answerAllQueries', color: 'darkturquoise'},
+		{label: 'Preparedness', code: 'preparedness', color: 'tomato'}],
+
 		listTrainings: function(config) {
 			var url = this.trainingsUrl;
 			if(!_.isEmpty(config.url)) {

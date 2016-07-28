@@ -131,7 +131,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                     if (angular.isDefined($scope.item.duration)) {
                         $scope.selected.duration = $scope.item.duration;
                     }
-                    $scope.selected.agenda = $scope.item.agenda;
+                    setAgendaTabFields();
                     setCurrentStatus();
 
                     var user = {};
@@ -145,6 +145,16 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             });
         }
 
+        self.saveSelectedField = function(fieldName) {
+            $scope.item[fieldName] = $scope.selected[fieldName];
+            self.saveByField(fieldName);
+        }
+
+        var setAgendaTabFields = function () {
+            $scope.selected.agenda = $scope.item.agenda;
+            $scope.selected.whatsForOrg = $scope.item.whatsForOrg;
+            $scope.selected.whatsForTrainees = $scope.item.whatsForTrainees;
+        }
         var setCurrentStatus = function () {
             self.isTrainingComplete = $scope.item.status === 'COMPLETED';
             if ($scope.item.status) {
@@ -176,20 +186,24 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                     }
                     data.value = utilitiesService.toISODateString(date);
                     break;
-                case 'agenda':
-                    $scope.item.agenda = $scope.selected.agenda;
-                    data.value = $scope.selected.agenda;
-                    break;
             }
             trainingService.updateTrainingByField($scope.item.id, data).then(function (response) {
                 if (restService.isResponseOk(response)) {
                     utilitiesService.setEditable(self, fieldName, false);
                     self['error' + _.upperFirst(fieldName)] = undefined;
-                    if (fieldName == 'status' || fieldName == 'location') {
-                        setCurrentStatus();
-                    }
-                    else if(fieldName === 'trainees') {
-                        updateTraineesCount();
+                    switch (fieldName) {
+                        case 'agenda':
+                        case 'whatsForTrainees':
+                        case 'whatsForOrg':
+                            setAgendaTabFields();
+                            break;
+                        case 'status':
+                        case 'location':
+                            setCurrentStatus();
+                            break;
+                        case 'trainees':
+                            updateTraineesCount();
+                            break;
                     }
                     utilitiesService.setLastModifiedBy(self);
                 }
@@ -334,9 +348,9 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             })
         }
 
-        self.cancelAgenda = function () {
-            $scope.selected.agenda = $scope.item.agenda;
-            self.editAgenda = false;
+        self.cancelTextEdit = function (field) {
+            $scope.selected[field] = $scope.item[field];
+            self['edit' + _.upperFirst(field)] = false;
         }
 
         self.init();

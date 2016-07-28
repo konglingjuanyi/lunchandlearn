@@ -21,4 +21,4 @@ angular.module('directives').directive('topicTag', function() {
                 $scope.$emit('topics.refresh');
             });
         };
-    }]);;
+}]);

@@ -13,18 +13,23 @@ lunchAndLearnDirectives.directive('trainingMain', function () {
 }).controller('trainingMainController',
     ['$scope', 'restService', 'utilitiesService', function ($scope, restService, utilitiesService) {
         var self = this;
-        self.newTrainingsUrl = restService.appUrl + '/trainings/nominated';
+        self.nominatedTrainingsUrl = restService.appUrl + '/trainings/nominated';
         self.upcomingTrainingsUrl = restService.appUrl + '/trainings/scheduled';
+        self.recentTrainingsUrl = restService.appUrl + '/trainings/completed';
 
-        self.getNewTrainings = function () {
-            restService.get(self.newTrainingsUrl).then(function (response) {
-                if(angular.isDefined(response.data)) {
-                    if (_.isArray(response.data.content)) {
-                        self.newTrainings = response.data.content;
-                    }
+        self.getNominatedTrainings = function () {
+            restService.getLoggedInUser().then(function(user) {
+                if(user) {
+                    self.userGuid = user.guid;
+                    self.isAdmin = utilitiesService.isAdminUser(user.roles);
+                    restService.get(self.nominatedTrainingsUrl).then(function (response) {
+                        if(angular.isDefined(response.data)) {
+                            if (_.isArray(response.data.content)) {
+                                self.nominatedTrainings = response.data.content;
+                            }
+                        }
+                    }, function (response) {});
                 }
-            }, function (response) {
-
             });
         }
 
@@ -35,14 +40,24 @@ lunchAndLearnDirectives.directive('trainingMain', function () {
                         self.upcomingTrainings = utilitiesService.filterByLikeCount(response.data.content);
                     }
                 }
-            }, function (response) {
+            }, function (response) {});
+        }
 
-            });
+
+        self.getRecentTrainings = function () {
+            restService.get(self.recentTrainingsUrl).then(function (response) {
+                if(angular.isDefined(response.data)) {
+                    if (_.isArray(response.data.content)) {
+                        self.recentTrainings = response.data.content;
+                    }
+                }
+            }, function (response) {});
         }
 
         self.init = function() {
-            self.getNewTrainings();
+            self.getNominatedTrainings();
             self.getUpcomingTrainings();
+            self.getRecentTrainings();
         };
 
         $scope.$on('trainings.refresh', function () {

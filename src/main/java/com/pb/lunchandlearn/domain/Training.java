@@ -10,7 +10,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -75,11 +74,16 @@ public final class Training {
 
 	private List<Long> feedBackList;
 
+	private boolean feedbackClosed;
+
 	private Float duration;
 
 	private String location;
 	@Indexed
 	private Integer likesCount;
+
+	private String whatsForTrainees;
+	private String whatsForOrg;
 
 	@Override
 	public String toString() {
@@ -105,9 +109,12 @@ public final class Training {
 				", agenda='" + agenda + '\'' +
 				", status=" + status +
 				", feedBackList=" + feedBackList +
+				", feedbackClosed=" + feedbackClosed +
 				", duration=" + duration +
 				", location='" + location + '\'' +
 				", likesCount=" + likesCount +
+				", whatsForTrainees='" + whatsForTrainees + '\'' +
+				", whatsForOrg='" + whatsForOrg + '\'' +
 				'}';
 	}
 
@@ -118,6 +125,7 @@ public final class Training {
 
 		Training training = (Training) o;
 
+		if (feedbackClosed != training.feedbackClosed) return false;
 		if (id != null ? !id.equals(training.id) : training.id != null) return false;
 		if (name != null ? !name.equals(training.name) : training.name != null) return false;
 		if (likedBy != null ? !likedBy.equals(training.likedBy) : training.likedBy != null) return false;
@@ -151,7 +159,10 @@ public final class Training {
 			return false;
 		if (duration != null ? !duration.equals(training.duration) : training.duration != null) return false;
 		if (location != null ? !location.equals(training.location) : training.location != null) return false;
-		return likesCount != null ? likesCount.equals(training.likesCount) : training.likesCount == null;
+		if (likesCount != null ? !likesCount.equals(training.likesCount) : training.likesCount != null) return false;
+		if (whatsForTrainees != null ? !whatsForTrainees.equals(training.whatsForTrainees) : training.whatsForTrainees != null)
+			return false;
+		return whatsForOrg != null ? whatsForOrg.equals(training.whatsForOrg) : training.whatsForOrg == null;
 
 	}
 
@@ -178,10 +189,37 @@ public final class Training {
 		result = 31 * result + (agenda != null ? agenda.hashCode() : 0);
 		result = 31 * result + (status != null ? status.hashCode() : 0);
 		result = 31 * result + (feedBackList != null ? feedBackList.hashCode() : 0);
+		result = 31 * result + (feedbackClosed ? 1 : 0);
 		result = 31 * result + (duration != null ? duration.hashCode() : 0);
 		result = 31 * result + (location != null ? location.hashCode() : 0);
 		result = 31 * result + (likesCount != null ? likesCount.hashCode() : 0);
+		result = 31 * result + (whatsForTrainees != null ? whatsForTrainees.hashCode() : 0);
+		result = 31 * result + (whatsForOrg != null ? whatsForOrg.hashCode() : 0);
 		return result;
+	}
+
+	public boolean isFeedbackClosed() {
+		return feedbackClosed;
+	}
+
+	public void setFeedbackClosed(boolean feedbackClosed) {
+		this.feedbackClosed = feedbackClosed;
+	}
+
+	public String getWhatsForTrainees() {
+		return whatsForTrainees;
+	}
+
+	public void setWhatsForTrainees(String whatsForTrainees) {
+		this.whatsForTrainees = whatsForTrainees;
+	}
+
+	public String getWhatsForOrg() {
+		return whatsForOrg;
+	}
+
+	public void setWhatsForOrg(String whatsForOrg) {
+		this.whatsForOrg = whatsForOrg;
 	}
 
 	public String getLocation() {

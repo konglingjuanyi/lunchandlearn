@@ -1,14 +1,23 @@
 <div class="panel">
+
+    <div class="panel-heading" ng-if="self.isAdmin"><i class="nc-icon-outline ui-1_calendar-60"></i>&nbsp;&nbsp;Nominated Trainings</div>
+    <div class="panel-body" ng-if="self.isAdmin">
+        <span ng-repeat="training in self.nominatedTrainings" training-tag training="training">
+        </span>
+        <span class="text-none btn" ng-if="!self.nominatedTrainings || self.nominatedTrainings.length === 0">None</span>
+    </div>
+
     <div class="panel-heading"><i class="nc-icon-mini ui-e-2_calendar-add"></i>&nbsp;&nbsp;Upcoming Trainings</div>
     <div class="panel-body">
         <span ng-repeat="training in self.upcomingTrainings" training-tag training="training">
         </span>
         <span class="text-none" ng-if="!self.upcomingTrainings || self.upcomingTrainings.length === 0">None</span>
     </div>
-    <div class="panel-heading"><i class="nc-icon-outline ui-1_calendar-60"></i>&nbsp;&nbsp;New Trainings</div>
+
+    <div class="panel-heading" ><i class="nc-icon-outline ui-1_calendar-60"></i>&nbsp;&nbsp;Recent Trainings</div>
     <div class="panel-body">
-        <span ng-repeat="training in self.newTrainings" training-tag training="training">
+        <span ng-repeat="training in self.recentTrainings" training-tag training="training">
         </span>
-        <span class="text-none" ng-if="!self.newTrainings || self.newTrainings.length === 0">None</span>
+        <span class="text-none" ng-if="!self.recentTrainings || self.recentTrainings.length === 0">None</span>
     </div>
 </div>

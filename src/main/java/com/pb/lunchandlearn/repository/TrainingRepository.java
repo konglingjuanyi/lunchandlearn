@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -18,7 +19,7 @@ import java.util.Set;
 public interface TrainingRepository extends MongoRepository<Training, String>, CustomTrainingRepository {
 	Training findByName(String name);
 
-	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1, 'topics': 1, 'scheduledOn': 1, 'location': 1, 'duration': 1}")
+	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1, 'topics': 1, 'scheduledOn': 1, 'location': 1, 'duration': 1, 'status': 1}")
 	Page<Training> findAllBy(TextCriteria textCriteria, Pageable pageable);
 
 	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
@@ -35,6 +36,8 @@ public interface TrainingRepository extends MongoRepository<Training, String>, C
 
 	@Query(fields = "{'trainees': 1}")
 	Training findTraineesById(Long trainingId);
+
+	Training findTrainersAndTraineesAndDurationById(Long trainingId);
 
 	Training getStatusById(Long trainingId);
 }

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public final class InvalidOperationException extends RuntimeException {
 	private static final long serialVersionUID = 4l;
 
+	public InvalidOperationException() {}
+
 	public InvalidOperationException(String message) {
 		super(message);
 	}

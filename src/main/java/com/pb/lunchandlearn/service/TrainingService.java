@@ -17,16 +17,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
+import static java.util.Calendar.SATURDAY;
+import static java.util.Calendar.SUNDAY;
 
 /**
  * Created by de007ra on 5/1/2016.
@@ -233,12 +236,6 @@ public class TrainingService {
 		return fileInfo;
 	}
 
-	public JSONObject getRatings(Long trainingId) {
-		List<FeedBack> feedBacks = feedbackRepository.findAllByParentId(trainingId);
-		for(FeedBack feedBack : feedBacks) {
-			
-		}
-	}
 	public JSONArray getAttachedFiles(Long trainingId) {
 		List<FileAttachmentInfo> fileInfos = trainingRepository.getAttachedFiles(trainingId);
 		return CommonUtil.getFileAttachmentInfosBrief(fileInfos);
@@ -282,17 +279,138 @@ public class TrainingService {
 		return feedbackRepository.insert(feedBack);
 	}
 
-	public JSONArray getFeedBacks(Long trainingId) {
+	public JSONObject getFeedBacks(Long trainingId) {
 		SecuredUser user = getLoggedInUser();
-		if(user.isAdmin()) {
-			return CommonUtil.getFeedbacks(feedbackRepository.findAllByParentId(trainingId));
+		boolean isAdmin = user.isAdmin();
+		boolean isTrainer = false;
+		boolean isTrainee = false;
+		Training training = trainingRepository.findTrainersAndTraineesAndDurationById(trainingId);
+		if(!isAdmin) {
+			isTrainee = training.getTrainees() != null && training.getTrainees().
+					containsKey(user.getGuid());
+			isTrainer = training.getTrainers() != null && training.getTrainers().
+					containsKey(user.getGuid());
+		}
+		if(isAdmin || isTrainee || isTrainer) {
+			List<FeedBack> feedBacks = feedbackRepository.findAllByParentId(trainingId);
+			JSONObject jsonObject = new JSONObject();
+			if(CollectionUtils.isEmpty(feedBacks)) {
+				return jsonObject;
+			}
+			if(!isAdmin && isTrainee) {
+				feedBacks.removeIf(p -> p.equals(user.getGuid()));
+			}
+			jsonObject.put("feedbackCount", feedBacks.size());
+			if(isAdmin || isTrainee) {
+				jsonObject.put("content", CommonUtil.getFeedbacks(feedBacks));
+			}
+
+			if(!CollectionUtils.isEmpty(feedBacks) && (isAdmin || isTrainer)) {
+				int audienceRating = getRatingByTrainees(training.getTrainees());
+				int hoursRating = getRatingByHours(training.getDuration());
+				setFeedBackRatingsPoint(feedBacks, training.getScheduledOn(), jsonObject);
+				int feedBacksRating = (int) jsonObject.get("feedbackRating");
+				float overAllRating = ((audienceRating + hoursRating) / 2) * feedBacksRating;
+
+				jsonObject.put("hoursRating", hoursRating);
+				jsonObject.put("audienceRating", audienceRating);
+				jsonObject.put("overAllReward", overAllRating);
+			}
+			return jsonObject;
 		}
 		else {
-			return CommonUtil.getFeedbacks(feedbackRepository.
+			JSONObject jsonObject = new JSONObject();
+			JSONArray array = CommonUtil.getFeedbacks(feedbackRepository.
 					findAllByParentIdAndRespondentGuid(trainingId, user.getGuid()));
+			jsonObject.put("content", array);
+			return jsonObject;
 		}
 	}
 
+	private void setFeedBackRatingsPoint(List<FeedBack> feedBacks, Date trainingDate, JSONObject jsonObject) {
+		if (!CollectionUtils.isEmpty(feedBacks)) {
+			float avg;
+			int ratingSum;
+			float avgSum = 0;
+			float overAllAvg;
+			Map<String, Integer> individualFeedbackRatings = null;
+			for (FeedBack feedBack : feedBacks) {
+				if(individualFeedbackRatings == null) {
+					individualFeedbackRatings = new HashMap<>(feedBack.getRatings().size());
+				}
+				if(feedBack.getRatings() != null) {
+					ratingSum = 0;
+					for (Map.Entry<String, Integer> rating : feedBack.getRatings().entrySet()) {
+						Integer sum = individualFeedbackRatings.get(rating.getKey());
+						if(sum == null) {
+							sum = 0;
+						}
+						individualFeedbackRatings.put(rating.getKey(), sum + rating.getValue());
+						ratingSum += rating.getValue();
+					}
+					avg = ratingSum / feedBack.getRatings().size();
+					avgSum += avg;
+				}
+			}
+			for(Map.Entry<String, Integer> feedbackRating : individualFeedbackRatings.entrySet()) {
+				jsonObject.put(feedbackRating.getKey(), (float) (feedbackRating.getValue() / feedBacks.size()));
+			}
+			overAllAvg = avgSum / feedBacks.size();
+			if(overAllAvg >= 4.5) {
+				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 1500 : 1000);
+			}
+			else if(overAllAvg > 4 && overAllAvg < 4.5) {
+				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 1250 : 800);
+			}
+			else if(overAllAvg > 3.5 && overAllAvg < 4) {
+				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 1000 : 600);
+			}
+			else if(overAllAvg > 3 && overAllAvg < 3.5) {
+				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 750 : 400);
+			}
+			else {
+				jsonObject.put("feedbackRating", 0);
+			}
+		}
+	}
+
+	private boolean isWeekEnd(Date trainingDate) {
+		Calendar date = new GregorianCalendar();
+		date.setTime(trainingDate);
+		int weekDay = date.get(Calendar.DAY_OF_WEEK);
+		return weekDay == SUNDAY || weekDay == SATURDAY;
+	}
+	private int getRatingByHours(Float duration) {
+		if(duration < 1)
+			return 0;
+		else if(duration > 1 && duration <= 2)
+			return 2;
+		else if(duration > 2 && duration <= 3)
+			return 3;
+		else if(duration > 3 && duration <= 4)
+			return 4;
+		else if(duration > 4 && duration <= 6)
+			return 5;
+		else if(duration > 6 && duration <= 8)
+			return 8;
+		else {
+			throw new InvalidOperationException();
+		}
+	}
+
+	private int getRatingByTrainees(Map<String, String> trainees) {
+		int traineesCount = trainees != null ? trainees.size() : 0;
+
+		if(traineesCount < 10)
+			return 0;
+		else if(traineesCount > 10 && traineesCount <= 15)
+			return 2;
+		else if(traineesCount > 15 && traineesCount <= 20)
+			return 3;
+		else if(traineesCount > 20 && traineesCount <= 25)
+			return 4;
+		return 5;
+	}
 	public FeedBack getFeedBack(Long feedbackId) {
 		return feedbackRepository.findOne(feedbackId);
 	}
