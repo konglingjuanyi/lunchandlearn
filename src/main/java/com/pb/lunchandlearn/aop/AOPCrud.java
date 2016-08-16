@@ -2,15 +2,16 @@ package com.pb.lunchandlearn.aop;
 
 import com.pb.lunchandlearn.config.ModalCollectionSettings;
 import com.pb.lunchandlearn.config.SecuredUser;
+import com.pb.lunchandlearn.config.ServiceAccountSettings;
 import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.exception.DuplicateResourceException;
+import com.pb.lunchandlearn.exception.InvalidOperationException;
 import com.pb.lunchandlearn.exception.ResourceNotFoundException;
 import com.pb.lunchandlearn.repository.FeedbackRepository;
-import com.pb.lunchandlearn.service.EmployeeService;
-import com.pb.lunchandlearn.service.IDProviderService;
-import com.pb.lunchandlearn.service.TopicService;
-import com.pb.lunchandlearn.service.TrainingService;
+import com.pb.lunchandlearn.repository.TrainingRepository;
+import com.pb.lunchandlearn.service.*;
 import com.pb.lunchandlearn.service.mail.MailService;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -22,8 +23,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
+import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
@@ -45,10 +47,16 @@ public class AOPCrud {
 	private ModalCollectionSettings modalCollectionSettings;
 
 	@Autowired
+	private TrainingRepository trainingRepository;
+
+	@Autowired
 	private FeedbackRepository feedbackRepository;
 
 	@Autowired
 	private MailService mailService;
+
+	@Autowired
+	private ServiceAccountSettings serviceAccountSettings;
 
 	@Around("execution(* com.pb.lunchandlearn.service.*Service.add(..))")
 	public Object insert(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -61,15 +69,66 @@ public class AOPCrud {
 
 	@AfterReturning(value = "execution(* com.pb.lunchandlearn.service.*Service.update(..))", returning = "retVal")
 	public Object update(Object retVal) throws Throwable {
-		logger.debug("After from AOPCrud.update()");
-		sendUpdateMail(retVal, null);
+		sendUpdateMail(retVal, null, null);
 		return retVal;
 	}
 
-	@AfterReturning(value = "execution(* com.pb.lunchandlearn.service.*Service.updateField(..))", returning = "retVal")
-	public Object updateField(JoinPoint joinPoint, Object retVal) throws Throwable {
-		logger.debug("After from AOPCrud.updateField()");
-		sendUpdateMail(retVal, joinPoint);
+	@Around(value = "execution(* com.pb.lunchandlearn.service.TrainingServiceImpl.removeAttachedFile(..))")
+	public Object removeTrainingAttachments(ProceedingJoinPoint joinPoint) throws Throwable {
+		Long trainingId = (Long) getFirstArgOfType(joinPoint.getArgs(), Long.class);
+		Object retVal = joinPoint.proceed();
+		if(Boolean.TRUE.equals(retVal)) {
+			FileAttachmentInfo fileInfo = new FileAttachmentInfo();
+			fileInfo.setFileName((String) getFirstArgOfType(joinPoint.getArgs(), String.class));
+			mailService.sendMail(MailService.MailType.ATTACHMENT_REMOVED, fileInfo, trainingId);
+		}
+		return retVal;
+	}
+
+	@Around(value = "execution(* com.pb.lunchandlearn.service.TrainingServiceImpl.removeComment*(..))")
+	public Object removeComment(ProceedingJoinPoint joinPoint) throws Throwable {
+		Object[] args = joinPoint.getArgs();
+		Long trainingId = (Long) getFirstArgOfType(args, Long.class);
+		Comment cmt = null;
+		if(args.length >= 3) {
+			cmt = trainingRepository.getCommentReply(trainingId, (Long) args[1], (Long) args[2]);
+		}
+		else if(args.length >= 2) {
+			cmt = trainingRepository.getComment(trainingId, (Long) args[1]);
+		}
+		Object retVal = joinPoint.proceed();
+		if(Boolean.TRUE.equals(retVal)) {
+			mailService.sendMail(MailService.MailType.COMMENT_REMOVED, cmt, trainingId);
+		}
+		return  retVal;
+	}
+
+	@Before("execution(* com.pb.lunchandlearn.repository.EmployeeRepository.delete(..))")
+	private void deleteEmployee(JoinPoint joinPoint) {
+		String guid = (String)joinPoint.getArgs()[0];
+		if(StringUtils.equalsIgnoreCase(serviceAccountSettings.getGuid(), guid)) {
+			throw new InvalidOperationException(MessageFormat.format("User with Guid '{0}' " +
+					"can't be deleted", guid));
+		}
+	}
+
+	@Around(value = "execution(* com.pb.lunchandlearn.service.*Service.updateField(..))")
+	public Object updateField(ProceedingJoinPoint joinPoint) throws Throwable {
+		logger.debug("Around from AOPCrud.updateField()");
+		Object obj = joinPoint.getSignature().getDeclaringType();
+		Collection<String> receipientsGuid = null;
+		if(obj instanceof TrainingServiceImpl || joinPoint.getTarget() instanceof TrainingServiceImpl) {
+			SimpleFieldEntry entry = (SimpleFieldEntry) getFirstArgOfType(joinPoint.getArgs(), SimpleFieldEntry.class);
+			if(TrainingService.isTrainerField(entry.getName())) {
+				Long trainingId = (Long) getFirstArgOfType(joinPoint.getArgs(), Long.class);
+				Training trn = trainingRepository.getTrainersById(trainingId);
+				receipientsGuid = trn.getTrainers().values();
+			}
+		}
+		Object retVal = joinPoint.proceed();
+		if(Boolean.TRUE.equals(retVal)) {
+			sendUpdateMail(obj, joinPoint, receipientsGuid);
+		}
 		return retVal;
 	}
 
@@ -87,13 +146,13 @@ public class AOPCrud {
 			} else if (obj instanceof Employee) {
 				mailService.sendMail(MailService.MailType.EMPLOYEE_ADDED, (Employee) obj);
 			} else if (obj instanceof FileAttachmentInfo) {
-				mailService.sendMail(MailService.MailType.ATTACHMENT_ADDED, (FileAttachmentInfo) obj);
+				Long trainingId = (Long) getFirstArgOfType(args, Long.class);
+				mailService.sendMail(MailService.MailType.ATTACHMENT_ADDED, (FileAttachmentInfo) obj, trainingId);
 			}
 		}
 	}
 
 	private Object getFirstArgOfType(Object[] args, Class c) {
-		Object id = null;
 		for (Object arg : args) {
 			if (arg.getClass() == c) {
 				return arg;
@@ -102,7 +161,7 @@ public class AOPCrud {
 		return null;
 	}
 
-	private void sendUpdateMail(Object obj, JoinPoint joinPoint) {
+	private void sendUpdateMail(Object obj, JoinPoint joinPoint, Collection<String> recipientsGuid) {
 		if (obj != null) {
 			if (obj instanceof Topic) {
 				mailService.sendMail(MailService.MailType.TOPIC_UPDATED, (Topic) obj);
@@ -110,23 +169,25 @@ public class AOPCrud {
 				mailService.sendMail(MailService.MailType.TRAINING_UPDATED, (Training) obj);
 			} else if (obj instanceof Employee) {
 				mailService.sendMail(MailService.MailType.EMPLOYEE_UPDATED, (Employee) obj);
-			} else if(joinPoint.getTarget() instanceof TopicService) {
+			} else if(obj instanceof TopicServiceImpl || joinPoint.getTarget() instanceof TopicServiceImpl) {
 				mailService.sendMail(MailService.MailType.TOPIC_UPDATED, (Long) getFirstArgOfType(joinPoint.getArgs(), Long.class));
-			} else if(joinPoint.getTarget() instanceof EmployeeService) {
+			} else if(obj instanceof EmployeeServiceImpl || joinPoint.getTarget() instanceof EmployeeServiceImpl) {
 				mailService.sendMail(MailService.MailType.EMPLOYEE_UPDATED, (String) getFirstArgOfType(joinPoint.getArgs(), String.class));
-			} else if(joinPoint.getTarget() instanceof TrainingService) {
+			} else if(obj instanceof TrainingServiceImpl || joinPoint.getTarget() instanceof TrainingServiceImpl) {
 				SimpleFieldEntry simpleFieldEntry = (SimpleFieldEntry) getFirstArgOfType(joinPoint.getArgs(), SimpleFieldEntry.class);
 				Long trainingId = (Long) getFirstArgOfType(joinPoint.getArgs(), Long.class);
 				if("status".equalsIgnoreCase(simpleFieldEntry.getName())) {
 					TrainingStatus status = TrainingStatus.valueOf(simpleFieldEntry.getValue().toString());
 					if(TrainingStatus.SCHEDULED == status) {
-						mailService.sendMail(MailService.MailType.TRAINING_SCHEDULED, trainingId);
+						mailService.sendMail(MailService.MailType.TRAINING_SCHEDULED, trainingId, simpleFieldEntry);
 					}
 					else if(TrainingStatus.CANCELLED == status || status == TrainingStatus.POSTPONED) {
-						mailService.sendMail(MailService.MailType.TRAINING_CANCELLED, (Long) trainingId);
+						mailService.sendMail(MailService.MailType.TRAINING_CANCELLED, trainingId);
 					}
 				}
-//				mailService.sendMail(MailService.MailType.TRAINING_UPDATED, trainingId);
+				else {
+					mailService.sendMail(MailService.MailType.TRAINING_UPDATED, trainingId, simpleFieldEntry, recipientsGuid);
+				}
 			}
 		}
 	}
@@ -193,7 +254,7 @@ public class AOPCrud {
 	@Around("searchMethods() || getAllMethods()")
 	public Object setDefaultSortParam(ProceedingJoinPoint joinPoint) throws Throwable {
 		Object[] args = joinPoint.getArgs();
-		Sort sort = args[0] instanceof String ? StringUtils.isEmpty(args[0]) ? SORT_BY_DEFAULT : SORT_BY_SCORE : SORT_BY_DEFAULT;
+		Sort sort = args[0] instanceof String ? StringUtils.isEmpty((String)args[0]) ? SORT_BY_DEFAULT : SORT_BY_SCORE : SORT_BY_DEFAULT;
 		for (int count = 0; count < args.length; ++count) {
 			Object obj = args[count];
 			if (obj instanceof Pageable) {

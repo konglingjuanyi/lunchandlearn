@@ -8,6 +8,8 @@ import com.pb.lunchandlearn.domain.MiniTrainingDetail;
 import com.pb.lunchandlearn.domain.SimpleFieldEntry;
 import com.pb.lunchandlearn.domain.Topic;
 import com.pb.lunchandlearn.service.TopicService;
+import com.pb.lunchandlearn.service.TopicServiceImpl;
+import com.pb.lunchandlearn.service.TrainingServiceImpl;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -50,15 +52,21 @@ public class TopicController {
 
 	@RequestMapping(value = "/recent", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public JSONObject recent() {
-		Pageable pageable = topicService.getRecentPageable();
+		Pageable pageable = TopicServiceImpl.getRecentPageable();
 		return topicService.getAll(pageable, true);
 	}
 
 	@RequestMapping(value = "/likes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public JSONObject likes() {
-		Pageable pageable = topicService.getTopByLikesPageable();
+		Pageable pageable = TopicServiceImpl.getTopByLikesPageable();
 		return topicService.getAll(pageable, true);
 	}
+
+	@RequestMapping(value = "/topic/{id}/likes", method = RequestMethod.GET)
+	public Integer getLikes(@PathVariable("id") Long topicId) {
+		return topicService.getTrainingLikesCount(topicId);
+	}
+
 
 	@RequestMapping(value="/count", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Long getCount() {

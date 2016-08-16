@@ -1,4 +1,4 @@
-    <div class="container main">
+<div class="container main">
     <h1 class="specifications">Topic</h1>
     <div class="row spacer-top-md">
         <div class="col-md-8">
@@ -6,18 +6,21 @@
             <form novalidate ng-show="!self.error">
                 <div class="form-group">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-10">
                             <label class="form-label">Name</label>
-                            <div class="form-group">
-                                <div class="row">
-                                    <div class="col-md-12">
+                        </div>
+                        <div class="pull-right" topic-tag topic="self.item" show-like-only="true"></div>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': self.errorName}">
+                        <div class="row">
+                            <div class="col-md-12">
                                         <span class="field-editable" ng-show="!self.editName"
                                               ng-click="self.editName = true">{{self.item.name}}</span>
-                                        <input type="text" class="form-control" ng-show="self.editName"
-                                               ng-model="self.item.name" autofocus="true"
-                                               ng-blur="self.saveByField('name')">
-                                    </div>
-                                </div>
+                                <input type="text" class="form-control" ng-show="self.editName"
+                                       ng-model="self.item.name" focus-me>
+                                <div save-cancel ng-show="self.editName" on-save="self.saveByField"
+                                     on-cancel="self.setEditStatus" field="name"></div>
+                                <span class="help-block has-error" ng-show="self.errorName">{{self.errorName}}</span>
                             </div>
                         </div>
                     </div>
@@ -32,7 +35,9 @@
                                         <span class="field-editable" ng-show="!self.editDesc"
                                               ng-click="self.editDesc = true">{{self.item.desc}}</span>
                                         <textarea class="form-control" ng-show="self.editDesc" ng-model="self.item.desc"
-                                                  rows="5" autofocus="true" ng-blur="self.saveByField('desc')"/>
+                                                  rows="5" autofocus="true"/>
+                                        <div save-cancel ng-show="self.editDesc" on-save="self.saveByField"
+                                             on-cancel="self.setEditStatus" field="desc"></div>
                                     </div>
                                 </div>
                             </div>

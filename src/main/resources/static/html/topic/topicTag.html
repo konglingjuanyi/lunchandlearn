@@ -1,10 +1,17 @@
 <span class="btn-group">
-    <span class="mini-tag-simple mini-tag-advance">
+    <span class="mini-tag-simple mini-tag-advance" ng-if="!showLikeOnly">
         <a ng-href="#/topics/{{topic.id}}">{{topic.name}}
         </a>
-        <span class="mini-tag-like a-lnk" ng-click="ttc.likeTopic(topic);">
-            <span class="badge">{{topic.likesCount}}</span>
+        <span class="mini-tag-like a-lnk pull-right" ng-click="ttc.likeTopic(topic);">
             <span class="nc-icon-mini ui-2_like"></span>
         </span>
+        <span class="badge pull-right link-count">{{topic.likesCount}}</span>
+    </span>
+    <span class="mini-tag-simple-larger mini-tag-advance text-larger" ng-if="showLikeOnly" ng-disabled="saving">
+        <span class="mini-tag-like a-lnk mini-tag-like-larger" ng-click="ttc.likeTopic(topic);">
+            <span class="nc-icon-mini ui-2_like" ng-hide="saving"></span>
+            <loading ng-show="saving" smaller="true"></loading>
+        </span>
+        <span class="badge pull-right text-larger">{{topic.likesCount}}</span>
     </span>
 </span>

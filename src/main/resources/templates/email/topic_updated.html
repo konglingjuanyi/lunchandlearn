@@ -45,12 +45,29 @@
 											  style="font-family: Arial, sans-serif; padding: 0; font-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rule: exactly; vertical-align: middle; color: #3b73af;">
 									</span><span
 										style="font-family: Arial, sans-serif; padding: 0; font-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rule: exactly; vertical-align: middle; color: #3b73af;">
-											has added new Topic(</span><a style="text-decoration: none;"
+											updated Topic(</span><a style="text-decoration: none;"
 																		  th:href="${topic_id_link}"><span
 										style="font-family: Arial, sans-serif; padding: 0; font-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rule: exactly; vertical-align: middle;"
 										th:text="${topic_name}"></span></a><span
 										style="font-family: Arial, sans-serif; padding: 0; font-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rule: exactly; vertical-align: middle; color: #3b73af;">
 											)</span>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td
+							style="padding: 0px; border-collapse: collapse; border-left: 1px solid #ccc; border-right: 1px solid #ccc; border-top: 0; border-bottom: 0; padding: 15px 15px 0 16px; background-color: #fff; border-bottom: none; padding-bottom: 0">
+						<table cellspacing="0" cellpadding="0" border="0" width="100%"
+							   style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Arial, sans-serif; font-size: 14px; line-height: 20px; mso-line-height-rule: exactly; mso-text-raise: 2px">
+							<tr>
+								<td
+										style="padding: 0px; border-collapse: collapse; padding: 0 0 10px 0; width: 20%">
+									Description:</td>
+								<td
+										style="padding: 0px; border-collapse: collapse; padding: 0 0 10px 0;">
+									<span th:text="${topic_desc}"></span>
 								</td>
 							</tr>
 						</table>

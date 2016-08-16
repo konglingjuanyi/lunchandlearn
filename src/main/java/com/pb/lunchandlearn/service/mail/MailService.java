@@ -1,16 +1,12 @@
 package com.pb.lunchandlearn.service.mail;
 
 import com.pb.lunchandlearn.domain.*;
-import com.pb.lunchandlearn.service.EmployeeService;
-import com.pb.lunchandlearn.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.spring4.SpringTemplateEngine;
 
 import javax.annotation.PreDestroy;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -53,14 +49,15 @@ public class MailService {
 	public void sendMail(MailType mailType, FeedBack feedBack) {
 		MailingTask mailingTask = context.getBean(MailingTask.class);
 		mailingTask.setMailType(mailType);
-		mailingTask.setFeedBack(feedBack);
+		mailingTask.setParentId(feedBack.getParentId());
 		executor.execute(mailingTask);
 	}
 
-	public void sendMail(MailType mailType, FileAttachmentInfo fileInfo) {
+	public void sendMail(MailType mailType, FileAttachmentInfo fileInfo, Long trainingId) {
 		MailingTask mailingTask = context.getBean(MailingTask.class);
 		mailingTask.setMailType(mailType);
 		mailingTask.setFileAttachmentInfo(fileInfo);
+		mailingTask.setParentId(trainingId);
 		executor.execute(mailingTask);
 	}
 
@@ -75,6 +72,21 @@ public class MailService {
 		MailingTask mailingTask = context.getBean(MailingTask.class);
 		mailingTask.setMailType(mailType);
 		mailingTask.setParentId(parentId);
+		executor.execute(mailingTask);
+	}
+
+	public void sendMail(MailType mailType, Long parentId, SimpleFieldEntry simpleFieldEntry) {
+		sendMail(mailType, parentId, simpleFieldEntry, null);
+	}
+
+	public void sendMail(MailType mailType, Long parentId, SimpleFieldEntry simpleFieldEntry,
+						 Collection<String> receipientsGuid) {
+		MailingTask mailingTask = context.getBean(MailingTask.class);
+		mailingTask.setMailType(mailType);
+		mailingTask.setParentId(parentId);
+		mailingTask.setUpdatedFieldName(simpleFieldEntry.getName());
+		mailingTask.setUpdatedFieldValue(simpleFieldEntry.getValue());
+		mailingTask.setReceipentsGuid(receipientsGuid);
 		executor.execute(mailingTask);
 	}
 

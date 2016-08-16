@@ -1,7 +1,9 @@
 package com.pb.lunchandlearn.config;
 
 import com.pb.lunchandlearn.domain.Employee;
+import com.pb.lunchandlearn.domain.UserRole;
 import com.pb.lunchandlearn.repository.EmployeeRepository;
+import com.pb.lunchandlearn.service.LDAPService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +19,6 @@ import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,24 +30,43 @@ public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthentica
 	@Autowired
 	private EmployeeRepository employeeRepository;
 
+	private static List<GrantedAuthority> empAuthorities = new ArrayList<>(1);
+	@Autowired
+	private LDAPService ldapService;
+
+	static {
+		empAuthorities.add(new SimpleGrantedAuthority(UserRole.EMPLOYEE.toString()));
+	}
+
 	@Override
 	protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 	}
 
 	@Override
-	protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-		UserDetails userDetails = null;
+	protected UserDetails retrieveUser(String guid, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+		UserDetails userDetails;
 
-		if(StringUtils.isEmpty(username)) {
-			throw new UsernameNotFoundException("User Name: ");
+		//ldap authentication
+		if (StringUtils.isEmpty(guid) || StringUtils.isEmpty(authentication.getCredentials())) {
+			throw new UsernameNotFoundException("");
 		}
+		guid = guid.toUpperCase();
 		try {
-			Employee emp = employeeRepository.findByGuid(username.toUpperCase());
-			if(emp == null) {
-				throw new UsernameNotFoundException(MessageFormat.format("User Name: {0}", username));
+//			ldapService.authenticateEmployee(guid, authentication.getCredentials().toString());
+			Employee emp = employeeRepository.findByGuid(guid);
+			if (emp == null) {
+				//first time user fetch the information and save it
+				emp = ldapService.getEmployee(guid);
+				if(emp == null) {
+					emp = ldapService.addEmployee(guid);
+					emp = employeeRepository.insert(emp);
+				}
+				if(emp == null) {
+					throw new UsernameNotFoundException(MessageFormat.format("User Name: {0}", guid));
+				}
 			}
-			userDetails = new SecuredUser(emp.getGuid(), emp.getName(), emp.getGuid(), emp.getEmailId(),
-					getAuthorities(emp.getRoles()));
+			userDetails = new SecuredUser(emp.getGuid(), emp.getName(), authentication.getCredentials().toString(),
+					emp.getEmailId(), getAuthorities(emp.getRoles()));
 		} catch (Exception repositoryProblem) {
 			throw new InternalAuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
 		}
@@ -60,12 +80,12 @@ public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthentica
 
 	private List<GrantedAuthority> getAuthorities(List<String> roles) {
 		if (!CollectionUtils.isEmpty(roles)) {
-			List<GrantedAuthority> authorities = new ArrayList<>(3);
+			List<GrantedAuthority> authorities = new ArrayList<>(roles.size());
 			for (String role : roles) {
 				authorities.add(new SimpleGrantedAuthority(role));
 			}
 			return authorities;
 		}
-		return Collections.EMPTY_LIST;
+		return empAuthorities;
 	}
 }

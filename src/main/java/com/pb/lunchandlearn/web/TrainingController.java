@@ -6,7 +6,9 @@ package com.pb.lunchandlearn.web;
 
 import com.pb.lunchandlearn.config.LikeType;
 import com.pb.lunchandlearn.domain.*;
+import com.pb.lunchandlearn.service.TopicServiceImpl;
 import com.pb.lunchandlearn.service.TrainingService;
+import com.pb.lunchandlearn.service.TrainingServiceImpl;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -102,13 +104,13 @@ public class TrainingController {
 
 	@RequestMapping(value = "/{trainingStatus}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public JSONObject byStatus(@PathVariable("trainingStatus")String status) {
-		Pageable pageable = trainingService.getRecentPageable();
+		Pageable pageable = TopicServiceImpl.getRecentPageable();
 		return trainingService.getAll(pageable, true, status);
 	}
 
 	@RequestMapping(value = "/likes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public JSONObject likes() {
-		Pageable pageable = trainingService.getTopByLikesPageable();
+		Pageable pageable = TopicServiceImpl.getTopByLikesPageable();
 		return trainingService.getAll(pageable, true, null);
 	}
 
@@ -151,6 +153,16 @@ public class TrainingController {
 	@RequestMapping(value = "/{id}/likes", method = RequestMethod.POST)
 	public JSONObject likes(@PathVariable("id") Long trainingId) {
 		return trainingService.updateLikes(trainingId, LikeType.LIKE);
+	}
+
+	@RequestMapping(value = "/{id}/likes", method = RequestMethod.GET)
+	public Integer getLikes(@PathVariable("id") Long trainingId) {
+		return trainingService.getTrainingLikesCount(trainingId);
+	}
+
+	@RequestMapping(value = "/training/{id}/feedbacks/request", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public boolean sendMail(@PathVariable("id") Long trainingId) {
+		return trainingService.sendFeedbackRequest(trainingId);
 	}
 
 	@RequestMapping(value = "/training", method = RequestMethod.PUT)
@@ -215,5 +227,10 @@ public class TrainingController {
 		headers.add("Content-Disposition", "attachment;filename=\"" + fileAttachmentInfo.getFileName() + "\"");
 		return ResponseEntity.ok().contentLength(fileAttachmentInfo.getSize()).headers(headers)
 				.contentType(MediaType.APPLICATION_OCTET_STREAM).body(new InputStreamResource(fileAttachmentInfo.getFile()));
+	}
+
+	@RequestMapping(value = "/locations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public String[] getTrainingLocations() {
+		return trainingService.getTrainingLocations();
 	}
 }

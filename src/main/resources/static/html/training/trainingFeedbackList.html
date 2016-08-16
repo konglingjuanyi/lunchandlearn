@@ -1,6 +1,6 @@
 <div>
     <div class="row" ng-if="self.feedbacks && self.feedbacks.length > 0">
-        <table class="col-md-12 table table-hover">
+        <table class="col-md-12 table table-hover spacer-bottom-md" style="font-size: small;">
             <thead>
             <tr>
                 <th>Trainee</th>
@@ -8,22 +8,37 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="feedback in self.feedbacks" ng-click="self.show(feedback.id)" class="a-lnk">
+            <tr ng-repeat="feedback in self.feedbacks track by $index" ng-click="self.show(feedback.id)" class="a-lnk">
                 <td>{{feedback.respondentName}}</td>
                 <td ng-repeat="rating in self.ratingsRows">{{feedback.ratings[rating.code]}}</td>
             </tr>
             </tbody>
         </table>
+        <div class="row">
+            <div class="col-md-12">
+                <uib-accordion class="spacer-bottom-md">
+                    <div uib-accordion-group class="panel-default" heading="Comments ({{self.feedbackComments.length}})">
+                        <div class="commentList">
+                            <div class="comment" ng-repeat="comment in self.feedbackComments track by $index">
+                                <div ng-bind-html="comment | linky:'_blank'" class="commentText">{{comment}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </uib-accordion>
+            </div>
+        </div>
     </div>
     <div class="row">
+        <div class="spacer-bottom-md">
+            <ng-include src="'/lunchandlearn/html/training/ratingChart.html'"></ng-include>
+        </div>
+    </div>
+    <div class="row spacer-bottom-md">
         <div class="col-md-12">
             <button class="btn btn-sm btn-default spacer-bottom-md" ng-click="self.showAdd();"
                     ng-if="self.pendingFeedBack">
                 Add Feedback
             </button>
         </div>
-    </div>
-    <div class="row spacer-bottom-md">
-        <ng-include src="'/lunchandlearn/html/training/ratingChart.html'"></ng-include>
     </div>
 </div>

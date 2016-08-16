@@ -1,226 +1,70 @@
 package com.pb.lunchandlearn.service;
 
-import com.pb.lunchandlearn.config.ServiceAccountSettings;
 import com.pb.lunchandlearn.domain.*;
-import com.pb.lunchandlearn.exception.InvalidOperationException;
-import com.pb.lunchandlearn.exception.ResourceNotFoundException;
-import com.pb.lunchandlearn.repository.EmployeeRepository;
-import com.pb.lunchandlearn.service.mail.MailService;
-import com.pb.lunchandlearn.utils.CommonUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.query.TextCriteria;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 
-import javax.annotation.PostConstruct;
-import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.*;
-
-import static com.pb.lunchandlearn.utils.CommonUtil.updateOldNewMapValues;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Created by de007ra on 5/1/2016.
+ * Created by DE007RA on 8/8/2016.
  */
-@Service
-public class EmployeeService {
-	@Autowired
-	private EmployeeRepository employeeRepository;
+public interface EmployeeService {
+	Page<Employee> getAll(Pageable pageable);
 
-	public static final List<String> MANAGER_ROLE_LIST = Collections.unmodifiableList(new ArrayList<>(Arrays.asList(UserRole.MANAGER.name())));
+	Page<Employee> search(String term, Pageable pageable);
 
-	public static final List<String> ADMIN_ROLE_LIST = Collections.unmodifiableList(new ArrayList<>(Arrays.asList(UserRole.ADMIN.name())));
+	List<Employee> getAllNames();
 
-	@Autowired
-	private TopicService topicService;
+	Long getCount();
 
-	@Autowired
-	private ServiceAccountSettings accountSettings;
+	Employee getEmployee(String empId);
 
-	@Autowired
-	private MailService mailService;
+	void deleteEmployee(String empId);
 
-	public EmployeeService() {
-	}
+	Employee add(Employee employee);
 
-	@PostConstruct
-	public void init() {
-		try {
-			employeeRepository.findByRoles(ADMIN_ROLE_LIST);
-		} catch (ResourceNotFoundException exp) {
-			//create service account
-			try {
-				Employee admin = employeeRepository.findByGuid(accountSettings.getGuid());
-				List<String> roles = admin.getRoles();
-				if (CollectionUtils.isEmpty(roles)) {
-					roles = ADMIN_ROLE_LIST;
-				} else {
-					roles.add(UserRole.ADMIN.name());
-				}
-				updateField(admin.getGuid(), new SimpleFieldEntry("roles", roles));
-			} catch (ResourceNotFoundException ex) {
-				add(new Employee(accountSettings.getGuid(), accountSettings.getName(), accountSettings.getEmailId(), ADMIN_ROLE_LIST));
-			} catch (Exception ex) {
-				throw new InvalidOperationException("EmployeeServie.init()");
-			}
-		}
-	}
+	Employee update(Employee employee);
 
-	public Page<Employee> getAll(Pageable pageable) {
-		return employeeRepository.findAll(pageable);
-	}
+	List<Employee> getEmployeesByTopicKnown(String topicName);
 
-	public Page<Employee> search(String term, Pageable pageable) {
-		TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matching(term);
-		return employeeRepository.findAllBy(textCriteria, pageable);
-	}
+	Map<Long, String> getTopicsKnown(String empGuid);
 
-	public List<Employee> getAllNames() {
-		return employeeRepository.findAllByNameNotNull();
-	}
+	Map<Long, String> getTopicsInterestedIn(String empGuid);
 
-	public Long getCount() {
-		return employeeRepository.count();
-	}
+	List<MiniTrainingDetail> getTrainingsInterestedIn(String empGuid);
 
-	public Employee getEmployee(String empId) {
-		return employeeRepository.findOne(empId.toUpperCase());
-	}
+	List<MiniTrainingDetail> getTrainingsAttended(String empGuid);
 
-	public void deleteEmployee(String empId) {
-		employeeRepository.delete(empId.toUpperCase());
-	}
+	List<MiniTrainingDetail> getTrainingsImparted(String empGuid);
 
-	public Employee add(Employee employee) {
-		return employeeRepository.insert(employee);
-	}
+	boolean updateField(String empGuid, SimpleFieldEntry simpleFieldEntry) throws ParseException;
 
-	public Employee update(Employee employee) {
-		employee.setGuid(employee.getGuid().toUpperCase());
-		return employeeRepository.save(employee);
-	}
+	void addTrainingTo(Map<String, String> employees, Training training, String trainingStr);
 
-	public List<Employee> getEmployeesByTopicKnown(String topicName) {
-		return employeeRepository.findByTopicsKnown(Arrays.asList(topicName));
-	}
+	void removeTrainingFrom(Map<String, String> employees, Long trainingId, String trainingStr);
 
-	public Map<Long, String> getTopicsKnown(String empGuid) {
-		return employeeRepository.getTopics(empGuid.toUpperCase(), "topicsKnown");
-	}
+	JSONObject getEmployeesMinimal();
 
-	public Map<Long, String> getTopicsInterestedIn(String empGuid) {
-		return employeeRepository.getTopics(empGuid.toUpperCase(), "topicsInterestedIn");
-	}
+	void updateTopics(Long topicId, String topicNewName);
 
-	public List<MiniTrainingDetail> getTrainingsInterestedIn(String empGuid) {
-		return employeeRepository.getTrainings(empGuid.toUpperCase(), "trainingsInterestedIn");
-	}
+	void updateTrainings(Long trainingId, String trainingNewName);
 
-	public List<MiniTrainingDetail> getTrainingsAttended(String empGuid) {
-		return employeeRepository.getTrainings(empGuid.toUpperCase(), "trainingsAttended");
-	}
+	boolean updateTopicInterestedIn(String guid, Long topicId, String topicName);
 
-	public List<MiniTrainingDetail> getTrainingsImparted(String empGuid) {
-		return employeeRepository.getTrainings(empGuid.toUpperCase(), "trainingsImparted");
-	}
+	User getUser(String guid);
 
-	public boolean updateField(String empGuid, SimpleFieldEntry simpleFieldEntry) throws ParseException {
-		Map<Object, Object> oldValues = null;
-		switch (simpleFieldEntry.getName()) {
-			case "topicsKnown":
-				oldValues = (Map) employeeRepository.getTopics(empGuid.toUpperCase(), "topicsKnown");
-				updateEntries(empGuid, simpleFieldEntry.getName(), oldValues, (Map) simpleFieldEntry.getValue());
-				break;
-			case "topicsInterestedIn":
-				oldValues = (Map) employeeRepository.getTopics(empGuid.toUpperCase(), "topicsInterestedIn");
-				updateEntries(empGuid, simpleFieldEntry.getName(), oldValues, (Map) simpleFieldEntry.getValue());
-				break;
-		}
-		return employeeRepository.updateByFieldName(empGuid.toUpperCase(), simpleFieldEntry);
-	}
+	List<Employee> findByRoles(List<String> roles);
 
-	private void updateEntries(String empGuid, String fieldName, Map<Object, Object> oldEntries, Map<Object, Object> newEntries) {
-		Map<Object, Object> addedEntries = null;
-		addedEntries = updateOldNewMapValues(oldEntries, newEntries, addedEntries);
-		switch (fieldName) {
-			case "topicsKnown":
-				if (oldEntries != null && oldEntries.size() > 0) {
-					topicService.removeEmployees((Map) oldEntries, empGuid.toUpperCase(), "employeesKnowAbout");
-				}
-				if (addedEntries != null && addedEntries.size() > 0) {
-					topicService.addEmployees((Map) addedEntries, employeeRepository.findByTheEmployeesId(empGuid.toUpperCase()),
-							"employeesKnowAbout");
-				}
-				break;
-			case "topicsInterestedIn":
-				if (oldEntries != null && oldEntries.size() > 0) {
-					topicService.removeEmployees((Map) oldEntries, empGuid.toUpperCase(), "interestedEmployees");
-				}
-				if (addedEntries != null && addedEntries.size() > 0) {
-					topicService.addEmployees((Map) addedEntries, employeeRepository.findByTheEmployeesId(empGuid.toUpperCase()),
-							"interestedEmployees");
-				}
-				break;
-		}
-	}
+	JSONArray getAllManagers();
 
-	public void addTrainingTo(Map<String, String> employees, Training training, String trainingStr) {
-		if (employees != null && employees.size() > 0) {
-			for (Map.Entry<String, String> emp : employees.entrySet()) {
-				employeeRepository.addTraining(emp.getKey(), training, trainingStr);
-			}
-		}
-	}
+	void updatedLdapEmployees() throws Exception;
 
-	public void removeTrainingFrom(Map<String, String> employees, Long trainingId, String trainingStr) {
-		if (employees != null && employees.size() > 0) {
-			for (Map.Entry<String, String> emp : employees.entrySet()) {
-				employeeRepository.removeTraining(emp.getKey().toString(), trainingId, trainingStr);
-			}
-		}
-	}
-
-	public JSONObject getEmployeesMinimal() {
-		List<Employee> list = employeeRepository.findAllByEmailIdNotNull();
-		JSONArray array = CommonUtil.getEmployeesMinimal(list);
-		JSONObject obj = new JSONObject();
-		obj.put("content", array);
-		return obj;
-	}
-
-	public void updateTopics(Long topicId, String topicNewName) {
-		employeeRepository.updateTopics(topicId, topicNewName, "topicsKnown");
-		employeeRepository.updateTopics(topicId, topicNewName, "topicsInterestedIn");
-	}
-
-	public void updateTrainings(Long trainingId, String trainingNewName) {
-		employeeRepository.updateTrainings(trainingId, trainingNewName, "trainingsInterestedIn");
-		employeeRepository.updateTrainings(trainingId, trainingNewName, "trainingsAttended");
-		employeeRepository.updateTrainings(trainingId, trainingNewName, "trainingsImparted");
-	}
-
-	public boolean updateTopicInterestedIn(String guid, Long topicId, String topicName) {
-		employeeRepository.addTopicInterested(guid.toUpperCase(), topicId, topicName);
-		return true;
-	}
-
-	public User getUser(String guid) {
-		Employee emp = employeeRepository.findByGuid(guid.toUpperCase());
-		if (emp != null) {
-			return emp;
-		}
-		throw new ResourceNotFoundException(MessageFormat.format("User with GUID: {} doesn't exist", guid));
-	}
-
-	public List<Employee> findByRoles(List<String> roles) {
-		return employeeRepository.findAllByRoles(roles);
-	}
-
-	public JSONArray getAllManagers() {
-		return CommonUtil.getEmployeesGuidName(employeeRepository.findAllByRoles(MANAGER_ROLE_LIST));
-	}
+	void updatedLdapEmployee(String guid);
 }

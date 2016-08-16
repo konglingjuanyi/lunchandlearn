@@ -37,7 +37,7 @@ lunchAndLearnDirectives.directive('trainingMain', function () {
             restService.get(self.upcomingTrainingsUrl).then(function (response) {
                 if(angular.isDefined(response.data)) {
                     if (_.isArray(response.data.content)) {
-                        self.upcomingTrainings = utilitiesService.filterByLikeCount(response.data.content);
+                        self.upcomingTrainings = response.data.content;
                     }
                 }
             }, function (response) {});

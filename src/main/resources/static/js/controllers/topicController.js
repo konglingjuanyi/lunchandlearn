@@ -1,7 +1,9 @@
 angular.module('controllers').controller('topicController', [
 	'$uibModal', 'topicService', 'pagingService', '$routeParams', 'restService', 'utilitiesService',
-	function($uibModal, topicService, pagingService, $routeParams, restService, utilitiesService) {
+	'$scope', function($uibModal, topicService, pagingService, $routeParams,
+					   restService, utilitiesService, $scope) {
 		var self = this;
+		var prevItem = null;
 
 		self.init = function () {
 			if(!_.isEmpty($routeParams.topicId)) {
@@ -56,7 +58,7 @@ angular.module('controllers').controller('topicController', [
 					self.employeesKnowAboutEmpty = _.isEmpty(self.item.employeesKnowAbout);
 					updateTrainingsList();
 					utilitiesService.setLastModifiedBy(self, self.item);
-
+					prevItem = _.cloneDeep(self.item);
 				}
 			}, function (error) {
 				self.error = true;
@@ -98,15 +100,23 @@ angular.module('controllers').controller('topicController', [
 
 		self.saveByField = function(fieldName) {
 			var data = {name: fieldName, value: _.get(self.item, fieldName)};
-			topicService.updateTopicByField(self.item.id, data).then(function(response) {
+			return topicService.updateTopicByField(self.item.id, data).then(function(response) {
 				if(restService.isResponseOk(response)) {
-					if(restService.isResponseOk(response)) {
-						utilitiesService.setEditable(self, fieldName, false);
-						utilitiesService.setLastModifiedBy(self);
-					}
+					utilitiesService.setEditable(self, fieldName, false);
+					utilitiesService.setLastModifiedBy(self);
+					setPrevItemField(fieldName);
+					return true;
 				}
+				return false;
 			});
-		}
+		};
+
+		self.setEditStatus = function(fieldName, status) {
+			if(!status) {
+				resetPrevItemField(fieldName);
+			}
+			utilitiesService.setEditable(self, fieldName, status);
+		};
 
 		self.save = function() {
 			self.topic.managers = topicService.getManagersGuidWithName(self.managers, self.topic.managers);
@@ -194,5 +204,24 @@ angular.module('controllers').controller('topicController', [
 				console.log('confirmation modal cancelled')
 			});
 		};
+
+		var setPrevItemField = function(fieldName) {
+			var fldName = _.lowerFirst(fieldName);
+			prevItem[fldName] = _.cloneDeep(self.item[fldName]);
+		};
+
+		var resetPrevItemField = function(fieldName) {
+			var fldName = _.lowerFirst(fieldName);
+			self.item[fldName] = prevItem[fldName];
+		};
+
+		$scope.$on('topics.refresh', function () {
+			topicService.getLikesCount(self.item.id).then(function(result) {
+				if(angular.isDefined(result.data)) {
+					self.item.likesCount = result.data;
+				}
+			});
+		})
+
 		self.init();
 	}]);

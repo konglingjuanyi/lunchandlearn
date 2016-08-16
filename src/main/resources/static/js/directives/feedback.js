@@ -36,10 +36,11 @@ angular.module('directives').directive('feedback', function() {
                 }
             });
             trainingService.getFeedbacks(self.parentId).then(function(response) {
-                if(angular.isDefined(response.data)) {
+                if(!_.isEmpty(response.data)) {
                     self.feedbacks = response.data.content;
                     self.ratings = _.omit(response.data, ['content']);
                     $scope.feedbackCount = response.data.feedbackCount;
+                    self.feedbackComments = response.data.comments;
                     showRatingsGraph();
                 }
             });

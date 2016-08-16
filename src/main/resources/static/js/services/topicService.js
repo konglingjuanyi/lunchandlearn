@@ -53,6 +53,10 @@ angular.module('services').factory('topicService', [ 'restService', '$localStora
 			return restService.get(this.topicUrl  + "/" + topicId);
 		},
 
+		getLikesCount: function(topicId) {
+			return restService.get(this.topicUrl  + "/" + topicId + '/likes');
+		},
+
 		getRecentTopicsId: function() {
 			return $localStorage.recentTopicsId;
 		},

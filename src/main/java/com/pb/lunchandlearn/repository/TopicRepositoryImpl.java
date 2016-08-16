@@ -10,17 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * Created by DE007RA on 6/6/2016.
  */
+@Repository
 public class TopicRepositoryImpl implements CustomTopicRepository {
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -34,9 +33,11 @@ public class TopicRepositoryImpl implements CustomTopicRepository {
 		switch (type) {
 			case LIKE:
 				if(topic.getInterestedEmployees() == null) {
-					topic.setInterestedEmployees(new HashMap<String, String>(1));
+					topic.setInterestedEmployees(Collections.singletonMap(userId, userName));
 				}
-				topic.getInterestedEmployees().put(userId, userName);
+				else {
+					topic.getInterestedEmployees().put(userId, userName);
+				}
 				break;
 			case DISLIKE:
 				topic.getInterestedEmployees().remove(userId);
@@ -138,9 +139,11 @@ public class TopicRepositoryImpl implements CustomTopicRepository {
 				break;
 		}
 		if(employees == null || employees.isEmpty()) {
-			employees = new HashMap<>(1);
+			employees = Collections.singletonMap(emp.getGuid(), emp.getName());
 		}
-		employees.put(emp.getGuid(), emp.getName());
+		else {
+			employees.put(emp.getGuid(), emp.getName());
+		}
 		mongoTemplate.updateFirst(query, new Update().set(employeesStr, employees),
 				Topic.class);
 	}

@@ -14,9 +14,16 @@ angular.module('services', ['ngStorage']).factory('restService', [ '$http', '$q'
 					if (!_.isEmpty(response)) {
 						$rootScope.authenticated = true;
 						$rootScope.user = response.data;
-						if($location.path() == '/login') {
-							$location.path('/').search({logout: null});
+/*
+						if($location.path() === '/login') {
+							if (angular.isDefined($localStorage.lastLnLUrl)) {
+								$location.path($localStorage.lastLnLUrl);
+							}
+							else {
+								$location.path('/').search({logout: null});
+							}
 						}
+*/
 						$q.resolve($rootScope.user);
 					} else {
 						$rootScope.authenticated = false;
@@ -60,6 +67,7 @@ angular.module('services', ['ngStorage']).factory('restService', [ '$http', '$q'
 			if(response.status === 200 && _.isString(response.data) &&
 				response.data.indexOf('<html><head><title>Login Page</title></head>') > -1) {
 				if($location.path() !== '/login') {
+					$rootScope.user = undefined;
 					$location.path('/login');
 				}
 				return $q.resolve({});

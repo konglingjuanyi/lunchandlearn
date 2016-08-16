@@ -6,7 +6,7 @@ angular.module('controllers').controller('topicsController', [
 		self.pageSizes = pagingService.pageSizes;
 		self.currentPage = 1;
 		self.currentPageSize = pagingService.currentPageSize;
-		self.maxPages = pagingService.maxPageSize;
+		self.maxPageSize = pagingService.maxPageSize;
 
 		self.checkSearch = function($event) {
 			if($event.which === 13 || $event.keyCode === 13) {
@@ -27,10 +27,13 @@ angular.module('controllers').controller('topicsController', [
 		};
 
 		self.list = function() {
+			self.searching = true;
 			topicService.listTopics(pagingService.getConfigObj(self)).then(function(response) {
 				if(angular.isDefined(response.data)) {
 					self.setListResult(response.data);
 				}
+			}).finally(function() {
+				self.searching = false;
 			});
 		}
 

@@ -8,7 +8,7 @@ angular.module('controllers').controller('trainingsController', [
 		self.pageSizes = pagingService.pageSizes;
 		self.currentPage = 1;
 		self.currentPageSize = pagingService.currentPageSize;
-		self.maxPages = pagingService.maxPageSize;
+		self.maxPageSize = pagingService.maxPageSize;
 		self.sort = {};
 
 		self.checkSearch = function($event) {
@@ -37,22 +37,25 @@ angular.module('controllers').controller('trainingsController', [
 			self.totalCount = data.totalElements;
 			self.searchedTrainings = {totalCount: self.totalCount, data: data.content};
 			_.each(self.searchedTrainings.data, function(training) {
-				training.scheduledOn = moment(training.scheduledOn).format('DD-MMM-YY, HH:mm A');
+				training.scheduledOn = moment(training.scheduledOn).format('DD-MMM-YY, h:mm a');
 			});
 			self.fromCount = (data.size * data.number) + 1;
 			self.toCount = (self.fromCount - 1) + data.numberOfElements;
 		};
 
 		self.list = function() {
+			self.searching = true;
 			trainingService.listTrainings(pagingService.getConfigObj(self)).then(function(response) {
 				if(angular.isDefined(response.data)) {
 					self.setListResult(response.data);
 				}
+			}).finally(function() {
+				self.searching = false;
 			});
 		}
 
-		self.showEdit = function(id) {
-			$location.path('/trainings/' + id);
+		self.gotoTraining = function(trainingId) {
+			$location.path('/trainings/' + trainingId);
 		}
 
 		self.save = function() {

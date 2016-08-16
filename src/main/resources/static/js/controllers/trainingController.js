@@ -1,9 +1,10 @@
 angular.module('controllers').controller('trainingController', ['$scope', '$uibModal', 'trainingService', 'pagingService',
     '$routeParams', 'restService', 'utilitiesService', 'employeeService', 'topicService', 'Upload', '$timeout',
-    'trainingStatus', 'trainingLocations',
+    'trainingStatus',
     function ($scope, $uibModal, trainingService, pagingService, $routeParams, restService, utilitiesService,
-              employeeService, topicService, Upload, $timeout, trainingStatus, trainingLocations) {
+              employeeService, topicService, Upload, $timeout, trainingStatus) {
         var self = this;
+        var prevItem = null;
         $scope.comments = [];
         $scope.feedbackCount = 0;
         $scope.commentsCount = 0;
@@ -28,13 +29,11 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             }
         };
 
-        self.stepperOptions = trainingService.durationStepperOptions;
-
+        // self.stepperOptions = trainingService.durationStepperOptions;
         $scope.selected = {};
 
         self.trainingStatus = _.cloneDeep(trainingStatus);
         _.remove(self.trainingStatus, {code: null});
-        self.trainingLocations = _.cloneDeep(trainingLocations);
 
         self.init = function () {
             if (!_.isEmpty($routeParams.trainingId)) {
@@ -42,12 +41,14 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                 self.getTraining();
                 self.getAttachments();
                 trainingService.pushRecentTrainingId(self.trainingId);
+                getTrainingLocations();
             }
-            employeeService.listEmployees().then(function (response) {
+            employeeService.listEmployeesMinimal().then(function (response) {
                 if (angular.isDefined(response.data)) {
                     self.employees = response.data.content;
                 }
             });
+
             topicService.listTopics().then(function (response) {
                 if (angular.isDefined(response.data)) {
                     self.topics = response.data.content;
@@ -66,12 +67,8 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                 $scope.item.trainers = utilitiesService.addUnique($scope.item.trainers, $scope.selected.trainer, 'guid', 'name');
                 self.saveByField('trainers');
             }
-        });
-
-        $scope.$watch('selected.duration', function () {
-            if ($scope.selected.duration !== $scope.item.duration) {
-                $scope.item.duration = $scope.selected.duration;
-                self.saveByField('duration');
+            else if($scope.selected.trainer) {
+                self.errorTrainers = $scope.selected.trainer.name + ' already added as trainee';
             }
         });
 
@@ -79,9 +76,10 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             if ($scope.selected.trainee && (!$scope.item.trainers || !$scope.item.trainers[$scope.selected.trainee.guid])) {
                 $scope.item.trainees = utilitiesService.addUnique($scope.item.trainees, $scope.selected.trainee, 'guid', 'name');
                 self.saveByField('trainees');
-                self.feedBackRequestSent = false;
             }
-
+            else if($scope.selected.trainee) {
+                self.errorTrainees = $scope.selected.trainee.name + ' already added as trainer';
+            }
         });
 
         var updateTraineesCount = function () {
@@ -94,6 +92,9 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                 $scope.item.topics = utilitiesService.addUnique($scope.item.topics, $scope.selected.topic, 'id', 'name');
                 self.saveByField('topics');
             }
+            else if($scope.selected.topic) {
+                self.errorTopics = $scope.selected.topic.name + ' already added as prerequisite';
+            }
         });
 
         $scope.$watch('selected.prerequisite', function () {
@@ -101,22 +102,17 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                 $scope.item.prerequisites = utilitiesService.addUnique($scope.item.prerequisites, $scope.selected.prerequisite, 'id', 'name');
                 self.saveByField('prerequisites');
             }
-        });
-
-        $scope.$watch('scheduledOn', function () {
-            $scope.scheduledOnView = '';
-            if ($scope.scheduledOn) {
-                $scope.scheduledOnView = moment($scope.scheduledOn).format('DD-MMM-YY, HH:mm A');
+            else if($scope.selected.prerequisite) {
+                self.errorTopics = $scope.selected.prerequisite.name + ' already added as topic';
             }
         });
 
-        self.setListResult = function (data) {
-            self.totalPages = data.totalPages;
-            self.totalCount = data.totalElements;
-            self.searchedTrainings = {totalCount: self.totalCount, data: data.content};
-            self.fromCount = (data.size * data.number) + 1;
-            self.toCount = (self.fromCount - 1) + data.numberOfElements;
-        };
+        $scope.$watch('item.scheduledOn', function () {
+            $scope.scheduledOnView = '';
+            if ($scope.item.scheduledOn) {
+                $scope.scheduledOnView = moment($scope.item.scheduledOn).format('DD-MMM-YY, HH:mm A');
+            }
+        });
 
         self.getTraining = function () {
             trainingService.getTraining(self.trainingId).then(function (response) {
@@ -125,9 +121,9 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                     trainingService.setEditables($scope.item, self);
 
                     if ($scope.item.scheduledOn) {
-                        $scope.scheduledOn = moment($scope.item.scheduledOn).toDate();
-                        self.attachmentUploadUrl = trainingService.trainingUrl + '/' + $scope.item.id + '/attachment';
+                        $scope.item.scheduledOn = moment($scope.item.scheduledOn).toDate();
                     }
+                    self.attachmentUploadUrl = trainingService.trainingUrl + '/' + $scope.item.id + '/attachment';
                     if (angular.isDefined($scope.item.duration)) {
                         $scope.selected.duration = $scope.item.duration;
                     }
@@ -138,6 +134,8 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                     user[$scope.item.createdByGuid] = $scope.item.createdByName;
                     self.createdBy = user;
                     utilitiesService.setLastModifiedBy(self, $scope.item);
+                    prevItem = _.cloneDeep($scope.item);
+
                 }
             }, function (error) {
                 self.error = true;
@@ -161,9 +159,6 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                 self.trainingCurrentStatus = _.find(self.trainingStatus, {code: $scope.item.status}).label;
                 updateTraineesCount();
             }
-            if($scope.item.location) {
-                self.trainingCurrentLocation = _.find(self.trainingLocations, {code: $scope.item.location}).label;
-            }
         };
 
         self.getAttachments = function () {
@@ -173,24 +168,34 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
         }
 
         self.saveByField = function (fieldName) {
+            self.feedBackRequestSent = false;
             var data = {name: fieldName, value: _.get($scope.item, fieldName)};
             switch (fieldName) {
                 case 'scheduledOn':
-                    var date = moment($scope.scheduledOn);
-                    var date2 = moment($scope.item.scheduledOn);
+                    var date = moment($scope.item.scheduledOn);
+                    var date2 = moment(prevItem.scheduledOn);
                     if (date2.isValid()) {
                         var diff = date.diff(date2, 'minutes');
-                        if (!self.isDatePickerOpen || !date.isValid() || isNaN(diff) || diff === 0) {
-                            return;
+                        if (!date.isValid() || isNaN(diff) || diff === 0) {
+                            $scope.item.scheduledOn = _.cloneDeep(prevItem.scheduledOn);
+                            utilitiesService.setEditable(self, fieldName, false);
+                            return false;
                         }
                     }
                     data.value = utilitiesService.toISODateString(date);
                     break;
+                case 'status':
+                    if(data.value === 'SCHEDULED') {
+                        self.errorStatus = getIncompleteMsg();
+                        if(!_.isEmpty(self.errorStatus)) {
+                            $scope.item.status = prevItem.status;
+                            return false;
+                        }
+                    }
+                    break;
             }
-            trainingService.updateTrainingByField($scope.item.id, data).then(function (response) {
+            return trainingService.updateTrainingByField($scope.item.id, data).then(function (response) {
                 if (restService.isResponseOk(response)) {
-                    utilitiesService.setEditable(self, fieldName, false);
-                    self['error' + _.upperFirst(fieldName)] = undefined;
                     switch (fieldName) {
                         case 'agenda':
                         case 'whatsForTrainees':
@@ -206,12 +211,26 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                             break;
                     }
                     utilitiesService.setLastModifiedBy(self);
+                    setPrevItemField(fieldName);
+                    utilitiesService.setEditable(self, fieldName, false);
+                    self['error' + _.upperFirst(fieldName)] = undefined;
+                    return true;
                 }
             }).catch(function(response) {
                 self['error' + _.upperFirst(fieldName)] = response.data.message;
                 self.prevErrorFieldName = fieldName;
             });
-        },
+        };
+
+        var setPrevItemField = function(fieldName) {
+            var fldName = _.lowerFirst(fieldName);
+            prevItem[fldName] = _.cloneDeep($scope.item[fldName]);
+        };
+
+        var resetPrevItemField = function(fieldName) {
+            var fldName = _.lowerFirst(fieldName);
+            $scope.item[fldName] = prevItem[fldName];
+        };
 
         self.setEditStatus = function(fieldName, status) {
             if(status) {
@@ -230,6 +249,9 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                         }
                         break;
                 }
+            }
+            else {
+                resetPrevItemField(fieldName);
             }
             utilitiesService.setEditable(self, fieldName, status);
         },
@@ -341,11 +363,17 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
         }
 
         self.sendFeedBackRequest = function () {
-            trainingService.sendFeedBackRequest().then(function (response) {
-                if (response.data.status) {
+            self.errorStatus = getIncompleteMsg();
+            if(!_.isEmpty(self.errorStatus)) {
+                return;
+            }
+
+            trainingService.sendFeedBackRequest($scope.item.id).then(function (response) {
+                self.feedBackRequestSent = false;
+                if (response.data) {
                     self.feedBackRequestSent = true;
                 }
-            })
+            });
         }
 
         self.cancelTextEdit = function (field) {
@@ -353,10 +381,63 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             self['edit' + _.upperFirst(field)] = false;
         }
 
+        var getTrainingLocations = function() {
+            trainingService.getTrainingLocations().then(function (response) {
+                if (angular.isDefined(response.data)) {
+                    self.trainingLocations = response.data;
+                }
+            });
+        }
+
+        $scope.$on('training.refresh', function () {
+            trainingService.getLikesCount(self.item.id).then(function(result) {
+                if(angular.isDefined(result.data)) {
+                    self.item.likesCount = result.data;
+                }
+            });
+        });
+
+        var getIncompleteMsg = function () {
+            var msg = '';
+            if(_.isEmpty($scope.item.whatsForTrainees)) {
+                msg = 'Whats for Trainees, ';
+                self.errorWhatsForTrainees = 'Whats for Trainees can\'t be empty';
+            }
+            if(_.isEmpty($scope.item.whatsForOrg)) {
+                msg += 'Whats for Trainees, ';
+                self.errorWhatsForOrg = 'What\'s For Organisation can\'t be empty';
+            }
+            if(_.isEmpty($scope.item.agenda)) {
+                msg += 'Agenda, ';
+                self.errorAgenda = 'Agenda can\'t be empty';
+            }
+            if(_.isEmpty($scope.item.name)) {
+                msg += "Name, ";
+                self.errorName = 'Name can\'t be empty';
+            }
+            if(_.isEmpty($scope.item.location)) {
+                msg += "Location, ";
+                self.errorLocation = 'Location can\'t be empty';
+            }
+            if(!_.isNumber($scope.item.duration)) {
+                msg += "Duration, ";
+                self.errorDuration = 'Duration can\'t be empty';
+            }
+            if(!(_.isNumber($scope.item.scheduledOn) || _.isDate($scope.item.scheduledOn))) {
+                msg += "Scheduled On, ";
+                self.errorScheduledOn = 'ScheduledOn can\'t be empty';
+            }
+            if(angular.isUndefined($scope.item.topics)) {
+                msg += "Topics, ";
+                self.errorTopics = 'Topics can\'t be empty';
+            }
+            if(!_.isEmpty(msg)) {
+                msg = msg.substr(0, msg.lastIndexOf(',')) + ' field(s) can\'t be empty';
+            }
+            return msg;
+        };
+
         self.init();
     }]).constant('trainingStatus', [{label: 'All', code: null}, {label: 'Nominated', code: 'NOMINATED'},
     {label: 'Scheduled', code: 'SCHEDULED'}, {label: 'Completed', code: 'COMPLETED'},
-    {label: 'Postponed', code: 'POSTPONED'}, {label: 'Cancelled', code: 'CANCELLED'}]).constant('trainingLocations',
-    [{label: 'Seine', code: 'Seine'}, {label: 'Ganga', code: 'Ganga'},
-    {label: 'Rhine', code: 'Rhine'}, {label: 'Godavari', code: 'Godavari'},
-    {label: 'Everest', code: 'Everest'}, {label: 'CEC', code: 'CEC'}]);
+    {label: 'Postponed', code: 'POSTPONED'}, {label: 'Cancelled', code: 'CANCELLED'}]);

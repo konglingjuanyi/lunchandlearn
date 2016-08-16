@@ -6,19 +6,26 @@ angular.module('directives').directive('topicTag', function() {
         templateUrl : '/lunchandlearn/html/topic/topicTag.html',
         replace : true,
         scope: {
-            topic: '=?'
+            topic: '=',
+            showLikeOnly: '=?'
         },
         controller: 'topicTagController',
         controllerAs: 'ttc'
     };
 }).controller('topicTagController',
-    [ '$scope', 'topicService', function($scope, topicService) {
+    [ '$scope', 'topicService', '$rootScope', function($scope, topicService, $rootScope) {
         var self = this;
 
+        if(!angular.isDefined($scope.showName)) {
+            $scope.showName = true;
+        }
         self.likeTopic = function (topic) {
+            $scope.saving = true;
             topicService.likeTopic(topic.id).then(function(response) {
                 topic.likesCount = response.data.likesCount;
-                $scope.$emit('topics.refresh');
-            });
+                $rootScope.$broadcast('topics.refresh');
+            }).finally(function () {
+                $scope.saving = false;
+            });;
         };
 }]);

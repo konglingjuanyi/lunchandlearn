@@ -40,12 +40,15 @@
                                style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt">
                             <tr>
                                 <td
-                                        style="vertical-align: top;; padding: 0px; border-collapse: collapse; padding-right: 5px; font-size: 20px; line-height: 30px; mso-line-height-rule: exactly"><span
+                                        style="vertical-align: top;; padding: 0px; border-collapse: collapse; padding-right: 5px; font-size: 20px; line-height: 30px; mso-line-height-rule: exactly">
+										<span th:text="${employee_name}"
+                                              style="font-family: Arial, sans-serif; padding: 0; font-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rule: exactly; vertical-align: middle; color: #3b73af;">
+									</span><span
                                         style="font-family: Arial, sans-serif; padding: 0; font-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rule: exactly; vertical-align: middle; color: #3b73af;">
-											New Training(</span><a style="text-decoration: none;"
-                                                                                        th:href="${training_id_link}"><span
+											added Training(</span><a style="text-decoration: none;"
+                                                                    th:href="${training_id_link}"><span
                                         style="font-family: Arial, sans-serif; padding: 0; font-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rule: exactly; vertical-align: middle;"
-                                        th:text="${training_name}"></span></a> is added<span
+                                        th:text="${training_name}"></span></a><span
                                         style="font-family: Arial, sans-serif; padding: 0; font-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rule: exactly; vertical-align: middle; color: #3b73af;">
 											)</span>
                                 </td>
@@ -61,10 +64,10 @@
                             <tr>
                                 <td
                                         style="padding: 0px; border-collapse: collapse; padding: 0 0 10px 0; width: 20%">
-                                    Added By:</td>
+                                    Topics Covered:</td>
                                 <td
                                         style="padding: 0px; border-collapse: collapse; padding: 0 0 10px 0;">
-                                    <span th:text="${employee_name}"></span>
+                                    <span th:text="${training_topics}"></span>
                                 </td>
                             </tr>
                         </table>
@@ -72,7 +75,7 @@
                 </tr>
                 <tr>
                     <td
-                            style="padding: 0px; border-collapse: collapse; color: #fff; padding: 0 15px 0 16px; height: 5px; line-height: 5px; background-color: #fff; border-top: 0; border-left: 1px solid #ccc; border-bottom: 1px solid #ccc; border-right: 1px solid #ccc; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; mso-line-height-rule: exactly">&nbsp;
+                            style="padding: 0px; border-collapse: collapse; color: #fff; padding: 0 15px 0 16px; height: 5px; line-height: 5px; background-color: #fff; border-top: 0; border-left: 1px solid #ccc; border-bottom: 1px solid #ccc; border-right: 1px solid #ccc; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; mso-line-height-rule: exactly">
                     </td>
                 </tr>
             </table>

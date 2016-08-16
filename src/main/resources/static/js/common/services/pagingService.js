@@ -5,7 +5,7 @@ angular.module('services').service('pagingService', ['$localStorage', function($
     var self = this;
     self.maxPageSize = 10;
 
-    self.pageSizes = [2, 5, 20, 25, 30];
+    self.pageSizes = [8, 15, 30, 60];
 
     self.currentPageSize = angular.isDefined($localStorage.pageSize) ? $localStorage.pageSize : self.pageSizes[0];
 

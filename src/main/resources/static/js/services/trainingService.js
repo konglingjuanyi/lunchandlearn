@@ -49,8 +49,16 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 			return restService.post(this.trainingsUrl + '/' + trainingId + '/likes');
 		},
 
+		getLikesCount: function(trainingId) {
+			return restService.get(this.trainingsUrl + '/' + trainingId + '/likes');
+		},
+
 		getTrainingsName: function() {
 			return restService.get(this.trainingsUrl + '/names')
+		},
+
+		getTrainingLocations: function() {
+			return restService.get(this.trainingsUrl + '/locations')
 		},
 
 		addTraining: function(item) {
@@ -110,7 +118,7 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 		durationStepperOptions: {
 			arrowStep: 0.5,
 			wheelStep: 0.5,
-			limit: [0.5, 2147483647],
+			limit: [0.5, 8],
 			type: 'float',
 			floatPrecission: 2// decimal precission
 		},

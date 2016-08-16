@@ -6,11 +6,13 @@ import org.springframework.util.StringUtils;
  * Created by de007ra on 5/2/2016.
  */
 public enum UserRole {
+	EMPLOYEE("EMPLOYEE"),
 	ADMIN("ADMIN"),
 	MANAGER("MANAGER");
 
 	private String role;
-	private UserRole(String role) {
+
+	UserRole(String role) {
 		this.role = role;
 	}
 

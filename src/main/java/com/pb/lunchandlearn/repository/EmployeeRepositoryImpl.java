@@ -3,11 +3,12 @@ package com.pb.lunchandlearn.repository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.WriteResult;
 import com.pb.lunchandlearn.domain.*;
-import com.pb.lunchandlearn.service.EmployeeService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
@@ -16,6 +17,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 /**
  * Created by DE007RA on 6/6/2016.
  */
+@Repository
 public class EmployeeRepositoryImpl implements CustomEmployeeRepository {
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -113,13 +115,65 @@ public class EmployeeRepositoryImpl implements CustomEmployeeRepository {
 		return mongoTemplate.find(query, Employee.class);
 	}
 
+	@Override
+	public void updateAllDifferentFields(Employee emp) {
+		if(emp == null) {
+			return;
+		}
+		Query query = new Query(where("guid").is(emp.getGuid()));
+		query.fields().include("emailId").include("name").include("roles").include("managers");
+		Employee repoEmp = mongoTemplate.findOne(query, Employee.class);
+		if(repoEmp == null) {
+			mongoTemplate.insert(emp);
+			return;
+		}
+		Update update = new Update();
+		boolean isDiffField = false;
+		if(!StringUtils.equalsIgnoreCase(emp.getEmailId(), repoEmp.getEmailId())) {
+			isDiffField = true;
+			update.set("emailId", emp.getEmailId());
+		}
+		if(!StringUtils.equalsIgnoreCase(emp.getName(), repoEmp.getName())) {
+			isDiffField = true;
+			update.set("name", emp.getName());
+		}
+		if(emp.getManagers() != null) {
+			boolean isDiffManagers = false;
+			for(Map.Entry<String, String> manager : emp.getManagers().entrySet()) {
+				if(!repoEmp.getManagers().containsKey(manager.getKey())) {
+					repoEmp.getManagers().put(manager.getKey(), manager.getValue());
+					isDiffManagers = true;
+				}
+			}
+			if(isDiffManagers) {
+				isDiffField = true;
+				update.set("managers", repoEmp.getManagers());
+			}
+
+		}
+		if(emp.getRoles() != null) {
+			for(String role : emp.getRoles()) {
+				if(repoEmp.getRoles() == null || !repoEmp.getRoles().contains(role)) {
+					update.push("roles", role);
+					isDiffField = true;
+				}
+			}
+		}
+
+		if(isDiffField) {
+			mongoTemplate.updateFirst(query, update, Employee.class);
+		}
+	}
+
 	private void addTopic(String empGuid, Long topicId, String topicName, String topicStr) {
 		Query query = new Query(where("guid").is(empGuid));
 		Map<Long, String> topics = getTopics(empGuid, topicStr);
 		if(topics == null) {
-			topics = new HashMap<Long, String>(1);
+			topics = Collections.singletonMap(topicId, topicName);
 		}
-		topics.put(topicId, topicName);
+		else {
+			topics.put(topicId, topicName);
+		}
 		mongoTemplate.updateFirst(query, new Update().set(topicStr, topics), Employee.class);
 	}
 }

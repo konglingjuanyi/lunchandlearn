@@ -2,7 +2,7 @@
 /**
  * Created by DE007RA on 6/23/2016.
  */
-angular.module('services').service('utilitiesService', ['restService', function(restService) {
+angular.module('services').service('utilitiesService', ['restService', '$uibModal', function(restService, $uibModal) {
     var self = this;
     self.addUnique = function (map, obj, objMapKey, objValueKey, sort){
         if(angular.isDefined(obj)) {
@@ -74,7 +74,39 @@ angular.module('services').service('utilitiesService', ['restService', function(
             return item.likesCount > 0;
         });
         return data;
-    }
+    };
+
+    self.isAppUrl = function (fullUrl) {
+        if(_.isEmpty(fullUrl)) {
+            return false;
+        }
+        var names = fullUrl.split('/');
+        if(names.length < 4) {
+            return false;
+        }
+         return names[3] === 'lunchandlearn';
+    };
+
+
+    self.isLoginUrl = function (fullUrl) {
+        if(_.isEmpty(fullUrl)) {
+            return false;
+        }
+        var names = fullUrl.split('/');
+        if(names.length < 5) {
+            return false;
+        }
+        var lastUrl = (names[names.length - 1]).split('?')[0];
+
+        return lastUrl === 'login';
+    };
+
+    self.getRelativePath = function (fullUrl) {
+        if(_.isEmpty(fullUrl)) {
+            return '';
+        }
+        return fullUrl.substr(fullUrl.indexOf('#') + 1);
+    };
 
     self.setLastModifiedBy = function(parent, obj) {
         if(!obj) {
@@ -90,4 +122,18 @@ angular.module('services').service('utilitiesService', ['restService', function(
             parent.lastModifiedBy = entry;
         }
     };
+
+    self.showMsgDlg = function (data) {
+        var opts = {
+            templateUrl: '/lunchandlearn/html/main/msgDlg.html',
+            controller: 'modalController as self',
+            backdrop: 'static',
+            resolve: {
+                data: function () {
+                    return data;
+                }
+            }
+        };
+        $uibModal.open(opts);
+    }
 }]);

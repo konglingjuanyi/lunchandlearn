@@ -16,10 +16,10 @@ import java.util.List;
 /**
  * Created by de007ra on 5/1/2016.
  */
-@Repository
+
 public interface FeedbackRepository extends MongoRepository<FeedBack, Long>, CustomFeedbackRepository {
 
-	@Query(fields = "{'id': 1, 'respondentGuid': 1, 'respondentName': 1, 'ratings': 1}")
+	@Query(fields = "{'id': 1, 'respondentGuid': 1, 'respondentName': 1, 'ratings': 1, 'comment': 1}")
 	List<FeedBack> findAllByParentId(Long parentId);
 
 	Long countByParentIdAndRespondentGuid(Long parentId, String respondentGuid);

@@ -1,0 +1,9 @@
+<span class="btn-group pull-right">
+    <button class="btn btn-primary btn-sm" ng-click="save();" type="button" ng-disabled="saving">
+        <i class="nc-icon-mini ui-1_check-simple" ng-hide="saving"></i>
+        <loading ng-show="saving" smaller="true"></loading>
+    </button>
+    <button class="btn btn-default btn-sm" ng-disabled="saving" ng-click="cancel();" type="button">
+        <i class="nc-icon-mini ui-1_bold-remove"></i>
+    </button>
+</span>

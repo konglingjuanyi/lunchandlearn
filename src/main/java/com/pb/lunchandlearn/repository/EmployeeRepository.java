@@ -10,13 +10,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 /**
  * Created by de007ra on 5/1/2016.
  */
-@Repository
 public interface EmployeeRepository extends MongoRepository<Employee, String>, CustomEmployeeRepository{
 
 	Employee findByEmailId(String emailId);
@@ -42,5 +42,5 @@ public interface EmployeeRepository extends MongoRepository<Employee, String>, C
 	Employee findByRoles(List<String> adminRole);
 
 	@Query(fields="{ 'guid' : 1, 'emailId': 1}")
-	List<Employee> findAllByGuidIn(List<String> guids);
+	Collection<Employee> findAllByGuidIn(Collection<String> guids);
 }

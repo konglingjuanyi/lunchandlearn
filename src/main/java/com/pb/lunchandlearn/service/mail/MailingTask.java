@@ -1,12 +1,16 @@
 package com.pb.lunchandlearn.service.mail;
 
-import com.pb.lunchandlearn.config.*;
+import com.pb.lunchandlearn.config.ApplicationConfiguration;
+import com.pb.lunchandlearn.config.MailServerSettings;
+import com.pb.lunchandlearn.config.SecuredUser;
+import com.pb.lunchandlearn.config.ServiceAccountSettings;
 import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.repository.EmployeeRepository;
 import com.pb.lunchandlearn.repository.TopicRepository;
 import com.pb.lunchandlearn.repository.TrainingRepository;
-import com.pb.lunchandlearn.service.EmployeeService;
+import com.pb.lunchandlearn.service.LDAPService;
 import com.pb.lunchandlearn.utils.CommonUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
@@ -32,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
+import static com.pb.lunchandlearn.service.EmployeeServiceImpl.ADMIN_ROLE_LIST;
 
 public final class MailingTask implements Runnable {
 
@@ -45,10 +49,10 @@ public final class MailingTask implements Runnable {
 	private Training training;
 	private SecuredUser securedUser = getLoggedInUser();
 	private Comment comment = null;
-	private FeedBack feedBack;
 	private Employee employee = null;
 	private FileAttachmentInfo fileAttachmentInfo = null;
 	private Topic topic;
+	private boolean isCalenderRequest;
 
 	@Autowired
 	private JavaMailSender mailSender;
@@ -68,6 +72,9 @@ public final class MailingTask implements Runnable {
 	@Autowired
 	private EmployeeRepository employeeRepository;
 
+	@Autowired
+	private LDAPService ldapService;
+
 	private MimeMessage mimeMessage;
 
 	@Autowired
@@ -76,9 +83,12 @@ public final class MailingTask implements Runnable {
 
 	private Long parentId;
 	private String employeeGuid;
+	private String updatedFieldName;
+	private Object updatedFieldValue;
+	private Collection<String> recipientsGuid;
 
-	public MailService.MailType getMailType() {
-		return mailType;
+	public void setUpdatedFieldValue(Object updatedFieldValue) {
+		this.updatedFieldValue = updatedFieldValue;
 	}
 
 	public void setMailType(MailService.MailType mailType) {
@@ -93,6 +103,10 @@ public final class MailingTask implements Runnable {
 		this.training = training;
 	}
 
+	public void setUpdatedFieldName(String updatedFieldName) {
+		this.updatedFieldName = updatedFieldName;
+	}
+
 	public Comment getComment() {
 		return comment;
 	}
@@ -101,24 +115,12 @@ public final class MailingTask implements Runnable {
 		this.comment = comment;
 	}
 
-	public FeedBack getFeedBack() {
-		return feedBack;
-	}
-
-	public void setFeedBack(FeedBack feedBack) {
-		this.feedBack = feedBack;
-	}
-
 	public Employee getEmployee() {
 		return employee;
 	}
 
 	public void setEmployee(Employee employee) {
 		this.employee = employee;
-	}
-
-	public FileAttachmentInfo getFileAttachmentInfo() {
-		return fileAttachmentInfo;
 	}
 
 	public void setFileAttachmentInfo(FileAttachmentInfo fileAttachmentInfo) {
@@ -133,121 +135,67 @@ public final class MailingTask implements Runnable {
 		this.topic = topic;
 	}
 
-	public String getEmployeeGuid() {
-		return employeeGuid;
-	}
-
 	public void setEmployeeGuid(String employeeGuid) {
 		this.employeeGuid = employeeGuid;
-	}
-
-	public Long getParentId() {
-		return parentId;
 	}
 
 	public void setParentId(Long parentId) {
 		this.parentId = parentId;
 	}
 
-	public MailingTask(MailService.MailType mailType, Comment comment, Long parentId) {
-		this.mailType = mailType;
-		this.comment = comment;
-		this.parentId = parentId;
-	}
-
-	public MailingTask(MailService.MailType mailType, FeedBack feedBack) {
-		this.mailType = mailType;
-		this.feedBack = feedBack;
-	}
-
-	public MailingTask(MailService.MailType mailType,
-					   FileAttachmentInfo fileInfo) {
-		this.mailType = mailType;
-		this.fileAttachmentInfo = fileInfo;
-	}
-
-	public MailingTask(MailService.MailType mailType, Long parentId) {
-		this.mailType = mailType;
-		this.parentId = parentId;
-	}
-
-	public MailingTask(MailService.MailType mailType, Topic topic) {
-		this.mailType = mailType;
-		this.topic = topic;
-	}
-
-	public MailingTask(MailService.MailType mailType, Training training) {
-		this.mailType = mailType;
-		this.training = training;
-	}
-
-	public MailingTask(MailService.MailType mailType, Employee employee) {
-		this.mailType = mailType;
-		this.employee = employee;
-	}
-
 	public MailingTask() {
 	}
 
 	private void sendMail() {
-		Set<String> mailingSet = null;
-		mailingSet = getEmailsByRoles(EmployeeService.ADMIN_ROLE_LIST);
-		List<Employee> employees = null;
+		isCalenderRequest = false;
+		Set<String> mailingSet;
+		mailingSet = getEmailsByRoles(ADMIN_ROLE_LIST);
+		if(!CollectionUtils.isEmpty(recipientsGuid)) {
+			for(Employee emp : employeeRepository.findAllByGuidIn(recipientsGuid)) {
+				mailingSet.add(emp.getEmailId());
+			}
+		}
 		switch (mailType) {
 			case EMPLOYEE_ADDED:
 				mailingSet.add(employee.getEmailId());
 				break;
 			case EMPLOYEE_UPDATED:
-				if(employee == null) {
+				if(employee == null && employeeGuid != null) {
 					employee = employeeRepository.findByGuid(employeeGuid);
 				}
 				mailingSet.add(employee.getEmailId());
 				break;
 			case ATTACHMENT_ADDED:
 			case ATTACHMENT_REMOVED:
-				training = trainingRepository.findById(parentId);
-				employees = employeeRepository.findAllByGuidIn(Arrays.asList
-						(training.getTrainees().keySet().toArray(new String[0])));
-				mailingSet = addEmails(employees, mailingSet);
-				if (getLoggedInUser().getGuid() != fileAttachmentInfo.getOwnerGuid()) {
-					mailingSet.add(employeeRepository.findByGuid(fileAttachmentInfo.getOwnerGuid()).getEmailId());
+				if(parentId != null && training == null) {
+					training = trainingRepository.findById(parentId);
 				}
+				mailingSet = addTraineesEmailId(mailingSet);
+				mailingSet = addTrainersEmailId(mailingSet);
 				break;
 			case COMMENT_ADDED:
 			case COMMENT_REMOVED:
 				training = trainingRepository.findById(parentId);
-				employees = employeeRepository.findAllByGuidIn(Arrays.asList
-						(training.getTrainees().keySet().toArray(new String[0])));
-				mailingSet = addEmails(employees, mailingSet);
-				if (getLoggedInUser().getGuid() != comment.getOwnerGuid()) {
-					mailingSet.add(employeeRepository.findByGuid(comment.getOwnerGuid()).getEmailId());
+				mailingSet = addTraineesEmailId(mailingSet);
+				mailingSet = addTrainersEmailId(mailingSet);
+				Training trn = trainingRepository.findAllCommentsOwnerGuidById(training.getId());
+				if(!CollectionUtils.isEmpty(trn.getComments()) && trn.getComments().size() > 0) {
+					for (Comment cmt : trn.getComments()) {
+						mailingSet.add(employeeRepository.findByGuid(cmt.getOwnerGuid()).getEmailId());
+					}
 				}
-				break;
-			case FEEDBACK_ADDED:
-				training = trainingRepository.findById(feedBack.getParentId());
-				employees = employeeRepository.findAllByGuidIn(Arrays.asList
-						(training.getTrainers().keySet().toArray(new String[0])));
-				mailingSet = addEmails(employees, mailingSet);
-				mailingSet.add(employeeRepository.findByGuid(feedBack.getRespondentGuid()).getEmailId());
 				break;
 			case FEEDBACK_REQUEST:
 				training = trainingRepository.findById(parentId);
-				employees = employeeRepository.findAllByGuidIn(Arrays.asList
-						(training.getTrainees().keySet().toArray(new String[0])));
-				mailingSet = addEmails(employees, mailingSet);
-				break;
-			case TRAINING_UPDATED:
-				training = trainingRepository.findById(parentId);
-				employees = employeeRepository.findAllByGuidIn(Arrays.asList
-						(training.getTrainers().keySet().toArray(new String[0])));
-				mailingSet = addEmails(employees, mailingSet);
-				employee = employeeRepository.findByGuid(training.getCreatedByGuid());
-				if(employee != null) {
-					mailingSet.add(employee.getEmailId());
-				}
+				mailingSet = addTraineesEmailId(mailingSet);
 				break;
 			case TRAINING_ADDED:
-				training = trainingRepository.findById(parentId);
+			case TRAINING_UPDATED:
+				if(parentId != null && training == null) {
+					training = trainingRepository.findById(parentId);
+				}
+				mailingSet = addTraineesEmailId(mailingSet);
+				mailingSet = addTrainersEmailId(mailingSet);
 				employee = employeeRepository.findByGuid(training.getCreatedByGuid());
 				if(employee != null) {
 					mailingSet.add(employee.getEmailId());
@@ -257,7 +205,7 @@ public final class MailingTask implements Runnable {
 				employee = employeeRepository.findByGuid(topic.getCreatedByGuid());
 				mailingSet.add(employee.getEmailId());
 			case TOPIC_UPDATED:
-				if(topic == null) {
+				if(topic == null && parentId != null) {
 					topic = topicRepository.findById(parentId);
 				}
 				employee = employeeRepository.findByGuid(topic.getCreatedByGuid());
@@ -271,13 +219,19 @@ public final class MailingTask implements Runnable {
 					mailingSet.add(createdBy.getEmailId());
 				}
 			}
+			mailingSet.remove(securedUser.getEmailId());
 			this.to = mailingSet.toArray(new String[0]);
-			mimeMessage = mailSender.createMimeMessage();
-			send();
+			if(this.to.length > 0) {
+				mimeMessage = mailSender.createMimeMessage();
+				send();
+			}
 		}
 	}
 
-	private Set<String> addEmails(List<Employee> employees, Set<String> emails) {
+	private Set<String> addEmployeesEmail(Set<String> employeeGuids, Set<String> emails) {
+		Collection<Employee> employees = employeeRepository.findAllByGuidIn(Arrays.asList
+				(employeeGuids.toArray(new String[0])));
+
 		if (!CollectionUtils.isEmpty(employees)) {
 			if (CollectionUtils.isEmpty(emails)) {
 				emails = new HashSet<>(employees.size());
@@ -285,6 +239,20 @@ public final class MailingTask implements Runnable {
 			for (Employee employee : employees) {
 				emails.add(employee.getEmailId());
 			}
+		}
+		return emails;
+	}
+
+	private Set<String> addTrainersEmailId(Set<String> emails) {
+		if(training.getTrainers() != null && training.getTrainers().size() > 0) {
+			return addEmployeesEmail(training.getTrainers().keySet(), emails);
+		}
+		return emails;
+	}
+
+	private Set<String> addTraineesEmailId(Set<String> emails) {
+		if(training.getTrainees() != null && training.getTrainees().size() > 0) {
+			return addEmployeesEmail(training.getTrainees().keySet(), emails);
 		}
 		return emails;
 	}
@@ -307,7 +275,7 @@ public final class MailingTask implements Runnable {
 				helper.setTo(to);
 				helper.setFrom(from);
 				helper.setSubject(subject);
-				if (!StringUtils.isEmpty(msg)) {
+				if (!isCalenderRequest && !StringUtils.isEmpty(msg)) {
 					helper.setText(msg, true);
 				}
 			} catch (MessagingException e) {
@@ -320,21 +288,21 @@ public final class MailingTask implements Runnable {
 
 	private String getTrainingLink() {
 		String link = MessageFormat.format(
-				"{0}/trainings/{1}",
-				applicationConfiguration.BASE_URL, training.getId());
+				"{0}/#/trainings/{1}",
+				applicationConfiguration.BASE_URL, training.getId().toString());
 		return link;
 	}
 
 	private String getTopicLink() {
 		String link = MessageFormat.format(
-				"{0}/topics/{1}",
-				applicationConfiguration.BASE_URL, topic.getId());
+				"{0}/#/topics/{1}",
+				applicationConfiguration.BASE_URL, topic.getId().toString());
 		return link;
 	}
 
 	private String getEmployeeLink() {
 		String link = MessageFormat.format(
-				"{0}/employees/{1}",
+				"{0}/#/employees/{1}",
 				applicationConfiguration.BASE_URL, employee.getGuid().toUpperCase());
 		return link;
 	}
@@ -359,53 +327,52 @@ public final class MailingTask implements Runnable {
 		}
 		switch (mailType) {
 			case COMMENT_ADDED:
-				subject = MessageFormat.format("{0} has commented on {1}", comment.getOwnerName(), training.getName());
+				subject = MessageFormat.format("{0} has commented on '{1}'", comment.getOwnerName(), training.getName());
 				setCommentParams(ctx);
 				msgPage = "comment_added";
 				break;
 			case COMMENT_REMOVED:
-				subject = MessageFormat.format("{0} has removed comment from {1}", comment.getOwnerName(), training.getName());
+				subject = MessageFormat.format("{0} has deleted comment from '{1}'", comment.getOwnerName(), training.getName());
 				setCommentParams(ctx);
-				msgPage = "comment_added";
+				msgPage = "comment_deleted";
 				break;
 			case EMPLOYEE_ADDED:
-				subject = MessageFormat.format("User {0} has been added", employee.getName());
+				subject = MessageFormat.format("Added User - {0}", employee.getName());
 				msgPage = "employee_added";
 				break;
 			case EMPLOYEE_UPDATED:
-				subject = MessageFormat.format("User {0} has been updated", employee.getName());
+				subject = MessageFormat.format("Updated User - {0}", employee.getName());
 				msgPage = "employee_updated";
 				break;
 			case ATTACHMENT_ADDED:
-				subject = MessageFormat.format("File attached in {0}", training.getName());
+				subject = MessageFormat.format("File attached to '{0}'", training.getName());
 				setFileAttachmentParams(ctx);
 				msgPage = "attachment_added";
 				break;
 			case ATTACHMENT_REMOVED:
-				subject = MessageFormat.format("File removed from {0}", training.getName());
+				subject = MessageFormat.format("File deleted from \'{0}\'", training.getName());
 				setFileAttachmentParams(ctx);
-				msgPage = "attachment_removed";
+				msgPage = "attachment_deleted";
 				break;
 			case FEEDBACK_ADDED:
 				subject = MessageFormat.format("Feedback added to {0}", training.getName());
 				msgPage = "feedback_added";
 				break;
 			case TRAINING_ADDED:
-				subject = "Training nomination";
+				subject = MessageFormat.format("Nominated Training - {0}", training.getName());;
 				msgPage = "training_added";
 				break;
 			case TRAINING_UPDATED:
-			case TRAINING_SCHEDULED:
-				subject = MessageFormat.format("Training {0} updated", training.getName());
+				subject = MessageFormat.format("Updated Training - {0}", training.getName());
 				msgPage = "training_updated";
 				break;
 			case TOPIC_ADDED:
-				subject = MessageFormat.format("Training {0} updated", training.getName());
+				subject = MessageFormat.format("Added Topic - {0}", topic.getName());
 				setTopicParams(ctx);
-				msgPage = "topic_updated";
+				msgPage = "topic_added";
 				break;
 			case TOPIC_UPDATED:
-				subject = MessageFormat.format("Training {0} updated", training.getName());
+				subject = MessageFormat.format("Updated Topic - {0}", topic.getName());
 				setTopicParams(ctx);
 				msgPage = "topic_updated";
 				break;
@@ -415,11 +382,11 @@ public final class MailingTask implements Runnable {
 
 	public void sendCalenderRequest() throws Exception {
 		try {
+			isCalenderRequest = true;
 			Set<String> mailingSet = null;
 			training = trainingRepository.findById(parentId);
-			List<Employee> employees = employeeRepository.findAllByGuidIn(Arrays.asList
-					(training.getTrainers().keySet().toArray(new String[0])));
-			mailingSet = addEmails(employees, mailingSet);
+			mailingSet = addTrainersEmailId(mailingSet);
+//			mailingSet.addAll(ldapService.groupEmail);
 			employee = employeeRepository.findByGuid(training.getCreatedByGuid());
 			if(employee != null) {
 				mailingSet.add(employee.getEmailId());
@@ -433,10 +400,40 @@ public final class MailingTask implements Runnable {
 			//mimeMessage.setSubject(mailServerSettings.getCalenderRequestSubject());
 			subject = mailServerSettings.getCalenderRequestSubject().replace("{date}",
 					CommonUtil.getDayMonthWithOrdinal(training.getScheduledOn()));
-			StringBuffer sb = new StringBuffer();
-			StringBuffer buffer = sb.append("BEGIN:VCALENDAR\n" +
+
+			StringBuffer msgSb = new StringBuffer("\\nDear All,\\n");
+			msgSb.append("This is to inform you that this week, we will conduct one session on ");
+			msgSb.append(CommonUtil.getWeekMonthYear(training.getScheduledOn()));
+			msgSb.append(", the details of which are given below. Pune members can be a part of the trainings through VC in Everest.\\n\\n");
+
+			msgSb.append("Details:\\n-----------------------------\\n");
+			msgSb.append(StringUtils.rightPad("Name:", 15, " ") + training.getName());
+			msgSb.append("\\n");
+			msgSb.append(StringUtils.rightPad("URL:", 15, " ") + getTrainingLink());
+			msgSb.append("\\n");
+			msgSb.append(StringUtils.rightPad("Trainer(s):", 15, " ") + collectValues(training.getTrainers()));
+			msgSb.append("\\n");
+			msgSb.append(StringUtils.rightPad("Time:", 15, " ") + CommonUtil.getTime(training.getScheduledOn()));
+			msgSb.append("\\n");
+			msgSb.append(StringUtils.rightPad("Duration:", 15, " ") + training.getDuration() + " Hours");
+			if(StringUtils.isNoneEmpty(training.getWhatsForTrainees())) {
+				msgSb.append("\\n\\nWhat’s in it for Trainees:\\n-----------------------------\\n");
+				msgSb.append(training.getWhatsForTrainees().replace("\n", "\\n"));
+			}
+			if(StringUtils.isNoneEmpty(training.getWhatsForOrg())) {
+				msgSb.append("\\n\\nWhat’s in it for the Organization:\\n-----------------------------\\n");
+				msgSb.append(training.getWhatsForOrg().replace("\n", "\\n"));
+			}
+			if(StringUtils.isNoneEmpty(training.getAgenda())) {
+				msgSb.append("\\n\\nAgenda:\\n-----------------------------\\n");
+				msgSb.append(training.getAgenda().replace("\n", "\\n"));
+				msgSb.append("\\n\\n\\nRegards,\\n");
+			}
+			msgSb.append("Lunch & Learn");
+			msg = msgSb.toString();
+			StringBuffer buffer = new StringBuffer("BEGIN:VCALENDAR\n" +
 					"PRODID:-//Lunch & Learn, Pitney Bowes Software, Noida//EN\n" +
-					"VERSION:1.0\n" +
+					"VERSION:2.0\n" +
 					"METHOD:" + getCalendarMethod() + "\n" +
 					getCalendarStatus() +
 					"BEGIN:VEVENT\n" +
@@ -456,7 +453,7 @@ public final class MailingTask implements Runnable {
 					"BEGIN:VALARM\n" +
 					"TRIGGER:PT15M\n" +
 					"ACTION:DISPLAY\n" +
-					"DESCRIPTION:Reminder\n" +
+					/*"DESCRIPTION:Reminder\n" +*/
 					"END:VALARM\n" +
 					"END:VEVENT\n" +
 					"END:VCALENDAR");
@@ -509,13 +506,58 @@ public final class MailingTask implements Runnable {
 		return "";
 	}
 
+	private String collectValues(Map<String, String> map) {
+		StringBuffer sb = new StringBuffer();
+		if(map != null && map.size() > 0) {
+			for (String value : map.values()) {
+				sb.append(value);
+				if (map.size() > 1) {
+					sb.append(", ");
+				}
+			}
+		}
+		return sb.toString();
+	}
+
 	private void setTrainingParams(Context ctx) {
 		ctx.setVariable("employee_name", training.getCreatedByName());
 		ctx.setVariable("employee_id", training.getCreatedByGuid());
 		ctx.setVariable("training_reqid", training.getId());
 		ctx.setVariable("training_name", training.getName());
 		ctx.setVariable("training_id_link", getTrainingLink());
+		if (mailType == MailService.MailType.TRAINING_ADDED) {
+			ctx.setVariable("training_topics", StringUtils.join(training.getTopics().values(), ", "));
+		} else if (mailType == MailService.MailType.TRAINING_UPDATED)
+			if (!StringUtils.isEmpty(updatedFieldName)) {
+				ctx.setVariable("training_updated_field_name", StringUtils.capitalize(updatedFieldName));
+			}
+			if (updatedFieldValue != null) {
+				ctx.setVariable("training_updated_field_value", getValues());
+			}
 	}
+
+	private String getValues() {
+		if(updatedFieldValue != null) {
+			if (updatedFieldValue instanceof List) {
+				return StringUtils.join((List) updatedFieldValue, ", ");
+			}
+			else if (updatedFieldValue instanceof List) {
+				return StringUtils.join((List) updatedFieldValue, ", ");
+			}
+			else if(updatedFieldValue instanceof Map) {
+				return StringUtils.join(((Map)updatedFieldValue).values(), ", ");
+			}
+			return updatedFieldValue.toString();
+		}
+		return null;
+	}
+/*
+	private void convertToFieldName() {
+		for(int count = 0; count < updatedFieldName.length(); ++count) {
+			if(updatedFieldName.charAt(count))
+		}
+	}
+*/
 
 	private void setEmployeeParams(Context ctx) {
 		ctx.setVariable("employee_name", employee.getName());
@@ -531,12 +573,13 @@ public final class MailingTask implements Runnable {
 	private void setTopicParams(Context ctx) {
 		ctx.setVariable("topic_name", topic.getName());
 		ctx.setVariable("topic_id", topic.getName());
-		ctx.setVariable("employee_name", topic.getName());
+		ctx.setVariable("employee_name", employee.getName());
 		ctx.setVariable("topic_id_link", getTopicLink());
+		ctx.setVariable("topic_desc", topic.getDesc());
 	}
 
 	private void setFileAttachmentParams(Context ctx) {
-		ctx.setVariable("file_name", comment.getText());
+		ctx.setVariable("file_name", fileAttachmentInfo.getFileName());
 	}
 
 	private static Date getTrainingEndDateTime(Training training) {
@@ -560,5 +603,9 @@ public final class MailingTask implements Runnable {
 			default:
 				sendMail();
 		}
+	}
+
+	public void setReceipentsGuid(Collection<String> receipentsGuid) {
+		this.recipientsGuid = receipentsGuid;
 	}
 }

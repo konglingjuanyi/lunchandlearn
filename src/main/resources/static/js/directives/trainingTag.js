@@ -6,20 +6,24 @@ angular.module('directives').directive('trainingTag', function() {
         templateUrl : '/lunchandlearn/html/training/trainingTag.html',
         replace : true,
         scope: {
-            training: '=?',
-            target: '@'
+            training: '=',
+            target: '@',
+            showLikeOnly: '=?'
         },
         controller: 'trainingTagController',
         controllerAs: 'ttc'
     };
 }).controller('trainingTagController',
-    ['$scope', 'trainingService', function($scope, trainingService) {
+    ['$scope', 'trainingService', '$rootScope', function($scope, trainingService, $rootScope) {
         var self = this;
         $scope.target = $scope.target ? $scope.target : '_self';
         self.likeTraining = function (training) {
+            $scope.saving = true;
             trainingService.likeTraining(training.id).then(function(response) {
                 training.likesCount = response.data.likesCount;
-                $scope.$emit('trainings.refresh');
+                $rootScope.$broadcast('trainings.refresh');
+            }).finally(function () {
+                $scope.saving = false;
             });
         };
     }]);

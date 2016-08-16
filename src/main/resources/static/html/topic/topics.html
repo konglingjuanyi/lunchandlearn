@@ -25,7 +25,10 @@
                 <a class="btn btn-link"
                    ng-click="self.showAdd();">Add Topic
                 </a>
-                <div style="min-height: 400px;" topic-list-mini topic-heading="All Topics" topics="self.searchedTopics">
+                <div class="text-center" ng-show="self.searching">
+                    <loading/>
+                </div>
+                <div class="search-list" ng-show="!self.searching" topic-list-mini topic-heading="All Topics" topics="self.searchedTopics">
                 </div>
                 <div class="row">
                     <div class="col-md-12 bottom-border">

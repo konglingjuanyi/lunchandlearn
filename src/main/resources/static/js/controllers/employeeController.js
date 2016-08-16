@@ -22,6 +22,7 @@ angular.module('controllers').controller('employeeController', ['$scope', 'emplo
 					self.getEmployee();
 				}
 			});
+
 			topicService.listTopics().then(function (res) {
 				if(angular.isDefined(res.data)) {
 					self.topics = res.data.content;
@@ -73,10 +74,12 @@ angular.module('controllers').controller('employeeController', ['$scope', 'emplo
 
 		self.saveByField = function (fieldName) {
 			var data = {name: fieldName, value: _.get(self.item, fieldName)};
-			employeeService.updateEmployeeByField(self.item.guid, data).then(function (response) {
+			return employeeService.updateEmployeeByField(self.item.guid, data).then(function (response) {
 				if (restService.isResponseOk(response)) {
 					utilitiesService.setEditable(self, fieldName, false);
+					return true;
 				}
+				return false;
 			});
 		}
 

@@ -9,19 +9,11 @@
         Add
     </button>
     <textarea rows="10" ng-model="selected.agenda" ng-show="self.isEditable && self.editAgenda &&
-    !self.isTrainingComplete" autofocus="true" class="new-comment">
+    !self.isTrainingComplete" class="new-comment" focus-me>
     </textarea>
-</div>
-<div class="form-group">
-    <button class="btn btn-sm btn-primary" ng-show="!self.isTrainingComplete &&
-    self.isEditable && self.editAgenda"
-            ng-click="self.saveSelectedField('agenda')">
-        Save
-    </button>
-    <button class="btn btn-sm btn-default"
-            ng-show="!self.isTrainingComplete && self.isEditable && self.editAgenda" ng-click="self.cancelTextEdit('agenda');">
-        Cancel
-    </button>
+    <div save-cancel on-save="self.saveSelectedField" on-cancel="self.cancelTextEdit"
+         field="agenda" ng-show="!self.isTrainingComplete && self.isEditable && self.editAgenda"></div>
+    <span class="help-block" ng-show="self.errorAgenda">{{self.errorAgenda}}</span>
 </div>
 <!--whats for trainees -->
 <div class="form-group">
@@ -36,19 +28,11 @@
         Add
     </button>
     <textarea rows="5" ng-model="selected.whatsForTrainees" ng-show="self.isEditable && self.editWhatsForTrainees &&
-    !self.isTrainingComplete" autofocus="true" class="new-comment">
+    !self.isTrainingComplete" focus-me class="new-comment">
     </textarea>
-</div>
-<div class="form-group">
-    <button class="btn btn-sm btn-primary" ng-show="!self.isTrainingComplete &&
-    self.isEditable && self.editWhatsForTrainees"
-            ng-click="self.saveSelectedField('whatsForTrainees')">
-        Save
-    </button>
-    <button class="btn btn-sm btn-default"
-            ng-show="!self.isTrainingComplete && self.isEditable && self.editWhatsForTrainees" ng-click="self.cancelTextEdit('whatsForTrainees');">
-        Cancel
-    </button>
+    <div save-cancel on-save="self.saveSelectedField" on-cancel="self.cancelTextEdit"
+         field="whatsForTrainees" ng-show="!self.isTrainingComplete && self.isEditable && self.editWhatsForTrainees"></div>
+    <span class="help-block" ng-show="self.errorWhatsForTrainees">{{self.errorWhatsForTrainees}}</span>
 </div>
 <!--whats for organisation -->
 <div class="form-group">
@@ -63,18 +47,10 @@
         Add
     </button>
     <textarea rows="5" ng-model="selected.whatsForOrg" ng-show="self.isEditable && self.editWhatsForOrg &&
-    !self.isTrainingComplete" autofocus="true" class="new-comment">
+    !self.isTrainingComplete" focus-me class="new-comment">
     </textarea>
+    <div save-cancel on-save="self.saveSelectedField" on-cancel="self.cancelTextEdit"
+         field="whatsForOrg" ng-show="!self.isTrainingComplete && self.isEditable && self.editWhatsForOrg"></div>
+    <span class="help-block" ng-show="self.errorWhatsForOrg">{{self.errorWhatsForOrg}}</span>
 </div>
-<div class="form-group">
-    <button class="btn btn-sm btn-primary" ng-show="!self.isTrainingComplete &&
-    self.isEditable && self.editWhatsForOrg"
-            ng-click="self.saveSelectedField('whatsForOrg')">
-        Save
-    </button>
-    <button class="btn btn-sm btn-default"
-            ng-show="!self.isTrainingComplete && self.isEditable && self.editWhatsForOrg" ng-click="self.cancelTextEdit('whatsForOrg');">
-        Cancel
-    </button>
-</div>
-<div class="form-group spacer-bottom-sm ng-scope"><span>&nbsp;&nbsp;</span></div>
+<div class="form-group spacer-bottom-md ng-scope"><span>&nbsp;&nbsp;</span></div>

@@ -39,4 +39,6 @@ public interface CustomEmployeeRepository {
 	void updateTrainings(Long trainingId, String trainingName, String trainingStr);
 
 	List<Employee> findAllByRoles(List<String> roles);
+
+	void updateAllDifferentFields(Employee emp);
 }

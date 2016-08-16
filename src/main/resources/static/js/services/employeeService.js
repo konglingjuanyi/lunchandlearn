@@ -46,6 +46,14 @@ angular.module('services').factory('employeeService', [ 'restService', 'utilitie
 			return restService.get(this.employeesUrl, config);
 		},
 
+		refreshEmployees: function() {
+			return restService.get(this.employeesUrl + '/ldap');
+		},
+
+		refreshEmployee: function(guid) {
+			return restService.get(this.employeeUrl + '/' + guid + '/ldap')
+		},
+
 		listEmployeesMinimal: function() {
 			return restService.get(this.employeesUrl + '/minimal');
 		},

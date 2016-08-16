@@ -3,21 +3,14 @@ package com.pb.lunchandlearn.web;
 /**
  * Created by DE007RA on 4/27/2016.
  */
-import com.pb.lunchandlearn.domain.Training;
-import com.pb.lunchandlearn.repository.TopicRepository;
-import com.pb.lunchandlearn.service.EmployeeService;
+import com.pb.lunchandlearn.service.EmployeeServiceImpl;
 import com.pb.lunchandlearn.service.TopicService;
 import com.pb.lunchandlearn.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -30,7 +23,7 @@ public class MainController {
 	public TopicService topicService;
 
 	@Autowired
-	public EmployeeService employeeService;
+	public EmployeeServiceImpl employeeService;
 
 	@RequestMapping(value = "/count", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, Long> sectionsCount() {

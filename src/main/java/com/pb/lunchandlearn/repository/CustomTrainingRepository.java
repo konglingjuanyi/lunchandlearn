@@ -52,4 +52,8 @@ public interface CustomTrainingRepository {
 	Training setTrainingStatus(Long trainingId, TrainingStatus trainingStatus);
 
 	boolean addFeedBack(FeedBack feedBack);
+
+	Comment getComment(Long trainingId, Long commentId);
+
+	Comment getCommentReply(Long trainingId, Long commentId, Long replyCommentId);
 }

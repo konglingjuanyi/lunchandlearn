@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,14 +34,14 @@ public class UserController {
 	public JSONObject user(@AuthenticationPrincipal SecuredUser user) {
 		if(user != null) {
 			Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
-			List<String> authoritiesStr = null;
+			List<String> authoritiesList = null;
 			if(!CollectionUtils.isEmpty(authorities)) {
-				authoritiesStr = new ArrayList<>(user.getAuthorities().size());
+				authoritiesList = new ArrayList<>(user.getAuthorities().size());
 				for (GrantedAuthority role : user.getAuthorities()) {
-					authoritiesStr.add(role.getAuthority());
+					authoritiesList.add(role.getAuthority());
 				}
 			}
-			return CommonUtil.getUserInfo(new User(user.getUsername(), user.getEmailId(), authoritiesStr), user.getGuid());
+			return CommonUtil.getUserInfo(new User(user.getUsername(), user.getEmailId(), authoritiesList), user.getGuid());
 		}
 		throw new ResourceNotFoundException();
 	}

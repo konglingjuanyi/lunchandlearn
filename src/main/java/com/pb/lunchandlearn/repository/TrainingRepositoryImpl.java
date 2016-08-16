@@ -14,14 +14,13 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.gridfs.GridFsCriteria.whereMetaData;
@@ -29,6 +28,7 @@ import static org.springframework.data.mongodb.gridfs.GridFsCriteria.whereMetaDa
 /**
  * Created by DE007RA on 6/6/2016.
  */
+@Repository
 public class TrainingRepositoryImpl implements CustomTrainingRepository {
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -44,9 +44,11 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		switch (type) {
 			case LIKE:
 				if (training.getLikedBy() == null) {
-					training.setLikedBy(new HashMap<>(1));
+					training.setLikedBy(Collections.singletonMap(userGuid, userName));
 				}
-				training.getLikedBy().put(userGuid, userName);
+				else {
+					training.getLikedBy().put(userGuid, userName);
+				}
 				break;
 			case DISLIKE:
 				training.getLikedBy().remove(userGuid);
@@ -173,6 +175,36 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public Comment getComment(Long trainingId, Long commentId) {
+		Query query = Query.query(where("id").is(trainingId).and("comments.id").is(commentId));
+		query.fields().include("comments");
+		Training training = mongoTemplate.findOne(query, Training.class);
+		if(CollectionUtils.isEmpty(training.getComments())) {
+			return null;
+		}
+		for(Comment comment : training.getComments()) {
+			if(comment.getId().equals(commentId)) {
+				return comment;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Comment getCommentReply(Long trainingId, Long commentId, Long replyCommentId) {
+		Comment cmt = getComment(trainingId, commentId);
+		if(cmt == null || CollectionUtils.isEmpty(cmt.getReplies())) {
+			return null;
+		}
+		for(Comment reply : cmt.getReplies()) {
+			if(reply.getId().equals(replyCommentId)) {
+				return reply;
+			}
+		}
+		return null;
 	}
 
 	@Override

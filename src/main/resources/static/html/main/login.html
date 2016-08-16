@@ -14,16 +14,16 @@
                              ng-class="{'has-error': (loginForm.username.$error.required || self.credentials.error) && (loginForm.username.$dirty)}">
                             <label>User Name</label>
                             <input class="form-control" name="username" autofocus ng-model="self.credentials.username"
-                                   required type="text">
+                                   required type="text" ng-keypress="self.credentials.error = false">
                                 <span class="help-block"
-                                      ng-show="loginForm.username.$dirty && loginForm.username.$error.required">Enter a username.</span>
+                                      ng-show="loginForm.username.$dirty && loginForm.username.$error.required">Enter a username</span>
                         </div>
                         <div class="form-group"
                              ng-class="{'has-error': (loginForm.password.$dirty) && (loginForm.password.$error.required ||
                              self.credentials.error)}">
                             <label>Password</label>
                             <input name="password" class="form-control" ng-model="self.credentials.password" required
-                                   type="password">
+                                   type="password" ng-keypress="self.credentials.error = false">
                                 <span class="help-block"
                                       ng-show="loginForm.password.$dirty && loginForm.password.$error.required">Enter a password
                                 </span>
@@ -31,7 +31,10 @@
                                       ng-show="self.credentials.error">Invalid user or password
                                 </span>
                         </div>
-                        <button class="btn btn-primary btn-lg btn-block spacer-top-xs" type="submit">Sign In</button>
+                        <button ng-disabled="self.doingLogin" class="btn btn-primary btn-lg btn-block spacer-top-xs"
+                                type="submit"><loading ng-show="self.doingLogin"/>
+                            Sign In
+                        </button>
                     </form>
                 </div>
             </div>

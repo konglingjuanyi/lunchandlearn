@@ -21,11 +21,17 @@ lunchAndLearnControllers.controller('modalController',
             if ($scope.selected.topic && (!$scope.item.prerequisites || !$scope.item.prerequisites[$scope.selected.topic.id])) {
                 $scope.item.topics = utilitiesService.addUnique($scope.item.topics, $scope.selected.topic, 'id', 'name');
             }
+            else if($scope.selected.topic) {
+                $scope.errorTopics = $scope.selected.topic.name + ' already added as topic';
+            }
         });
 
         $scope.$watch('selected.prerequisite', function () {
             if ($scope.selected.prerequisite && (!$scope.item.topics || !$scope.item.topics[$scope.selected.prerequisite.id])) {
                 $scope.item.prerequisites = utilitiesService.addUnique($scope.item.prerequisites, $scope.selected.prerequisite, 'id', 'name');
+            }
+            else if($scope.selected.prerequisite) {
+                $scope.errorPrerequisites = $scope.selected.prerequisite.name + ' already added as prerequisite';
             }
         });
 

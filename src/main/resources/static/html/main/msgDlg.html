@@ -1,0 +1,16 @@
+<div class="modal-header">
+	<button type="button" class="close" ng-click="cancel('cancel')">
+		<span aria-hidden="true"></span>
+		<span class="sr-only">Close</span>
+	</button>
+	<h4 class="modal-title" ng-class="{'text-error': item.error}">
+		<i ng-class="{'nc-icon-mini ui-e_square-e-alert': item.error}"></i>&nbsp;<span>{{item.title}}</span></h4>
+</div>
+<div class="modal-body">
+	{{msg}}
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-primary" ng-click="yes('yes')">
+		<span class="ok">OK</span>
+	</button>
+</div>

@@ -24,7 +24,7 @@
                 </label> <label class="col-md-3 field-label">Topics</label>
                 <div class="col-md-9">
                     <div class="row">
-                        <div class="col-md-12 spacer-bottom-xs">
+                        <div class="col-md-12 spacer-bottom-xs" ng-class="{'has-error': errorTopics}">
                             <ui-select ng-model="selected.topic">
                                 <ui-select-match>
                                     <span ng-bind="$select.selected.name"></span>
@@ -33,6 +33,8 @@
                                     <span ng-bind-html="topic.name | highlight: $select.search"></span>
                                 </ui-select-choices>
                             </ui-select>
+                          <span class="help-block has-error"
+                                ng-show="self.errorTopics">{{errorTopics}}</span>
                         </div>
                         <div class="col-md-12">
                             <simple-tag items="item.topics" on-remove="true"
@@ -46,7 +48,7 @@
                 </label> <label class="col-md-3 field-label">PreRequisites</label>
                 <div class="col-md-9">
                     <div class="row">
-                        <div class="col-md-12 spacer-bottom-xs">
+                        <div class="col-md-12 spacer-bottom-xs" ng-class="{'has-error': errorTopics}">
                             <ui-select ng-model="selected.prerequisite">
                                 <ui-select-match>
                                     <span ng-bind="$select.selected.name"></span>
@@ -55,6 +57,8 @@
                                     <span ng-bind-html="prerequisite.name | highlight: $select.search"></span>
                                 </ui-select-choices>
                             </ui-select>
+                          <span class="help-block has-error"
+                                ng-show="errorPrerequisites">{{errorPrerequisites}}</span>
                         </div>
                         <div class="col-md-12">
                             <simple-tag items="item.prerequisites" section="'topics'" on-remove="true"></simple-tag>
@@ -66,7 +70,7 @@
                 </label> <label class="col-md-3 field-label">Trainers</label>
                 <div class="col-md-9">
                     <div class="row">
-                        <div class="col-md-12 spacer-bottom-xs">
+                        <div class="col-md-12 spacer-bottom-xs" ng-class="{'has-error': errorTopics}">
                             <ui-select ng-model="selected.trainer">
                                 <ui-select-match>
                                     <span ng-bind="$select.selected.name"></span>
@@ -76,6 +80,8 @@
                                     <small ng-bind-html="employee.emailId | highlight: $select.search"></small>
                                 </ui-select-choices>
                             </ui-select>
+                            <span class="help-block has-error"
+                                  ng-show="errorTrainers">{{errorTrainers}}</span>
                         </div>
                         <div class="col-md-12">
                             <simple-tag items="item.trainers" section="'trainers'" on-remove="true"></simple-tag>

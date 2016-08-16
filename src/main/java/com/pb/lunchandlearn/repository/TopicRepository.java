@@ -26,4 +26,7 @@ public interface TopicRepository extends MongoRepository<Topic, String>, CustomT
 
 	@Query(fields = "{'name': 1, 'id': 0}")
 	Topic findNameById(Long topicId);
+
+	@Query(fields = "{'likesCount': 1}")
+	Topic findLikesCountById(Long trainingId);
 }

@@ -1,18 +1,26 @@
 angular.module('controllers').controller('employeesController', [
-	'$uibModal', 'employeeService', 'pagingService',
-	function($uibModal, employeeService, pagingService) {
+	'$uibModal', 'employeeService', 'pagingService', 'restService', 'utilitiesService', '$location',
+	function($uibModal, employeeService, pagingService, restService, utilitiesService, $location) {
 		var self = this;
 
 		self.pageSizes = pagingService.pageSizes;
 		self.sort = {};
 		self.currentPage = 1;
 		self.currentPageSize = pagingService.currentPageSize;
-		self.maxPages = pagingService.maxPageSize;
+		self.maxPageSize = pagingService.maxPageSize;
 		self.roles = employeeService.roles;
+
+		restService.getLoggedInUser().then(function(user) {
+			if(user) {
+				self.userGuid = user.guid;
+				self.isAdmin = utilitiesService.isAdminUser(user.roles);
+			}
+		});
 
 		employeeService.isEditable().then(function (status) {
 			self.isEditable = status;
 		});
+
 		var setManagers = function() {
 			return employeeService.getManagers().then(function(response) {
 				self.managers = response.data;
@@ -36,6 +44,7 @@ angular.module('controllers').controller('employeesController', [
 		};
 
 		self.list = function() {
+			self.searching = true;
 			employeeService.listEmployees(pagingService.getConfigObj(self)).then(function(response) {
 				var data = response.data;
 				if(angular.isDefined(data)) {
@@ -45,29 +54,37 @@ angular.module('controllers').controller('employeesController', [
 					self.fromCount = (data.size * data.number) + 1;
 					self.toCount = (self.fromCount - 1) + data.numberOfElements;
 				}
+			}).finally(function() {
+				self.searching = false;
 			});
 		}
 
+		self.showEmployee = function (guid) {
+			$location.path('/employees/' + guid);
+		};
+
 		self.showEdit = function(guid) {
-			employeeService.getEmployee(guid).then(function(response) {
-				if(angular.isDefined(response.data)) {
-					self.employee = response.data;
-					// self.employee.managers = _.keys(self.employee.managers);
-					var roles = {};
-					_.each(self.employee.roles, function (role) {
-						var obj = _.find(self.roles, {code: role});
-						if(obj) {
-							roles[obj.code] = obj.label;
-						}
-					});
-					self.employee.roles = roles;
-					self.mode = 'edit';
-					self.showModalDlg();
-				}
-			}, function (response) {
-				console.log('error while fetching employee: '
-					+ guid + ' with error: ' + response);
-			});
+			if(self.isAdmin) {
+				employeeService.getEmployee(guid).then(function (response) {
+					if (angular.isDefined(response.data)) {
+						self.employee = response.data;
+						// self.employee.managers = _.keys(self.employee.managers);
+						var roles = {};
+						_.each(self.employee.roles, function (role) {
+							var obj = _.find(self.roles, {code: role});
+							if (obj) {
+								roles[obj.code] = obj.label;
+							}
+						});
+						self.employee.roles = roles;
+						self.mode = 'edit';
+						self.showModalDlg();
+					}
+				}, function (response) {
+					console.log('error while fetching employee: '
+						+ guid + ' with error: ' + response);
+				});
+			}
 		}
 
 		self.save = function() {
@@ -156,6 +173,25 @@ angular.module('controllers').controller('employeesController', [
 				}, function () {
 					console.log('confirmation modal cancelled')
 				});
+			});
+		}
+
+		self.refreshEmployees = function() {
+			self.refreshingEmps = true;
+			employeeService.refreshEmployees().then(function (response) {
+				self.list();
+			}, function (error) {
+				utilitiesService.showMsgDlg({item:{error: true, title: 'Refresh Error'}, msg: 'Error while refreshing employees. Either LDAP server is down or some internal error!'});
+			}).finally(function() {
+				self.refreshingEmps = false;
+			});
+		}
+
+		self.refreshEmployee = function(guid) {
+			self.refreshingEmp = true;
+			employeeService.refreshEmployee(guid).then(function (response) {
+			}).finally(function() {
+				self.refreshingEmp = false;
 			});
 		}
 

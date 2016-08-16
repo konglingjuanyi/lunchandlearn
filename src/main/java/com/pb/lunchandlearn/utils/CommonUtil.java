@@ -25,6 +25,8 @@ import java.util.*;
  */
 public final class CommonUtil {
 	public static ISO8601DateFormat DF = new ISO8601DateFormat();
+	public static  DateFormat DF_WEEK = new SimpleDateFormat("EEEEE");
+	public static  DateFormat DF_YEAR = new SimpleDateFormat("YYYY");
 	public static final Sort SORT_BY_DEFAULT = new Sort(Sort.Direction.DESC, "createDateTime");
 	public static Sort SORT_BY_SCORE = new Sort(Sort.Direction.DESC, "score");
 
@@ -34,6 +36,7 @@ public final class CommonUtil {
 	}
 
 	private static DateFormat dfDay = new SimpleDateFormat("d MMM");
+	private static DateFormat dfTime = new SimpleDateFormat("h:mm a");
 
 	public static JSONObject getTopicJsonBrief(Topic topic) {
 		JSONObject objTopic = new JSONObject();
@@ -49,7 +52,7 @@ public final class CommonUtil {
 		objTraining.put("id", training.getId());
 		objTraining.put("likesCount", training.getLikesCount());
 		objTraining.put("scheduledOn", training.getScheduledOn());
-		objTraining.put("topics", training.getTopics());
+		objTraining.put("status", training.getStatus());
 		objTraining.put("location", training.getLocation());
 		objTraining.put("duration", training.getDuration());
 		return objTraining;
@@ -209,5 +212,17 @@ public final class CommonUtil {
 		}
 		String dateStr = dfDay.format(calendar.getTime());
 		return dateStr.replace(" ", ordinal + " ");
+	}
+
+	public static String getWeekMonthYear(Date date) {
+		StringBuffer sb = new StringBuffer(DF_WEEK.format(date.getTime()));
+		sb.append(", ");
+		sb.append(getDayMonthWithOrdinal(date));
+		DF_YEAR.format(date.getTime());
+		return sb.toString();
+	}
+
+	public static String getTime(Date date) {
+		return dfTime.format(date.getTime());
 	}
 }

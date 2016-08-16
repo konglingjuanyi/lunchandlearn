@@ -10,14 +10,12 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "service.account")
 public final class ServiceAccountSettings {
 	private String guid;
-	private String name;
 	private String emailId;
 
 	@Override
 	public String toString() {
 		return "ServiceAccountSettings{" +
 				"guid='" + guid + '\'' +
-				", name='" + name + '\'' +
 				", emailId='" + emailId + '\'' +
 				'}';
 	}
@@ -30,7 +28,6 @@ public final class ServiceAccountSettings {
 		ServiceAccountSettings that = (ServiceAccountSettings) o;
 
 		if (guid != null ? !guid.equals(that.guid) : that.guid != null) return false;
-		if (name != null ? !name.equals(that.name) : that.name != null) return false;
 		return emailId != null ? emailId.equals(that.emailId) : that.emailId == null;
 
 	}
@@ -38,7 +35,6 @@ public final class ServiceAccountSettings {
 	@Override
 	public int hashCode() {
 		int result = guid != null ? guid.hashCode() : 0;
-		result = 31 * result + (name != null ? name.hashCode() : 0);
 		result = 31 * result + (emailId != null ? emailId.hashCode() : 0);
 		return result;
 	}
@@ -49,14 +45,6 @@ public final class ServiceAccountSettings {
 
 	public void setGuid(String guid) {
 		this.guid = guid;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public String getEmailId() {

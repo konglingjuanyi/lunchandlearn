@@ -5,7 +5,7 @@ package com.pb.lunchandlearn.web;
  */
 import com.pb.lunchandlearn.domain.Employee;
 import com.pb.lunchandlearn.domain.SimpleFieldEntry;
-import com.pb.lunchandlearn.service.EmployeeService;
+import com.pb.lunchandlearn.service.EmployeeServiceImpl;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 import java.text.ParseException;
 import java.util.List;
 
@@ -28,7 +29,7 @@ import java.util.List;
 @RequestMapping("/employees")
 public class EmployeeController {
 	@Autowired
-	public EmployeeService employeeService;
+	public EmployeeServiceImpl employeeService;
 
 	@RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Page<Employee> list(Pageable pageable, @RequestParam(value = "search", required = false) String searchTerm) {
@@ -38,9 +39,26 @@ public class EmployeeController {
 		return employeeService.getAll(pageable);
 	}
 
+	@RequestMapping(value = "/ldap", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	public void refreshEmployees() throws Exception {
+		employeeService.updatedLdapEmployees();
+	}
+
+	@RequestMapping(value = "/employee/{guid}", method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	public void refreshEmployee(@PathVariable("guid")String guid) throws Exception {
+		employeeService.updatedLdapEmployee(guid);
+	}
+
 	@RequestMapping(value = "/minimal", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public JSONObject minimalList() {
 		return employeeService.getEmployeesMinimal();
+	}
+
+	@RequestMapping(value = "/count", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public long count() {
+		return employeeService.getCount();
 	}
 
 	@RequestMapping(value = "/names", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,11 +69,6 @@ public class EmployeeController {
 	@RequestMapping(value = "/managers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public JSONArray listManagers() {
 		return employeeService.getAllManagers();
-	}
-
-	@RequestMapping(value="/count", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Long getCount() {
-		return employeeService.getCount();
 	}
 
 	@RequestMapping(value="/employee/{guid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

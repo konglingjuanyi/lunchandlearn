@@ -1,11 +1,18 @@
 <span class="btn-group">
-    <span class="mini-tag-simple mini-tag-advance">
+    <span class="mini-tag-simple mini-tag-advance" ng-if="!showLikeOnly">
         <a target="{{target}}" ng-href="#/trainings/{{training.id}}">
-            <span>{{training.name}}</span>
-            <span class="mini-tag-like a-lnk" ng-click="ttc.likeTraining(training);">
-                <span class="badge">{{training.likesCount}}</span>
-                <span class="nc-icon-mini ui-2_like"></span>
-            </span>
+            {{training.name}}
         </a>
+        <span class="mini-tag-like a-lnk" ng-click="ttc.likeTraining(training);">
+            <span class="nc-icon-mini ui-2_like"></span>
+        </span>
+        <span class="badge pull-right link-count">{{training.likesCount}}</span>
+    </span>
+    <span class="mini-tag-simple-larger mini-tag-advance text-larger" ng-if="showLikeOnly" ng-disabled="saving">
+        <span class="mini-tag-like a-lnk " ng-click="ttc.likeTraining(training);">
+            <span class="nc-icon-mini ui-2_like" ng-hide="saving"></span>
+            <loading ng-show="saving" smaller="true"></loading>
+        </span>
+        <span class="badge pull-right text-larger">{{training.likesCount}}</span>
     </span>
 </span>

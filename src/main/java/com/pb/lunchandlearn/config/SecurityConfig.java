@@ -27,8 +27,7 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 @Configuration
 @EnableGlobalAuthentication
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
-@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+//@EnableGlobalMethodSecurity(prePostEnabled=true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
