@@ -93,7 +93,7 @@ public class ElasticSearchTask implements Runnable {
 	private void updateTopic() {
 		MiniTopic miniTopic = new MiniTopic(topic.getId(), topic.getName(), topic.getDesc());
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.postForLocation(getTopicRestUrl(topicId), miniTopic);
+		restTemplate.postForLocation(getTopicRestUrl(topic.getId()), miniTopic);
 	}
 
 	public void setTopic(Topic topic) {
@@ -110,7 +110,7 @@ public class ElasticSearchTask implements Runnable {
 
 	public JSONObject getTopicsByFullText() {
 		RestTemplate restTemplate = new RestTemplate();
-		String url = getTopicRestUrl(topicId) + "_search?fields=name,id";
+		String url = getTopicRestUrl(topicId) + "_search?size=5&fields=name,id";
 		JSONObject jsonObject = getJsonSearchQry();
 
 		String response = restTemplate.postForObject(url, jsonObject, String.class);

@@ -21,8 +21,8 @@ import java.util.concurrent.Executors;
 public class ElasticSearchService {
 	private static final short THREAD_POOL_SIZE = 5;
 	private ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-	public static PageRequest DEFAULT_PAGE_REQUEST = new PageRequest(0, 5);
 
+	@Autowired
 	private TopicRepository topicRepository;
 
 	@Autowired

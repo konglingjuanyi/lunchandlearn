@@ -146,7 +146,7 @@ angular.module('controllers').controller('employeesController', [
 					}
 				}
 			}
-			$uibModal.open(opts).result.then(function (selectedItem) {
+			$uibModal.open(opts).result.then(function () {
 				self.doRemove(data.guid)
 			}, function () {
 
