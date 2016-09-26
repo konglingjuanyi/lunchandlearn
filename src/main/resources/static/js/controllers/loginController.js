@@ -2,8 +2,8 @@
  * Created by DE007RA on 5/9/2016.
  */
 angular.module('controllers').controller('loginController',
-    ['$rootScope', 'restService', '$location', '$localStorage', 'utilitiesService',
-        function ($rootScope, restService, $location, $localStorage, utilitiesService) {
+    ['$scope', '$rootScope', 'restService', '$location', '$localStorage', 'utilitiesService',
+        function ($scope, $rootScope, restService, $location, $localStorage, utilitiesService) {
         var self = this;
 
         self.isLoginPage = function() {
@@ -31,6 +31,10 @@ angular.module('controllers').controller('loginController',
                     else {
                         $location.path('/').search({logout: null});
                     }
+                }
+                if($rootScope.user) {
+                    self.isAdmin = utilitiesService.isAdminUser($rootScope.user.roles);
+                    self.isManager = utilitiesService.isManagerUser($rootScope.user.roles);
                 }
             }).finally(function () {
                 self.doingLogin = false;

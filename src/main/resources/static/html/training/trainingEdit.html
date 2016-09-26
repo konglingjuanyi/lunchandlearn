@@ -4,6 +4,9 @@
         <div class="col-md-8">
             <ng-include src="'/lunchandlearn/html/main/error.html'" ng-show="self.error"></ng-include>
             <form novalidate ng-show="!self.error">
+                <div class="alert alert-info alert-flex" ng-if="feedbackStatus.pendingFeedBack">
+                    Pending Feedback, scroll down and click 'Feedback' tab
+                </div>
                 <div class="form-group">
                     <div class="row">
                         <div class="col-md-10">
@@ -14,11 +17,12 @@
                     <div class="form-group" ng-class="{'has-error': self.errorName}">
                         <div class="row">
                             <div class="col-md-12">
-                                <span ng-class="{'field-editable': !self.isTrainingComplete && (!self.isTrainingComplete && (self.isEditable || self.isAdmin))}"
+                                <span ng-class="{'field-editable': !self.isTrainingComplete && (self.isEditable || self.isAdmin)}"
                                       ng-show="!self.editName"
                                       ng-click="self.setEditStatus('Name', true)">{{item.name}}</span>
                                 <input type="text" class="form-control" ng-show="self.editName"
-                                       ng-model="item.name" focus-me>
+                                       ng-model="item.name" focus-me ng-keypress="self.saveOnEnterKey($event, 'name');"
+                                       ng-keydown="self.cancelOnEnterKey($event, 'Name');">
                                 <div save-cancel ng-show="self.editName" on-save="self.saveByField"
                                      on-cancel="self.setEditStatus" field="name"></div>
                                 <span class="help-block has-error" ng-show="self.errorName">{{self.errorName}}</span>
@@ -32,10 +36,10 @@
                             <label class="form-label">Description</label>
                             <div class="form-group" ng-class="{'has-error': self.errorDesc}">
                                 <span ng-class="{'field-editable': !self.isTrainingComplete && (self.isEditable || self.isAdmin)}"
-                                      ng-show="!self.editDesc"
+                                      ng-show="!self.editDesc" class="commentText"
                                       ng-click="self.setEditStatus('Desc', true)">{{item.desc}}</span>
                                 <textarea class="form-control" ng-show="self.editDesc"
-                                          ng-model="item.desc"
+                                          ng-model="item.desc" ng-keydown="self.cancelOnEnterKey($event, 'Desc');"
                                           rows="5" focus-me/>
                                 <div save-cancel ng-show="self.editDesc" on-save="self.saveByField"
                                      on-cancel="self.setEditStatus" field="desc"></div>
@@ -160,8 +164,7 @@
                                 item.status === 'NOMINATED')) && self.editScheduledOn">
                                     <input type="text" class="form-control" datetime-picker="dd-MMM-yy, hh:mm a"
                                            ng-model="item.scheduledOn" is-open="self.isDatePickerOpen"
-                                           datepicker-options="self.datePickerOptions"
-                                           ng-keypress="self.saveOnEnterKey($event, 'name');"/>
+                                           datepicker-options="self.datePickerOptions"/>
                                     <span class="input-group-btn">
                                         <button type="button" class="btn btn-default"
                                                 ng-click="self.openDatePicker($event, prop)"><i
@@ -213,8 +216,7 @@
                                 </span>
                                     <span ng-show="self.errorDuration">
                                         <input type="number" class="form-control short-stepper" stepper
-                                               options="self.stepperOptions" ng-model="item.duration"
-                                               ng-keypress="self.saveOnEnterKey($event, 'duration');">
+                                               options="self.stepperOptions" ng-model="item.duration"/>
                                         <div save-cancel ng-show="self.editDuration" on-save="self.saveByField"
                                              on-cancel="self.setEditStatus" field="duration"></div>
                                         <span class="help-block has-error" ng-show="self.errorDuration">{{self.errorDuration}}</span>
@@ -246,7 +248,7 @@
                             <div class="form-group">
                                 <label class="form-label">Status</label>
                                 <div class="form-group" ng-class="{'has-error': self.errorStatus}">
-                                <span ng-class="{'field-editable': self.isAdmin}"
+                                <span ng-class="{'field-editable': !isTrainingClosed && (self.isEditable || self.isAdmin)}"
                                       ng-show="!self.editStatus" focus-me
                                       ng-click="self.setEditStatus('Status', true)">{{self.trainingCurrentStatus}}</span>
                                     <select ng-change="self.saveByField('status');"
@@ -290,11 +292,13 @@
                         </uib-tab>
 
                         <uib-tab>
-                            <uib-tab-heading><i class="nc-icon-mini design_bullet-list-69"></i>
+                            <uib-tab-heading><i class="nc-icon-mini"
+                                                ng-class="{'design_bullet-list-69': !feedbackStatus.pendingFeedBack, 'ui-1_bell-53': feedbackStatus.pendingFeedBack}"></i>
                                 Feedback ({{feedbackCount}})
                             </uib-tab-heading>
                             <feedback parent-id="self.trainingId" training="item"
-                                      feedback-count="feedbackCount"></feedback>
+                                      feedback-count="feedbackCount" feedback-status="feedbackStatus"
+                                      is-training-closed="isTrainingClosed"></feedback>
                         </uib-tab>
                     </uib-tabset>
                 </div>

@@ -26,6 +26,10 @@ lunchAndLearnApp.config(['$routeProvider', '$httpProvider',
 				templateUrl: '/lunchandlearn/html/training/trainings.html',
 				controller: 'trainingsController as self'
 			}).
+			when('/trainingrooms', {
+				templateUrl: '/lunchandlearn/html/trainingRoom/trainingRooms.html',
+				controller: 'trainingRoomsController as self'
+			}).
 			when('/employees/:employeeId', {
 				templateUrl: '/lunchandlearn/html/employee/employeeEdit.html',
 				controller: 'employeeController as self'

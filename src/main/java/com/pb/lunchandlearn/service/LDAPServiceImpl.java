@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -26,6 +25,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.pb.lunchandlearn.service.EmployeeServiceImpl.ADMIN_ROLE_LIST;
+import static com.pb.lunchandlearn.service.EmployeeServiceImpl.MANAGER_ROLE_LIST;
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 /**
@@ -65,9 +65,9 @@ public class LDAPServiceImpl implements LDAPService {
 	public void init() {
 		setLdapAttributes();
 		try {
-			updateEmployees();
+//			updateEmployees();
 		} catch (Exception e) {
-			//TODO; log it
+			//TODO: log it
 		}
 	}
 
@@ -155,8 +155,9 @@ public class LDAPServiceImpl implements LDAPService {
 						}
 					}
 //					isEmployeesLoadedOnce = true;
-					processEmployees();
+					setEmployeesManagerName();
 				}
+				removeEmployees();
 			} catch (Exception e) {
 //				if (isEmployeesLoadedOnce) {
 				e.printStackTrace();
@@ -169,25 +170,47 @@ public class LDAPServiceImpl implements LDAPService {
 		}
 	}
 
+	private void removeEmployees() {
+		if(AD_EMPLOYEES != null && AD_EMPLOYEES.size() > 0) {
+			List guids = new ArrayList(AD_EMPLOYEES.keySet());
+			employeeRepository.removeEmployees(guids);
+		}
+	}
+
 	private void setServiceAccount() {
 		Employee employee = AD_EMPLOYEES.get(StringUtils.upperCase(serviceAccountSettings.getGuid()));
+		if(employee == null) {
+			employee = new Employee();
+			employee.setGuid(serviceAccountSettings.getGuid().toUpperCase());
+			employee.setName(serviceAccountSettings.getGuid());
+			AD_EMPLOYEES.put(employee.getGuid(), employee);
+			USERS_DN.put(employee.getGuid(), ldapSettings.getServiceDN());
+		}
 		employee.setRoles(ADMIN_ROLE_LIST);
 		employeeRepository.updateAllDifferentFields(employee);
 	}
 
-	private void processEmployees() {
+	private void setRoleAsManager() {
+		for (String guid : guids) {
+			Employee manager = AD_EMPLOYEES.get(guid);
+			if(manager != null) {
+				manager.setRoles(MANAGER_ROLE_LIST);
+			}
+		}
+	}
+
+	private void setEmployeesManagerName() {
 		setServiceAccount();
+		setRoleAsManager();
 		if (AD_EMPLOYEES != null && AD_EMPLOYEES.size() > 0) {
 			for (Employee emp : AD_EMPLOYEES.values()) {
-				if (guids.contains(emp.getGuid())) {
-					Map<String, String> managers = emp.getManagers();
-					if (managers != null) {
-						for (Map.Entry<String, String> manager : managers.entrySet()) {
-							if(manager.getKey().equals(manager.getValue())) {
-								Employee employee = AD_EMPLOYEES.get(manager.getKey());
-								if (employee != null) {
-									manager.setValue(employee.getName());
-								}
+				Map<String, String> managers = emp.getManagers();
+				if (managers != null) {
+					for (Map.Entry<String, String> manager : managers.entrySet()) {
+						if(manager.getKey().equals(manager.getValue())) {
+							Employee employee = AD_EMPLOYEES.get(manager.getKey());
+							if (employee != null) {
+								manager.setValue(employee.getName());
 							}
 						}
 					}
@@ -233,6 +256,7 @@ public class LDAPServiceImpl implements LDAPService {
 				} else {
 					guids.add(managerGuid);
 					managers = new HashMap<String, String>(1);
+					managers.put(managerGuid, managerGuid);
 				}
 				employee.setManagers(managers);
 			}
@@ -274,7 +298,6 @@ public class LDAPServiceImpl implements LDAPService {
 	@Override
 	public void authenticateEmployee(String guid, String pwd) {
 		if (USERS_DN == null || USERS_DN.isEmpty()) {
-//			return;
 			throw new UsernameNotFoundException(MessageFormat.format("User Name: {0}", guid));
 		}
 		String baseDn = USERS_DN.get(guid);

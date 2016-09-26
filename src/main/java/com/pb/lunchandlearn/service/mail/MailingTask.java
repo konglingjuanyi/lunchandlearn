@@ -8,7 +8,6 @@ import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.repository.EmployeeRepository;
 import com.pb.lunchandlearn.repository.TopicRepository;
 import com.pb.lunchandlearn.repository.TrainingRepository;
-import com.pb.lunchandlearn.service.LDAPService;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -25,10 +24,12 @@ import javax.activation.DataHandler;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -71,9 +72,6 @@ public final class MailingTask implements Runnable {
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
-
-	@Autowired
-	private LDAPService ldapService;
 
 	private MimeMessage mimeMessage;
 
@@ -146,7 +144,7 @@ public final class MailingTask implements Runnable {
 	public MailingTask() {
 	}
 
-	private void sendMail() {
+	private void sendMail() throws UnsupportedEncodingException {
 		isCalenderRequest = false;
 		Set<String> mailingSet;
 		mailingSet = getEmailsByRoles(ADMIN_ROLE_LIST);
@@ -267,13 +265,13 @@ public final class MailingTask implements Runnable {
 		return mailingList;
 	}
 
-	private void send() {
+	private void send() throws UnsupportedEncodingException {
 		if (to.length > 0) {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
 			try {
 				from = serviceAccountSettings.getEmailId();
 				helper.setTo(to);
-				helper.setFrom(from);
+				helper.setFrom(from, serviceAccountSettings.getEmailPersonName());
 				helper.setSubject(subject);
 				if (!isCalenderRequest && !StringUtils.isEmpty(msg)) {
 					helper.setText(msg, true);
@@ -286,10 +284,8 @@ public final class MailingTask implements Runnable {
 		}
 	}
 
-	private String getTrainingLink() {
-		String link = MessageFormat.format(
-				"{0}/#/trainings/{1}",
-				applicationConfiguration.BASE_URL, training.getId().toString());
+	private String getTrainingLink() {String link = MessageFormat.format("{0}/#/trainings/{1}",
+			applicationConfiguration.BASE_URL, training.getId().toString());
 		return link;
 	}
 
@@ -327,12 +323,12 @@ public final class MailingTask implements Runnable {
 		}
 		switch (mailType) {
 			case COMMENT_ADDED:
-				subject = MessageFormat.format("{0} has commented on '{1}'", comment.getOwnerName(), training.getName());
+				subject = MessageFormat.format("{0} has commented on {1}", comment.getOwnerName(), training.getName());
 				setCommentParams(ctx);
 				msgPage = "comment_added";
 				break;
 			case COMMENT_REMOVED:
-				subject = MessageFormat.format("{0} has deleted comment from '{1}'", comment.getOwnerName(), training.getName());
+				subject = MessageFormat.format("{0} has deleted comment from {1}", comment.getOwnerName(), training.getName());
 				setCommentParams(ctx);
 				msgPage = "comment_deleted";
 				break;
@@ -345,18 +341,18 @@ public final class MailingTask implements Runnable {
 				msgPage = "employee_updated";
 				break;
 			case ATTACHMENT_ADDED:
-				subject = MessageFormat.format("File attached to '{0}'", training.getName());
+				subject = MessageFormat.format("File attached to {0}", training.getName());
 				setFileAttachmentParams(ctx);
 				msgPage = "attachment_added";
 				break;
 			case ATTACHMENT_REMOVED:
-				subject = MessageFormat.format("File deleted from \'{0}\'", training.getName());
+				subject = MessageFormat.format("File deleted from {0}", training.getName());
 				setFileAttachmentParams(ctx);
 				msgPage = "attachment_deleted";
 				break;
-			case FEEDBACK_ADDED:
-				subject = MessageFormat.format("Feedback added to {0}", training.getName());
-				msgPage = "feedback_added";
+			case FEEDBACK_REQUEST:
+				subject = MessageFormat.format("Feedback request for {0}", training.getName());
+				msgPage = "feedback_request";
 				break;
 			case TRAINING_ADDED:
 				subject = MessageFormat.format("Nominated Training - {0}", training.getName());;
@@ -376,6 +372,9 @@ public final class MailingTask implements Runnable {
 				setTopicParams(ctx);
 				msgPage = "topic_updated";
 				break;
+			default:
+				int a = 1;
+				a++;
 		}
 		msg = this.templateEngine.process(msgPage, ctx);
 	}
@@ -386,10 +385,13 @@ public final class MailingTask implements Runnable {
 			Set<String> mailingSet = null;
 			training = trainingRepository.findById(parentId);
 			mailingSet = addTrainersEmailId(mailingSet);
+			mailingSet = addTraineesEmailId(mailingSet);
 //			mailingSet.addAll(ldapService.groupEmail);
 			employee = employeeRepository.findByGuid(training.getCreatedByGuid());
 			if(employee != null) {
-				mailingSet.add(employee.getEmailId());
+				if(StringUtils.isNotEmpty(employee.getEmailId())) {
+					mailingSet.add(employee.getEmailId());
+				}
 			}
 
 			// Define message
@@ -397,10 +399,11 @@ public final class MailingTask implements Runnable {
 			mimeMessage.addHeaderLine("method=" + getCalendarMethod());
 			mimeMessage.addHeaderLine("charset=UTF-8");
 			mimeMessage.addHeaderLine("component=VEVENT");
-			//mimeMessage.setSubject(mailServerSettings.getCalenderRequestSubject());
-			subject = mailServerSettings.getCalenderRequestSubject().replace("{date}",
-					CommonUtil.getDayMonthWithOrdinal(training.getScheduledOn()));
-
+			from = serviceAccountSettings.getEmailId();
+			mimeMessage.setFrom(new InternetAddress(from, serviceAccountSettings.getEmailPersonName()));
+			subject = training.getName() + " || " + CommonUtil.getDayMonthWithOrdinal(training.getScheduledOn());
+			mimeMessage.setSubject(subject);
+			this.to = mailingSet.toArray(new String[0]);
 			StringBuffer msgSb = new StringBuffer("\\nDear All,\\n");
 			msgSb.append("This is to inform you that this week, we will conduct one session on ");
 			msgSb.append(CommonUtil.getWeekMonthYear(training.getScheduledOn()));
@@ -432,12 +435,13 @@ public final class MailingTask implements Runnable {
 			msgSb.append("Lunch & Learn");
 			msg = msgSb.toString();
 			StringBuffer buffer = new StringBuffer("BEGIN:VCALENDAR\n" +
-					"PRODID:-//Lunch & Learn, Pitney Bowes Software, Noida//EN\n" +
+					"PRODID:-//Lunch & Learn, Pitney Bowes Software, India//EN\n" +
 					"VERSION:2.0\n" +
 					"METHOD:" + getCalendarMethod() + "\n" +
 					getCalendarStatus() +
 					"BEGIN:VEVENT\n" +
-					"ORGANIZER:" + securedUser.getEmailId() + "\n" +
+//					"ATTENDEE;ROLE=REQ-PARTICIPANT;RSVP=TRUE:MAILTO:lalima.arora@pb.com\n" +
+					"ORGANIZER:MAILTO:" + "lunchandlearn@pb.com" + "\n" +
 					"DTSTART:" + df.format(training.getScheduledOn()) + "\n" +
 					"DTEND:" + df.format(getTrainingEndDateTime(training)) + "\n" +
 					"LOCATION:" + training.getLocation() + "\n" +
@@ -475,8 +479,6 @@ public final class MailingTask implements Runnable {
 
 			// Put parts in message
 			mimeMessage.setContent(multipart);
-
-			this.to = mailingSet.toArray(new String[0]);
 			// send message
 			send();
 		} catch (MessagingException ex) {
@@ -485,6 +487,7 @@ public final class MailingTask implements Runnable {
 			ex.printStackTrace();
 		}
 	}
+
 
 	private String getCalendarStatus() {
 		switch (training.getStatus()) {
@@ -527,13 +530,18 @@ public final class MailingTask implements Runnable {
 		ctx.setVariable("training_id_link", getTrainingLink());
 		if (mailType == MailService.MailType.TRAINING_ADDED) {
 			ctx.setVariable("training_topics", StringUtils.join(training.getTopics().values(), ", "));
-		} else if (mailType == MailService.MailType.TRAINING_UPDATED)
+		} else if (mailType == MailService.MailType.TRAINING_UPDATED) {
 			if (!StringUtils.isEmpty(updatedFieldName)) {
 				ctx.setVariable("training_updated_field_name", StringUtils.capitalize(updatedFieldName));
 			}
-			if (updatedFieldValue != null) {
-				ctx.setVariable("training_updated_field_value", getValues());
-			}
+		} else if (mailType == MailService.MailType.FEEDBACK_REQUEST && training.getTrainees() != null
+				&& training.getTrainees().size() > 0) {
+			ctx.setVariable("training_topics", StringUtils.join(training.getTopics().values(), ", "));
+			ctx.setVariable("training_trainers", StringUtils.join(training.getTrainees().values().toArray(), ", "));
+		}
+		if (updatedFieldValue != null) {
+			ctx.setVariable("training_updated_field_value", getValues());
+		}
 	}
 
 	private String getValues() {
@@ -601,7 +609,12 @@ public final class MailingTask implements Runnable {
 				}
 				break;
 			default:
-				sendMail();
+				try {
+					sendMail();
+				} catch (UnsupportedEncodingException e) {
+					logger.error("Mail Cant be sent To: {} Subject: {} {}",
+							to.toString(), subject, e);
+				}
 		}
 	}
 

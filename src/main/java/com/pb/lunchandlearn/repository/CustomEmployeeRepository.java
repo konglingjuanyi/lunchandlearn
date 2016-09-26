@@ -2,11 +2,15 @@ package com.pb.lunchandlearn.repository;
 
 import com.pb.lunchandlearn.config.LikeType;
 import com.pb.lunchandlearn.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Query;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by DE007RA on 6/6/2016.
@@ -41,4 +45,10 @@ public interface CustomEmployeeRepository {
 	List<Employee> findAllByRoles(List<String> roles);
 
 	void updateAllDifferentFields(Employee emp);
+
+	Long countByManagers(String guid);
+
+	Page<Employee> findAllExistsByManagers(String managerGuid, Pageable pageable);
+
+	void removeEmployees(List<String> employeesGuid);
 }

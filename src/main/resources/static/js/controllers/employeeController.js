@@ -61,6 +61,11 @@ angular.module('controllers').controller('employeeController', ['$scope', 'emplo
 
 		self.getEmployee = function () {
 			employeeService.getEmployee(self.employeeId).then(function (response) {
+				if(_.isEmpty(response.data)) {
+					self.error = true;
+					self.errorMsg = 'Employee detail not found!';
+					return;
+				}
 				self.item = _.defaultsDeep(self.item, response.data);
 				_.remove(self.managers, {guid: self.item.guid});
 				self.item.trainingsInterestedIn = employeeService.setTrainingObj(self.item.trainingsInterestedIn);

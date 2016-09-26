@@ -17,7 +17,9 @@
                                         <span class="field-editable" ng-show="!self.editName"
                                               ng-click="self.editName = true">{{self.item.name}}</span>
                                 <input type="text" class="form-control" ng-show="self.editName"
-                                       ng-model="self.item.name" focus-me>
+                                       ng-model="self.item.name" focus-me
+                                       ng-keypress="self.saveOnEnterKey($event, 'name');"
+                                       ng-keydown="self.cancelOnEnterKey($event, 'Name');">
                                 <div save-cancel ng-show="self.editName" on-save="self.saveByField"
                                      on-cancel="self.setEditStatus" field="name"></div>
                                 <span class="help-block has-error" ng-show="self.errorName">{{self.errorName}}</span>
@@ -32,10 +34,11 @@
                             <div class="form-group">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <span class="field-editable" ng-show="!self.editDesc"
+                                        <span class="field-editable commentText" ng-show="!self.editDesc"
                                               ng-click="self.editDesc = true">{{self.item.desc}}</span>
                                         <textarea class="form-control" ng-show="self.editDesc" ng-model="self.item.desc"
-                                                  rows="5" autofocus="true"/>
+                                                  rows="5" autofocus="true"
+                                                  ng-keydown="self.cancelOnEnterKey($event, 'Desc');"/>
                                         <div save-cancel ng-show="self.editDesc" on-save="self.saveByField"
                                              on-cancel="self.setEditStatus" field="desc"></div>
                                     </div>
@@ -99,34 +102,42 @@
                             <uib-tabset justified="true">
                                 <uib-tab>
                                     <uib-tab-heading><i class="nc-icon-mini design_album"></i>
-                                        Unscheduled ({{self.unscheduledTrainingsCount}})
+                                        Nominated ({{self.unscheduledTrainingsCount}})
                                     </uib-tab-heading>
-                                    <simple-tag items="self.unscheduledTrainings" linkable="true"
-                                                section="'trainings'" section-url="'trainings'"></simple-tag>
+                                    <div class="spacer-bottom-md">
+                                        <simple-tag items="self.unscheduledTrainings" linkable="true"
+                                                    section="'trainings'" section-url="'trainings'"></simple-tag>
+                                    </div>
                                 </uib-tab>
 
                                 <uib-tab>
                                     <uib-tab-heading><i class="nc-icon-mini design_todo"></i>
                                         Upcoming ({{self.upcomingTrainingsCount}})
                                     </uib-tab-heading>
-                                    <simple-tag items="self.upcomingTrainings" linkable="true"
-                                                section="'trainings'" section-url="'trainings'"></simple-tag>
+                                    <div class="spacer-bottom-md">
+                                        <simple-tag items="self.upcomingTrainings" linkable="true"
+                                                    section="'trainings'" section-url="'trainings'"></simple-tag>
+                                    </div>
                                 </uib-tab>
 
                                 <uib-tab>
                                     <uib-tab-heading><i class="nc-icon-mini ui-1_check-square-11"></i>
-                                        Closed ({{self.closedTrainingsCount}})
+                                        Complete/Closed ({{self.closedTrainingsCount}})
                                     </uib-tab-heading>
-                                    <simple-tag items="self.closedTrainings" linkable="true"
-                                                section="'trainings'" section-url="'trainings'"></simple-tag>
+                                    <div class="spacer-bottom-md">
+                                        <simple-tag items="self.closedTrainings" linkable="true"
+                                                    section="'trainings'" section-url="'trainings'"></simple-tag>
+                                    </div>
                                 </uib-tab>
 
                                 <uib-tab>
                                     <uib-tab-heading><i class="nc-icon-mini design_note-code"></i>
                                         Other ({{self.otherTrainingsCount}})
                                     </uib-tab-heading>
-                                    <simple-tag items="self.otherTrainings" linkable="true"
-                                                section="'trainings'" section-url="'trainings'"></simple-tag>
+                                    <div class="spacer-bottom-md">
+                                        <simple-tag items="self.otherTrainings" linkable="true"
+                                                    section="'trainings'" section-url="'trainings'"></simple-tag>
+                                    </div>
                                 </uib-tab>
                             </uib-tabset>
                         </div>

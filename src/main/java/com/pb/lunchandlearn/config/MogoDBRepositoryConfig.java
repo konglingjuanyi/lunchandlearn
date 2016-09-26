@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  */
 @Configuration
 @EnableMongoRepositories("com.pb.lunchandlearn.repository")
-public class RepositoryConfig extends AbstractMongoConfiguration {
+public class MogoDBRepositoryConfig extends AbstractMongoConfiguration {
 	@Override
 	protected String getDatabaseName() {
 		return "lunchandlearn";

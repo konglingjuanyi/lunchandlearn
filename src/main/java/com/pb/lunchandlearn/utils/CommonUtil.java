@@ -1,11 +1,7 @@
 package com.pb.lunchandlearn.utils;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 import com.pb.lunchandlearn.domain.*;
-import com.pb.lunchandlearn.exception.ResourceNotFoundException;
-import org.apache.commons.lang3.time.DateUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.data.domain.Page;
@@ -13,11 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 import java.text.DateFormat;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -224,5 +217,28 @@ public final class CommonUtil {
 
 	public static String getTime(Date date) {
 		return dfTime.format(date.getTime());
+	}
+
+	public static JSONArray getTrainingRoomsJson(List<TrainingRoom> rooms) {
+		JSONArray array = new JSONArray();
+		for(TrainingRoom room : rooms) {
+			array.add(getTrainingRoomJson(room));
+		}
+		return array;
+	}
+	public static JSONArray getTrainingRoomsJson(Iterator<TrainingRoom> trainingRoom) {
+		JSONArray array = new JSONArray();
+		while(trainingRoom.hasNext()) {
+			array.add(getTrainingRoomJson(trainingRoom.next()));
+		}
+		return array;
+	}
+
+	public static JSONObject getTrainingRoomJson(TrainingRoom trainingRoom) {
+		JSONObject objTopic = new JSONObject();
+		objTopic.put("id", trainingRoom.getId());
+		objTopic.put("name", trainingRoom.getName());
+		objTopic.put("location", trainingRoom.getLocation());
+		return objTopic;
 	}
 }

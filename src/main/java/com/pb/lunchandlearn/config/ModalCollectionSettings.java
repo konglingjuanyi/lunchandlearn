@@ -16,6 +16,7 @@ public final class ModalCollectionSettings {
 	private String topic;
 	private String comment;
 	private String feedback;
+	private String trainingRoom;
 
 	@Override
 	public String toString() {
@@ -27,6 +28,7 @@ public final class ModalCollectionSettings {
 				", topic='" + topic + '\'' +
 				", comment='" + comment + '\'' +
 				", feedback='" + feedback + '\'' +
+				", trainingRoom='" + trainingRoom + '\'' +
 				'}';
 	}
 
@@ -43,7 +45,8 @@ public final class ModalCollectionSettings {
 		if (collectionId != null ? !collectionId.equals(that.collectionId) : that.collectionId != null) return false;
 		if (topic != null ? !topic.equals(that.topic) : that.topic != null) return false;
 		if (comment != null ? !comment.equals(that.comment) : that.comment != null) return false;
-		return feedback != null ? feedback.equals(that.feedback) : that.feedback == null;
+		if (feedback != null ? !feedback.equals(that.feedback) : that.feedback != null) return false;
+		return trainingRoom != null ? trainingRoom.equals(that.trainingRoom) : that.trainingRoom == null;
 
 	}
 
@@ -56,7 +59,16 @@ public final class ModalCollectionSettings {
 		result = 31 * result + (topic != null ? topic.hashCode() : 0);
 		result = 31 * result + (comment != null ? comment.hashCode() : 0);
 		result = 31 * result + (feedback != null ? feedback.hashCode() : 0);
+		result = 31 * result + (trainingRoom != null ? trainingRoom.hashCode() : 0);
 		return result;
+	}
+
+	public String getTrainingRoom() {
+		return trainingRoom;
+	}
+
+	public void setTrainingRoom(String trainingRoom) {
+		this.trainingRoom = trainingRoom;
 	}
 
 	public String getFeedback() {

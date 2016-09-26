@@ -24,6 +24,9 @@ angular.module('controllers').controller('topicsController', [
 			self.searchedTopics = {totalCount: self.totalCount, data: data.content};
 			self.fromCount = (data.size * data.number) + 1;
 			self.toCount = (self.fromCount - 1) + data.numberOfElements;
+			if(self.currentPageSize > self.totalCount) {
+				self.currentPageSize = self.pageSizes[0];
+			}
 		};
 
 		self.list = function() {
@@ -100,9 +103,13 @@ angular.module('controllers').controller('topicsController', [
 			$uibModal.open(opts).result.then(function (selectedItem) {
 				self.doRemove(data.guid)
 			}, function () {
-				console.log('confirmation modal cancelled')
+				
 			});
-		}
+		};
+
+		self.getSuggestedNames = function(topicName) {
+			return topicService.getSuggestedNames(topicName);
+		};
 
 		self.showModalDlg = function () {
 			var opts = {
@@ -111,10 +118,11 @@ angular.module('controllers').controller('topicsController', [
 				controller: 'modalController as self',
 				resolve: {
 					data: function () {
-						return {item: self.topic, mode: self.mode, options: {managers : self.managers}};
+						return {item: self.topic, mode: self.mode, options: {managers : self.managers,
+							getSuggestedNames: self.getSuggestedNames}};
 					}
 				}
-			}
+			};
 			$uibModal.open(opts).result.then(function (selectedItem) {
 				self.topic = selectedItem;
 				if(self.mode === 'add') {
@@ -124,9 +132,9 @@ angular.module('controllers').controller('topicsController', [
 					self.save();
 				}
 			}, function () {
-				console.log('confirmation modal cancelled')
+				
 			});
-		}
+		};
 
 		self.list();
 	}]);

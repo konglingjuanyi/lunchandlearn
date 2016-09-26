@@ -1,5 +1,6 @@
 package com.pb.lunchandlearn.config;
 
+import com.pb.lunchandlearn.service.es.ElasticSearchTask;
 import com.pb.lunchandlearn.service.mail.MailingTask;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -30,7 +31,7 @@ public class ApplicationConfiguration {
 
 	@PostConstruct
 	public void init() {
-		BASE_URL = "http:noide007ra-l1/" + (APPLICATION_PORT == 80 ? "" : ":" + APPLICATION_PORT)
+		BASE_URL = "http:noide007ra-l1" + (APPLICATION_PORT == 80 ? "" : ":" + APPLICATION_PORT)
 				+ CONTEXT_PATH;
 		TRAINING_LOCATIONS = strTrainingLocations.split("; *");
 	}
@@ -39,5 +40,11 @@ public class ApplicationConfiguration {
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	public static MailingTask mailingTask() {
 		return new MailingTask();
+	}
+
+	@Bean(name = "elasticSearchTask")
+	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+	public static ElasticSearchTask elasticSearchTask() {
+		return new ElasticSearchTask();
 	}
 }

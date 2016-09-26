@@ -20,7 +20,6 @@ public final class MailServerSettings {
 	private String protocol;
 	@NotNull
 	private String smtpSSLTrust;
-
 */
 	@NotNull
 	private String calenderRequestSubject;

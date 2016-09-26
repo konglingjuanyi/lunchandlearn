@@ -10,7 +10,25 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "service.account")
 public final class ServiceAccountSettings {
 	private String guid;
+	private String pwd;
 	private String emailId;
+	private String emailPersonName;
+
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+
+	public String getEmailPersonName() {
+		return emailPersonName;
+	}
+
+	public void setEmailPersonName(String emailPersonName) {
+		this.emailPersonName = emailPersonName;
+	}
 
 	@Override
 	public String toString() {

@@ -1,10 +1,7 @@
 package com.pb.lunchandlearn.service;
 
 import com.pb.lunchandlearn.config.LikeType;
-import com.pb.lunchandlearn.domain.Employee;
-import com.pb.lunchandlearn.domain.SimpleFieldEntry;
-import com.pb.lunchandlearn.domain.Topic;
-import com.pb.lunchandlearn.domain.Training;
+import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -55,4 +52,6 @@ public interface TopicService {
 	void addEmployees(Map<Object, String> topics, Employee emp, String employeesStr);
 
 	Integer getTrainingLikesCount(Long trainingId);
+
+	JSONObject getSuggestedTopics(String topicName);
 }

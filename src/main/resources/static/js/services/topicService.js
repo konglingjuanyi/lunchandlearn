@@ -17,6 +17,10 @@ angular.module('services').factory('topicService', [ 'restService', '$localStora
 			return restService.get(url, config);
 		},
 
+		getSuggestedNames: function(topicName) {
+			return restService.get(this.topicsUrl + '/suggestions', {params: {name: topicName}});
+		},
+
 		likeTopic: function(topicId) {
 			if(_.isUndefined(topicId)) {
 				return;

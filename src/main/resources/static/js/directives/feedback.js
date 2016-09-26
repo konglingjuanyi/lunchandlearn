@@ -5,7 +5,9 @@ angular.module('directives').directive('feedback', function() {
         scope: {
             parentId: '=',
             feedbackCount: '=',
-            training: '='
+            training: '=',
+            feedbackStatus: '=',
+            isTrainingClosed: '='
         },
         controller: 'trainingsFeedbackController as self'
     };
@@ -24,19 +26,18 @@ angular.module('directives').directive('feedback', function() {
             }
         });
 
-        $scope.$watch('training', function () {
-            self.pendingFeedBack = $scope.training && $scope.training.trainees &&
-                $scope.training.trainees[self.userGuid] && $scope.training.status === 'COMPLETED';
+        $scope.$watch('training', function() {
+            if($scope.training) {
+                list();
+            }
         });
 
-        self.list = function() {
-            trainingService.getTrainingMinimal(self.parentId).then(function(response) {
-                if(response.data) {
-                    self.training = response.data;
-                }
-            });
+        var list = function() {
             trainingService.getFeedbacks(self.parentId).then(function(response) {
+                $scope.feedbackStatus.pendingFeedBack = $scope.training.trainees && $scope.training.trainees[self.userGuid]
+                    && ($scope.training.status === 'COMPLETED' && $scope.training.status !== 'CLOSED');
                 if(!_.isEmpty(response.data)) {
+                    $scope.feedbackStatus.pendingFeedBack = $scope.feedbackStatus.pendingFeedBack && isFeedbackPending(response.data);
                     self.feedbacks = response.data.content;
                     self.ratings = _.omit(response.data, ['content']);
                     $scope.feedbackCount = response.data.feedbackCount;
@@ -45,6 +46,17 @@ angular.module('directives').directive('feedback', function() {
                 }
             });
         }
+
+        var isFeedbackPending = function(feedbacks) {
+            var status = true;
+            _.forEach(feedbacks.content, function(feedback) {
+                if(feedback.respondentGuid === self.userGuid) {
+                    status = false;
+                    return false;
+                }
+            });
+            return status;
+        };
 
         self.show = function(id) {
             trainingService.getFeedback(self.parentId, id).then(function(response) {
@@ -57,8 +69,7 @@ angular.module('directives').directive('feedback', function() {
         self.add = function() {
             trainingService.addFeedback(self.feedback).then(function(response) {
                 self.mode = null;
-                self.pendingFeedBack = false;
-                self.list();
+                list();
             });
         };
 
@@ -85,7 +96,7 @@ angular.module('directives').directive('feedback', function() {
                 self.feedback = selectedItem;
                 self.add();
             }, function () {
-                console.log('confirmation modal cancelled')
+                
             });
         };
 
@@ -157,5 +168,4 @@ angular.module('directives').directive('feedback', function() {
                     .style('font-family', '"Helvetica Neue", Helvetica, Arial, sans-serif;');
             }
         }
-        self.list();
     }]);

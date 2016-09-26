@@ -15,6 +15,9 @@ public class LDAPConfiguration {
 	@Autowired
 	private LDAPSettings ldapSettings;
 
+	@Autowired
+	private ServiceAccountSettings serviceAccountSettings;
+
 	@Bean
 	public LdapTemplate ldapTemplate() {
 		LdapContextSource contextSource = getContextSource();
@@ -23,8 +26,8 @@ public class LDAPConfiguration {
 
 	private LdapContextSource getContextSource() {
 		LdapContextSource contextSource = new LdapContextSource();
-		contextSource.setUserDn(ldapSettings.getServiceDN());
-		contextSource.setPassword(ldapSettings.getServicePwd());
+		contextSource.setUserDn(serviceAccountSettings.getGuid());
+		contextSource.setPassword(serviceAccountSettings.getPwd());
 		contextSource.setUrl(ldapSettings.getServerUrl());
 		contextSource.afterPropertiesSet();
 		return contextSource;

@@ -200,8 +200,15 @@ public class TrainingServiceImpl implements TrainingService {
 				if(TrainingStatus.COMPLETED == training.getStatus()) {
 					//update trainers
 					employeeService.addTrainingTo(training.getTrainers(), training, "trainingsImparted");
+					//update trainees
+//					employeeService.
 				}
 				break;
+			case "trainees":
+				training = trainingRepository.findById(trainingId);
+				if(TrainingStatus.COMPLETED == training.getStatus()) {
+					employeeService.addTrainingTo(training.getTrainees(), training, "trainingsAttended");
+				}
 		}
 		return true;
 	}
@@ -212,7 +219,7 @@ public class TrainingServiceImpl implements TrainingService {
 		if(status == statusToSet) {
 			return false;
 		}
-		if(status == TrainingStatus.COMPLETED) {
+		if(statusToSet == TrainingStatus.CLOSED && (status != TrainingStatus.COMPLETED)) {
 			return false;
 		}
 		if(statusToSet == TrainingStatus.SCHEDULED && (status != TrainingStatus.CANCELLED &&
@@ -362,23 +369,35 @@ public class TrainingServiceImpl implements TrainingService {
 				jsonObject.put("content", CommonUtil.getFeedbacks(feedBacks));
 			}
 
-			if(!CollectionUtils.isEmpty(feedBacks) && (isAdmin || isTrainer)) {
-				int audienceRating = getRatingByTrainees(training.getTrainees());
-				int hoursRating = getRatingByHours(training.getDuration());
-				setFeedBackRatingsPoint(feedBacks, training.getScheduledOn(), jsonObject);
-				int feedBacksRating = (int) jsonObject.get("feedbackRating");
-				float overAllRating = ((audienceRating + hoursRating) / 2) * feedBacksRating;
+			if(!CollectionUtils.isEmpty(feedBacks)) {
+				if(isAdmin || isTrainer) {
+					int audienceRating = getRatingByTrainees(training.getTrainees());
+					int hoursRating = getRatingByHours(training.getDuration());
+					setFeedBackRatingsPoint(feedBacks, training.getScheduledOn(), jsonObject);
+					int feedBacksRating = (int) jsonObject.get("feedbackRating");
+					float overAllRating = ((audienceRating + hoursRating) / 2) * feedBacksRating;
 
-				jsonObject.put("hoursRating", hoursRating);
-				jsonObject.put("audienceRating", audienceRating);
-				jsonObject.put("overAllReward", overAllRating);
-				JSONArray comments = new JSONArray();
-				for(FeedBack feedBack : feedBacks) {
-					if(!StringUtils.isEmpty(feedBack.getComment())) {
-						comments.add(feedBack.getComment());
+					jsonObject.put("hoursRating", hoursRating);
+					jsonObject.put("audienceRating", audienceRating);
+					jsonObject.put("overAllReward", overAllRating);
+					JSONArray comments = new JSONArray();
+					for (FeedBack feedBack : feedBacks) {
+						if (!StringUtils.isEmpty(feedBack.getComment())) {
+							comments.add(getComment(feedBack));
+						}
 					}
+					jsonObject.put("comments", comments);
 				}
-				jsonObject.put("comments", comments);
+				else {
+					JSONArray comments = new JSONArray();
+					for (FeedBack feedBack : feedBacks) {
+						if (!StringUtils.isEmpty(feedBack.getComment())
+								&& StringUtils.equals(user.getGuid(), feedBack.getRespondentGuid())) {
+							comments.add(getComment(feedBack));
+						}
+					}
+					jsonObject.put("comments", comments);
+				}
 			}
 			return jsonObject;
 		}
@@ -389,6 +408,14 @@ public class TrainingServiceImpl implements TrainingService {
 			jsonObject.put("content", array);
 			return jsonObject;
 		}
+	}
+
+	private JSONObject getComment(FeedBack feedBack) {
+		JSONObject comment = new JSONObject();
+		comment.put("respondentName", feedBack.getRespondentName());
+		comment.put("respondentGuid", feedBack.getRespondentGuid());
+		comment.put("comment", feedBack.getComment());
+		return comment;
 	}
 
 	private void setFeedBackRatingsPoint(List<FeedBack> feedBacks, Date trainingDate, JSONObject jsonObject) {
@@ -506,8 +533,14 @@ public class TrainingServiceImpl implements TrainingService {
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public boolean sendFeedbackRequest(Long trainingId) {
-		mailService.sendMail(MailService.MailType.TRAINING_SCHEDULED, trainingId);
+		mailService.sendMail(MailService.MailType.FEEDBACK_REQUEST, trainingId);
 		return true;
 	}
 
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	public boolean sendTrainingRequest(Long trainingId) {
+		mailService.sendMail(MailService.MailType.TRAINING_SCHEDULED, trainingId);
+		return true;
+	}
 }

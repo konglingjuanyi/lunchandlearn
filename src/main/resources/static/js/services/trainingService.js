@@ -1,8 +1,8 @@
 /**
  * Created by de007ra on 5/8/2016.
  */
-angular.module('services').factory('trainingService', [ 'restService', '$localStorage', 'utilitiesService',
-	function(restService, $localStorage, utilitiesService) {
+angular.module('services').factory('trainingService', [ 'restService', '$localStorage', 'utilitiesService', '$rootScope',
+	function(restService, $localStorage, utilitiesService, $rootScope) {
 	var trainingService = {
 		trainingsUrl: restService.appUrl + '/trainings',
 		trainingUrl: restService.appUrl + '/trainings/training',
@@ -33,12 +33,6 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 				var currentUserGuid = user.guid.toUpperCase();
 				return currentUserGuid === training.createdByGuid
 					|| (training.trainers && angular.isDefined(training.trainers[currentUserGuid]));
-			});
-		},
-
-		isAdmin: function () {
-			return restService.getLoggedInUser().then(function(user) {
-				return utilitiesService.isAdminUser(user.roles);
 			});
 		},
 
@@ -139,6 +133,10 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 			return restService.get(this.trainingUrl + '/' + trainingId + '/feedbacks/request');
 		},
 
+		sendTrainingRequest: function (trainingId) {
+			return restService.get(this.trainingUrl + '/' + trainingId + '/mail/scheduled');
+		},
+
 		getAttachments: function(id) {
 			return restService.get(this.trainingUrl + '/' + id + '/attachments');
 		},
@@ -183,19 +181,18 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 			$localStorage.recentTrainingsId = recentTrainingsId;
 		},
 
-		setEditables: function (training, self) {
-			return trainingService.isAdmin().then(function (status) {
-				self.isAdmin = status;
-				if(self.isAdmin) {
-					self.isEditable = true;
-				}
-				else {
-					trainingService.isEditable(training).then(function (status) {
-						self.isEditable = status;
-					});
-				}
-			});
+		setEditables: function (training, obj) {
+			obj.isAdmin = utilitiesService.isAdminUser($rootScope.user.roles);
+			obj.userGuid = $rootScope.user.guid;
+			if(obj.isAdmin) {
+				obj.isEditable = true;
+			}
+			else {
+				trainingService.isEditable(training).then(function (status) {
+					obj.isEditable = status;
+				});
+			}
 		}
 	};
-	return trainingService
+	return trainingService;
 }]);

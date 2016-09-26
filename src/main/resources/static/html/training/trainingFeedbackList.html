@@ -14,13 +14,25 @@
             </tr>
             </tbody>
         </table>
-        <div class="row">
+        <div class="row" ng-if="self.feedbackComments.length != 0">
             <div class="col-md-12">
                 <uib-accordion class="spacer-bottom-md">
-                    <div uib-accordion-group class="panel-default" heading="Comments ({{self.feedbackComments.length}})">
+                    <div uib-accordion-group class="panel-default"
+                         heading="Comments ({{self.feedbackComments.length}})">
                         <div class="commentList">
-                            <div class="comment" ng-repeat="comment in self.feedbackComments track by $index">
-                                <div ng-bind-html="comment | linky:'_blank'" class="commentText">{{comment}}</div>
+                            <div class="feedbackComment" ng-repeat="feedbackComment in self.feedbackComments">
+                                <div class="commenterImage">
+                                    <i class="nc-icon-mini users_single-05"></i>
+                                </div>
+                                <div>
+                                    <span class="commenterName">
+                                        <a class="a-lnk" ng-href="#/employees/{{feedbackComment.respondentGuid}}">
+                                        {{feedbackComment.respondentName}}</a></span>
+                                    <div>
+                                        <div class="commentText"
+                                             ng-bind-html="feedbackComment.comment | linky:'_blank'"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -28,7 +40,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" ng-if="!feedbackStatus.pendingFeedBack">
         <div class="spacer-bottom-md">
             <ng-include src="'/lunchandlearn/html/training/ratingChart.html'"></ng-include>
         </div>
@@ -36,9 +48,14 @@
     <div class="row spacer-bottom-md">
         <div class="col-md-12">
             <button class="btn btn-sm btn-default spacer-bottom-md" ng-click="self.showAdd();"
-                    ng-if="self.pendingFeedBack">
+                    ng-if="feedbackStatus.pendingFeedBack">
                 Add Feedback
             </button>
+        </div>
+    </div>
+    <div class="form-group" ng-if="self.feedbackCount == 0 && isTrainingClosed">
+        <div class="alert alert-info alert-flex">
+            Training closed for Feedback.
         </div>
     </div>
 </div>

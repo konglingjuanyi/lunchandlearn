@@ -17,8 +17,8 @@ angular.module('directives').directive('saveCancel', function () {
         $scope.save = function () {
             $scope.saving = true;
             $scope.onSave($scope.field).then(function (status) {
-
-            }).finally(function () {
+                $scope.saving = false;
+            }, function (error) {
                 $scope.saving = false;
             });
         };

@@ -7,11 +7,24 @@
 </div>
 <div class="modal-body">
     <div class="container-fluid">
-        <form class="form-horizontal">
+        <form class="form-horizontal" name="form" novalidate>
             <div class="row form-group">
                 <label class="col-md-2"></label> <label class="col-md-3 field-label">Name</label>
-                <div class="col-md-6">
-                    <input type="text" class="form-control" ng-model="item.name" autofocus="true">
+                <div class="col-md-6" ng-class="{'has-error': form.name.$error.required && submit}">
+                    <input type="text" class="form-control" ng-model="item.name" autofocus="true" ng-required="true"
+                           name="name" ng-blur="item.name = item.name.trim(); getSuggestedNames();">
+                    <span class="help-block has-error"
+                          ng-show="form.name.$error.required && submit">Name can't be empty</span>
+                </div>
+                <div>
+                    <span class="pull-left">
+                        <loading ng-show="suggesting" smaller="true"></loading>
+                    </span>
+                </div>
+                <label class="col-md-2"></label> <label class="col-md-3"></label>
+                <div class="col-md-7" ng-if="suggestedNames !== null && suggestedNames !== undefined">similar topics
+                    <simple-tag items="suggestedNames" linkable="true"
+                                section="'topics'" section-url="'topics'"></simple-tag>
                 </div>
             </div>
             <div class="row form-group">
@@ -20,10 +33,15 @@
                     <textarea class="form-control" ng-model="item.desc" rows="5"/>
                 </div>
             </div>
+            <div class="form-group">
+                <span ng-if="duplicateItemId" class="alert alert-danger alert-flex">
+                    Topic <a class="a-lnk" ng-href="#/topics/{{duplicateItemId}}" ng-click="cancel()">&nbsp;{{item.name}}&nbsp;</a>already exist
+                </span>
+            </div>
         </form>
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="yes()">Save</button>
+    <button class="btn btn-primary" ng-click="yes()" ng-disabled="suggesting || duplicateItemId">Save</button>
     <button class="btn btn-default" ng-click="cancel()">Cancel</button>
 </div>

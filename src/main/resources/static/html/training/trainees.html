@@ -2,12 +2,12 @@
     <div class="col-md-12" ng-class="{'spacer-bottom-md': self.traineesCount === 0}">
             <simple-tag items="item.trainees" linkable="true"
                         section="'trainees'" section-url="'employees'"
-                        on-remove="self.saveByField" ng-if="self.isAdmin"></simple-tag>
+                        on-remove="self.saveByField" ng-if="!self.isTrainingClosed && self.isAdmin"></simple-tag>
             <simple-tag items="item.trainees" linkable="true"
                         section="'trainees'" section-url="'employees'"
-                        ng-if="!self.isAdmin"></simple-tag>
+                        ng-if="self.isTrainingClosed || !self.isAdmin"></simple-tag>
         <span class="btn-group"
-              ng-show="self.isAdmin && !self.editTrainees" ng-click="self.editTrainees = true">
+              ng-show="self.isAdmin && !self.editTrainees && !self.isTrainingClosed" ng-click="self.editTrainees = true">
             <span class="mini-tag-simple plus">
                 <span class="a-lnk a-lnk-icon-mini"><i
                         class="nc-icon-mini ui-1_simple-add"></i></span>
@@ -17,7 +17,7 @@
 </div>
 <div class="form-group">
     <div class="row">
-        <div class="col-md-6 spacer-bottom-md" ng-show="self.isAdmin && self.editTrainees" ng-class="{'has-error': self.errorTrainees}">
+        <div class="col-md-6 spacer-bottom-sm" ng-show="self.isAdmin && self.editTrainees" ng-class="{'has-error': self.errorTrainees}">
             <ui-select ng-model="selected.trainee">
                 <ui-select-match>
                     <span ng-bind="$select.selected.name"></span>
@@ -33,12 +33,12 @@
     </div>
 </div>
 <div class="form-group">
-    <button class="btn btn-sm btn-default spacer-bottom-md" ng-show="self.isAdmin && self.isScheduled"
-            ng-click="self.sendFeedBackRequest();">
+    <button class="btn btn-sm btn-default" ng-class="{'spacer-bottom-md': !self.trainingRequestSent}"
+            ng-disabled="self.sendingTrainingRequest" ng-show="self.isAdmin && self.isScheduled && !self.isTrainingClosed" ng-click="self.sendTrainingRequest();">
         Send Training Request
     </button>
-    <button class="btn btn-sm btn-default spacer-bottom-md" ng-show="self.isAdmin && self.isFeedBackReady"
-            ng-click="self.sendFeedBackRequest();">
+    <button class="btn btn-sm btn-default spacer-bottom-md" ng-class="{'spacer-bottom-md': !self.feedBackRequestSent}"
+            ng-disabled="self.sendingTrainingFeedbackRequest" ng-show="self.isAdmin && self.isFeedBackReady && !self.isTrainingClosed" ng-click="self.sendFeedBackRequest();">
         Send Feedback Request
     </button>
 </div>
@@ -46,4 +46,9 @@
     <div class="alert alert-success alert-flex">
         Feedback request sent successfully.
     </div>
+</div>
+<div class="form-group" >
+    <span ng-if="self.trainingRequestSent" class="alert alert-success alert-flex">
+        Training request sent successfully.
+    </span>
 </div>

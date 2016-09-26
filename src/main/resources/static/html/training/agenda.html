@@ -1,56 +1,66 @@
 <div class="form-group">
-    <label class="form-label">Agenda</label>
-    <div ng-class="{'field-editable commentText':
+    <label class="form-label">Agenda
+        <button class="btn btn-xs btn-link" ng-if="!self.isTrainingComplete &&
+    !self.editAgenda && (self.isEditable || self.isAdmin) && (!item.agenda || item.agenda.length == 0)"
+                ng-click="self.editAgenda = true">
+            Add
+        </button>
+    </label>
+    <div class="form-group" ng-class="{'has-error': self.errorAgenda}">
+        <div ng-class="{'field-editable commentText':
     !self.isTrainingComplete && (self.isEditable || self.isAdmin)}"
-         ng-show="!self.isEditable || (!self.editAgenda && item.agenda.length > 0)"
-         ng-bind-html="item.agenda | linky:'_blank'" ng-click="self.editAgenda = true"></div>
-    <button class="btn btn-xs btn-link" ng-if="!self.isTrainingComplete &&
-    !self.editAgenda && (self.isEditable || self.isAdmin) && (!item.agenda || item.agenda.length == 0)" ng-click="self.editAgenda = true">
-        Add
-    </button>
+             ng-show="!self.isEditable || (!self.editAgenda && item.agenda.length > 0)"
+             ng-bind-html="item.agenda | linky:'_blank'" ng-click="self.setEditStatus('Agenda', true)"></div>
     <textarea rows="10" ng-model="selected.agenda" ng-show="self.isEditable && self.editAgenda &&
-    !self.isTrainingComplete" class="new-comment" focus-me>
+    !self.isTrainingComplete" class="new-comment" focus-me ng-keydown="self.cancelOnEnterKey($event, 'Agenda');">
     </textarea>
-    <div save-cancel on-save="self.saveSelectedField" on-cancel="self.cancelTextEdit"
-         field="agenda" ng-show="!self.isTrainingComplete && self.isEditable && self.editAgenda"></div>
-    <span class="help-block" ng-show="self.errorAgenda">{{self.errorAgenda}}</span>
+        <div save-cancel on-save="self.saveSelectedField" on-cancel="self.cancelTextEdit"
+             field="agenda" ng-show="!self.isTrainingComplete && self.isEditable && self.editAgenda"></div>
+        <span class="help-block" ng-show="self.errorAgenda">{{self.errorAgenda}}</span>
+    </div>
 </div>
 <!--whats for trainees -->
 <div class="form-group">
-    <label class="form-label">What's In for Trainees</label>
-    <div ng-class="{'field-editable commentText':
-    !self.isTrainingComplete && (self.isEditable || self.isAdmin)}"
-         ng-show="!self.isEditable || (!self.editWhatsForTrainees && item.whatsForTrainees.length > 0)"
-         ng-bind-html="item.whatsForTrainees | linky:'_blank'" ng-click="self.editWhatsForTrainees = true"></div>
-    <button class="btn btn-xs btn-link" ng-if="!self.isTrainingComplete &&
+    <label class="form-label">What's In for Trainees
+        <button class="btn btn-xs btn-link" ng-if="!self.isTrainingComplete &&
     !self.editWhatsForTrainees && (self.isEditable || self.isAdmin) && (!item.whatsForTrainees || item.whatsForTrainees.length == 0)"
-            ng-click="self.editWhatsForTrainees = true">
-        Add
-    </button>
-    <textarea rows="5" ng-model="selected.whatsForTrainees" ng-show="self.isEditable && self.editWhatsForTrainees &&
-    !self.isTrainingComplete" focus-me class="new-comment">
+                ng-click="self.editWhatsForTrainees = true">
+            Add
+        </button>
+    </label>
+    <div class="form-group" ng-class="{'has-error': self.errorWhatsForTrainees}">
+        <div ng-class="{'field-editable commentText':
+    !self.isTrainingComplete && (self.isEditable || self.isAdmin), 'has-error': self.errorWhatsForTrainees}"
+             ng-show="!self.isEditable || (!self.editWhatsForTrainees && item.whatsForTrainees .length > 0)"
+             ng-bind-html="item.whatsForTrainees | linky:'_blank'" ng-click="self.setEditStatus('WhatsForTrainees', true)"></div>
+    <textarea rows="5" ng-model="selected.whatsForTrainees " ng-show="self.isEditable && self.editWhatsForTrainees &&
+    !self.isTrainingComplete" focus-me class="new-comment" ng-keydown="self.cancelOnEnterKey($event, 'WhatsForTrainees');">
     </textarea>
     <div save-cancel on-save="self.saveSelectedField" on-cancel="self.cancelTextEdit"
          field="whatsForTrainees" ng-show="!self.isTrainingComplete && self.isEditable && self.editWhatsForTrainees"></div>
-    <span class="help-block" ng-show="self.errorWhatsForTrainees">{{self.errorWhatsForTrainees}}</span>
+        <span class="help-block" ng-show="self.errorWhatsForTrainees">{{self.errorWhatsForTrainees}}</span>
+    </div>
 </div>
 <!--whats for organisation -->
 <div class="form-group">
-    <label class="form-label">What's In for Organisation</label>
-    <div ng-class="{'field-editable commentText':
-    !self.isTrainingComplete && (self.isEditable || self.isAdmin)}"
-         ng-show="!self.isEditable || (!self.editWhatsForOrg && item.whatsForOrg.length > 0)"
-         ng-bind-html="item.whatsForOrg | linky:'_blank'" ng-click="self.editWhatsForOrg = true"></div>
-    <button class="btn btn-xs btn-link" ng-if="!self.isTrainingComplete &&
+    <label class="form-label">What's In for Organisation
+        <button class="btn btn-xs btn-link" ng-if="!self.isTrainingComplete &&
     !self.editWhatsForOrg && (self.isEditable || self.isAdmin) && (!item.whatsForOrg || item.whatsForOrg.length == 0)"
-            ng-click="self.editWhatsForOrg = true">
-        Add
-    </button>
+                ng-click="self.editWhatsForOrg = true">
+            Add
+        </button>
+    </label>
+    <div class="form-group" ng-class="{'has-error': self.errorWhatsForOrg}">
+        <div ng-class="{'field-editable commentText':
+    !self.isTrainingComplete && (self.isEditable || self.isAdmin), 'has-error': self.errorWhatsForOrg}"
+             ng-show="!self.isEditable || (!self.editWhatsForOrg && item.whatsForOrg.length > 0)"
+             ng-bind-html="item.whatsForOrg | linky:'_blank'" ng-click="self.setEditStatus('WhatsForOrg', true)"></div>
     <textarea rows="5" ng-model="selected.whatsForOrg" ng-show="self.isEditable && self.editWhatsForOrg &&
-    !self.isTrainingComplete" focus-me class="new-comment">
+    !self.isTrainingComplete" focus-me class="new-comment" ng-keydown="self.cancelOnEnterKey($event, 'WhatsForOrg');">
     </textarea>
-    <div save-cancel on-save="self.saveSelectedField" on-cancel="self.cancelTextEdit"
-         field="whatsForOrg" ng-show="!self.isTrainingComplete && self.isEditable && self.editWhatsForOrg"></div>
-    <span class="help-block" ng-show="self.errorWhatsForOrg">{{self.errorWhatsForOrg}}</span>
+        <div save-cancel on-save="self.saveSelectedField" on-cancel="self.cancelTextEdit"
+             field="whatsForOrg" ng-show="!self.isTrainingComplete && self.isEditable && self.editWhatsForOrg"></div>
+        <span class="help-block" ng-show="self.errorWhatsForOrg">{{self.errorWhatsForOrg}}</span>
+    </div>
 </div>
 <div class="form-group spacer-bottom-md ng-scope"><span>&nbsp;&nbsp;</span></div>

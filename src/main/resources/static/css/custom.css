@@ -260,6 +260,12 @@ h3 {
     border-bottom: 1px solid lightgray;
     padding-bottom: 10px;
 }
+
+.feedbackComment:not(:only-child) {
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 10px;
+}
+
 .commentText {
     margin:0;
     white-space: pre;

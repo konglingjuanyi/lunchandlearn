@@ -1,5 +1,6 @@
 package com.pb.lunchandlearn.service;
 
+import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.exception.ResourceNotFoundException;
 import com.pb.lunchandlearn.repository.EmployeeRepository;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +18,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.*;
 
+import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
 import static com.pb.lunchandlearn.utils.CommonUtil.updateOldNewMapValues;
 
 /**
@@ -44,7 +45,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public Page<Employee> getAll(Pageable pageable) {
-		return employeeRepository.findAll(pageable);
+		SecuredUser user = getLoggedInUser();
+		if(user.isAdmin()) {
+			return employeeRepository.findAll(pageable);
+		}
+		else if(user.isManager()) {
+			return employeeRepository.findAllExistsByManagers(user.getGuid(), pageable);
+		}
+		return null;
 	}
 
 	@Override
@@ -87,7 +95,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public Employee update(Employee employee) {
-		employee.setGuid(employee.getGuid().toUpperCase());
 		return employeeRepository.save(employee);
 	}
 
@@ -253,5 +260,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public void updatedLdapEmployee(String guid) {
 		ldapService.updateEmployee(guid);
+	}
+
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+	public Long countByManagers(String guid) {
+		return employeeRepository.countByManagers(guid);
 	}
 }

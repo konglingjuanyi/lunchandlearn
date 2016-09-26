@@ -70,6 +70,14 @@ public class TrainingController {
 		return null;
 	}
 
+	@RequestMapping(value = "training/{id}/mail/scheduled", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public boolean sendTrainingRequest(@PathVariable("id") Long trainingId) {
+		if (trainingId != null) {
+			return trainingService.sendTrainingRequest(trainingId);
+		}
+		return false;
+	}
+
 	@RequestMapping(value = "training/{id}/comments/{commentId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public void removeComment(@PathVariable("id") Long trainingId, @PathVariable("commentId") Long commentId) throws IOException {

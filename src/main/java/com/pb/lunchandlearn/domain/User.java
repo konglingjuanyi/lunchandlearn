@@ -1,5 +1,6 @@
 package com.pb.lunchandlearn.domain;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Email;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -18,6 +19,12 @@ public class User {
 	@Indexed
 	@TextIndexed
 	private String name;
+
+	@Size(min = 4, max = 20)
+	@NotNull
+	@Indexed
+	@TextIndexed
+	private String lowername;
 
 	@NotNull
 	@Email
@@ -39,6 +46,10 @@ public class User {
 	public User(String name, String emailId) {
 		this.name = name;
 		this.emailId = emailId;
+	}
+
+	public void setLowername() {
+		this.lowername = StringUtils.lowerCase(name);
 	}
 
 	@Override

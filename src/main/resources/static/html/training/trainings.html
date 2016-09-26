@@ -30,10 +30,10 @@
                     <table class="table table-hover" ng-show="!self.searching">
                         <thead>
                         <tr>
-                            <th><a href="" ng-click="self.sortList('name');" class="a-lnk">Name&nbsp;&nbsp;
-                                <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'name',
-                             'arrows-1_small-triangle-down': self.sort.name === 'name' && self.sort.direction === 'desc',
-                             'arrows-1_small-triangle-up': self.sort.name === 'name' && self.sort.direction === 'asc'}"></span></a>
+                            <th><a href="" ng-click="self.sortList('lowername');" class="a-lnk">Name&nbsp;&nbsp;
+                                <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'lowername',
+                             'arrows-1_small-triangle-down': self.sort.name === 'lowername' && self.sort.direction === 'desc',
+                             'arrows-1_small-triangle-up': self.sort.name === 'lowername' && self.sort.direction === 'asc'}"></span></a>
                             </th>
                             <th><a href="" ng-click="self.sortList('scheduledOn');" class="a-lnk">Date&nbsp;&nbsp;
                                 <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'scheduledOn',
@@ -43,8 +43,8 @@
                             <th>Location</th>
                             <th>Duration</th>
                             <th><a href="" ng-click="self.sortList('status');" class="a-lnk">Status&nbsp;&nbsp;
-                                <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.status.name !== 'status',
-                             'arrows-1_small-triangle-down': self.sort.name === 'status' && self.sort.direction === 'status',
+                                <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'status',
+                             'arrows-1_small-triangle-down': self.sort.name === 'status' && self.sort.direction === 'desc',
                              'arrows-1_small-triangle-up': self.sort.name === 'status' && self.sort.direction === 'asc'}"></span></a>
                             </th>
                         </tr>

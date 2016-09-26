@@ -1,7 +1,7 @@
 angular.module('controllers').controller('topicController', [
 	'$uibModal', 'topicService', 'pagingService', '$routeParams', 'restService', 'utilitiesService',
-	'$scope', function($uibModal, topicService, pagingService, $routeParams,
-					   restService, utilitiesService, $scope) {
+	'$scope', '$q', function($uibModal, topicService, pagingService, $routeParams,
+					   restService, utilitiesService, $scope, $q) {
 		var self = this;
 		var prevItem = null;
 
@@ -48,6 +48,11 @@ angular.module('controllers').controller('topicController', [
 
 		self.getTopic = function(topicId) {
 			topicService.getTopic(topicId).then(function(response) {
+				if(_.isEmpty(response.data)) {
+					self.error = true;
+					self.errorMsg = 'Topic detail not found!';
+					return;
+				}
 				if(angular.isDefined(response.data)) {
 					self.item = response.data;
 
@@ -87,6 +92,7 @@ angular.module('controllers').controller('topicController', [
 							++self.upcomingTrainingsCount;
 							break;
 						case 'COMPLETED':
+						case 'CLOSED':
 							self.closedTrainings[training.id] = training.name;
 							++self.closedTrainingsCount;
 							break;
@@ -98,16 +104,33 @@ angular.module('controllers').controller('topicController', [
 			}
 		}
 
+		var afterSave = function(fieldName) {
+			utilitiesService.setEditable(self, fieldName, false);
+			utilitiesService.setLastModifiedBy(self);
+			setPrevItemField(fieldName);
+			self['error' + _.upperFirst(fieldName)] = undefined;
+		};
+
 		self.saveByField = function(fieldName) {
 			var data = {name: fieldName, value: _.get(self.item, fieldName)};
+			var deferred = $q.defer();
+			if(fieldName === 'name' && _.isEmpty(data.value)) {
+				self.errorName = 'Name can\'t be empty';
+				deferred.resolve(false);
+			}
+			else if(_.isEqual(data.value, prevItem[fieldName])) {
+				afterSave(fieldName);
+				deferred.resolve(true);
+			}
+			if(deferred.promise.$$state.status === 1) {
+				return deferred.promise;
+			}
 			return topicService.updateTopicByField(self.item.id, data).then(function(response) {
 				if(restService.isResponseOk(response)) {
-					utilitiesService.setEditable(self, fieldName, false);
-					utilitiesService.setLastModifiedBy(self);
-					setPrevItemField(fieldName);
-					return true;
+					afterSave(fieldName);
+					return $q.resolve(true);
 				}
-				return false;
+				return $q.resolve(false);
 			});
 		};
 
@@ -115,6 +138,7 @@ angular.module('controllers').controller('topicController', [
 			if(!status) {
 				resetPrevItemField(fieldName);
 			}
+			self['error' + fieldName] = undefined;
 			utilitiesService.setEditable(self, fieldName, status);
 		};
 
@@ -124,14 +148,14 @@ angular.module('controllers').controller('topicController', [
 				self.mode = null;
 				self.list();
 			});
-		}
+		};
 
 		self.add = function() {
 			topicService.addTopic(self.topic).then(function(response) {
 				self.mode = null;
 				self.list();
 			});
-		}
+		};
 
 		self.showConfirmationDlg = function (data) {
 			var opts = {
@@ -147,31 +171,7 @@ angular.module('controllers').controller('topicController', [
 			$uibModal.open(opts).result.then(function (selectedItem) {
 				self.doRemove(data.guid)
 			}, function () {
-				console.log('confirmation modal cancelled')
-			});
-		}
-
-		self.showModalDlg = function () {
-			var opts = {
-				templateUrl: '/lunchandlearn/html/topic/trainingCreate.html',
-				backdrop: 'static',
-				controller: 'modalController as self',
-				resolve: {
-					data: function () {
-						return {item: self.topic, mode: self.mode, options: {managers : self.managers}};
-					}
-				}
-			}
-			$uibModal.open(opts).result.then(function (selectedItem) {
-				self.topic = selectedItem;
-				if(self.mode === 'add') {
-					self.add();
-				}
-				else if(self.mode === 'edit') {
-					self.save();
-				}
-			}, function () {
-				console.log('confirmation modal cancelled')
+				
 			});
 		};
 
@@ -201,7 +201,7 @@ angular.module('controllers').controller('topicController', [
 					self.save();
 				}
 			}, function () {
-				console.log('confirmation modal cancelled')
+				
 			});
 		};
 
@@ -221,7 +221,26 @@ angular.module('controllers').controller('topicController', [
 					self.item.likesCount = result.data;
 				}
 			});
-		})
+		});
+
+		self.saveOnEnterKey = function($event, fieldName) {
+			if($event.which === 13) {
+				$event.stopPropagation();
+				$event.preventDefault();
+				self.saveByField(fieldName);
+			}
+			else {
+				self['error' + _.upperFirst(fieldName)] = undefined;
+			}
+		};
+
+		self.cancelOnEnterKey = function($event, fieldName) {
+			if($event.keyCode === 27) {
+				$event.stopPropagation();
+				$event.preventDefault();
+				self.setEditStatus(fieldName);
+			}
+		};
 
 		self.init();
 	}]);

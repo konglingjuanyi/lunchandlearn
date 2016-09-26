@@ -1,5 +1,6 @@
 package com.pb.lunchandlearn.domain;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
@@ -24,9 +25,12 @@ public final class Training {
 
 	@NotNull
 	@Min(3)
+	private String name;
+
 	@Indexed
 	@TextIndexed
-	private String name;
+	private String lowername;
+
 	private Map<String, String> likedBy;//empId, name
 
 	@Max(500)
@@ -79,6 +83,7 @@ public final class Training {
 	private Float duration;
 
 	private String location;
+
 	@Indexed
 	private Integer likesCount;
 
@@ -116,6 +121,10 @@ public final class Training {
 				", whatsForTrainees='" + whatsForTrainees + '\'' +
 				", whatsForOrg='" + whatsForOrg + '\'' +
 				'}';
+	}
+
+	public void setLowername() {
+		this.lowername = StringUtils.lowerCase(name);
 	}
 
 	@Override
@@ -366,6 +375,7 @@ public final class Training {
 
 	public void setName(String name) {
 		this.name = name;
+		lowername = StringUtils.lowerCase(name);
 	}
 
 	public String getDesc() {

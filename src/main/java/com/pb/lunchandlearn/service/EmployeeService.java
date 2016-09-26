@@ -67,4 +67,6 @@ public interface EmployeeService {
 	void updatedLdapEmployees() throws Exception;
 
 	void updatedLdapEmployee(String guid);
+
+	Long countByManagers(String guid);
 }

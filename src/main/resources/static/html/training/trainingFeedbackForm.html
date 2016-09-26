@@ -7,7 +7,7 @@
 </div>
 <div class="modal-body">
     <div class="container-fluid">
-        <form novalidate class="form-horizontal">
+        <form class="form-horizontal" name="form" novalidate>
             <div class="form-group">
                 <label class="form-label">Name</label>
                 <div>
@@ -30,7 +30,7 @@
                         <td>No</td>
                         <td ng-repeat="n in options.range"><input type="radio" name="overallExpectation"
                                                                   ng-model="item.ratings.overallExpectation"
-                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                                                                  ng-value="n" ng-disabled="mode == 'view'" ng-required="mode != 'view'"/></td>
                         <td>Fully Met Expectations</td>
                     </tr>
                     </tbody>
@@ -51,19 +51,19 @@
                         <td>Was the content relevant</td>
                         <td ng-repeat="n in options.range"><input type="radio" name="relevancy"
                                                                   ng-model="item.ratings.relevancy"
-                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                                                                  ng-value="n" ng-disabled="mode=='view'" ng-required="mode != 'view'"/></td>
                     </tr>
                     <tr>
                         <td>Will you be able to apply the learning to your work</td>
                         <td ng-repeat="n in options.range"><input type="radio" name="applicability"
                                                                   ng-model="item.ratings.applicability"
-                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                                                                  ng-value="n" ng-disabled="mode=='view'" ng-required="mode != 'view'"/></td>
                     </tr>
                     <tr>
                         <td>Was the training structured appropriately</td>
                         <td ng-repeat="n in options.range"><input type="radio" name="appropriateness"
                                                                   ng-model="item.ratings.appropriateness"
-                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                                                                  ng-value="n" ng-disabled="mode=='view'" ng-required="mode != 'view'"/></td>
                     </tr>
                     </tbody>
                 </table>
@@ -82,19 +82,19 @@
                         <td>Facilitation skills of the presenter</td>
                         <td ng-repeat="n in options.range"><input type="radio" name="facilitation"
                                                                   ng-model="item.ratings.facilitation"
-                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                                                                  ng-value="n" ng-disabled="mode=='view'" ng-required="mode != 'view'"/></td>
                     </tr>
                     <tr>
                         <td>Was the trainer able to answer all queries</td>
                         <td ng-repeat="n in options.range"><input type="radio" name="answerAllQueries"
                                                                   ng-model="item.ratings.answerAllQueries"
-                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                                                                  ng-value="n" ng-disabled="mode=='view'" ng-required="mode != 'view'"/></td>
                     </tr>
                     <tr>
                         <td>Was the trainer well prepared for the training</td>
                         <td ng-repeat="n in options.range"><input type="radio" name="preparedness"
                                                                   ng-model="item.ratings.preparedness"
-                                                                  ng-value="n" ng-disabled="mode=='view'"/></td>
+                                                                  ng-value="n" ng-disabled="mode=='view'" ng-required="mode != 'view'"/></td>
                     </tr>
                     </tbody>
                 </table>
@@ -112,7 +112,7 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="yes()" ng-if="mode!='view'">Submit</button>
+    <button class="btn btn-primary" ng-click="yes()" ng-if="mode!='view'" ng-disabled="form.$invalid">Submit</button>
     <button class="btn btn-default" ng-click="reset()" ng-if="mode!='view'">Reset</button>
     <button class="btn btn-default" ng-click="cancel()" ng-if="mode=='view'">Cancel</button>
 </div>

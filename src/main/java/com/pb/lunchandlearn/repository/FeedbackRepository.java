@@ -25,18 +25,4 @@ public interface FeedbackRepository extends MongoRepository<FeedBack, Long>, Cus
 	Long countByParentIdAndRespondentGuid(Long parentId, String respondentGuid);
 
 	List<FeedBack> findAllByParentIdAndRespondentGuid(Long trainingId, String guid);
-
-/*
-	FeedBack findByName(String name);
-	FeedBack findById(Long id);
-
-	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
-	Page<FeedBack> findAllBy(TextCriteria textCriteria, Pageable pageable);
-
-	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
-	Page<Training> findAllByStatusOrderByScore(TrainingStatus status, TextCriteria textCriteria, Pageable pageable);
-
-	@Query(fields = "{'name': 1, 'id': 0}")
-	FeedBack findNameById(Long topicId);
-*/
 }

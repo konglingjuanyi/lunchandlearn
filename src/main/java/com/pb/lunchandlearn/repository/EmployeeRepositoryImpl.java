@@ -2,15 +2,24 @@ package com.pb.lunchandlearn.repository;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.WriteResult;
-import com.pb.lunchandlearn.domain.*;
+import com.pb.lunchandlearn.domain.Employee;
+import com.pb.lunchandlearn.domain.MiniTrainingDetail;
+import com.pb.lunchandlearn.domain.SimpleFieldEntry;
+import com.pb.lunchandlearn.domain.Training;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -163,6 +172,28 @@ public class EmployeeRepositoryImpl implements CustomEmployeeRepository {
 		if(isDiffField) {
 			mongoTemplate.updateFirst(query, update, Employee.class);
 		}
+	}
+
+	@Override
+	public Long countByManagers(String guid) {
+		Query query = new Query(where("managers." + guid).exists(true));
+		return mongoTemplate.count(query, Employee.class);
+	}
+
+	@Override
+	public Page<Employee> findAllExistsByManagers(String managerGuid, Pageable pageable) {
+		Query qry = new Query(where("managers." + managerGuid).exists(true));
+		Query query = qry.with(pageable);
+		List employees = mongoTemplate.find(query, Employee.class);
+		long totalCount = mongoTemplate.count(qry, Employee.class);
+		Page<Employee> page = new PageImpl<>(employees, pageable, totalCount);
+		return page;
+	}
+
+	@Override
+	public void removeEmployees(List<String> employeesGuid) {
+		Query qry = new Query(where("guid").nin(employeesGuid));
+		mongoTemplate.remove(qry, Employee.class);
 	}
 
 	private void addTopic(String empGuid, Long topicId, String topicName, String topicStr) {

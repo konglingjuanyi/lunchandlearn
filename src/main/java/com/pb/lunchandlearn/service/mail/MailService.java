@@ -12,8 +12,7 @@ import java.util.concurrent.Executors;
 
 @Service("mailService")
 public class MailService {
-
-	private static final short THREAD_POOL_SIZE = 15;
+	private static final short THREAD_POOL_SIZE = 10;
 	private ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
 	@Autowired
@@ -101,6 +100,6 @@ public class MailService {
 		ATTACHMENT_ADDED, ATTACHMENT_REMOVED, COMMENT_ADDED,
 		COMMENT_REMOVED, FEEDBACK_ADDED, TRAINING_ADDED, TRAINING_UPDATED,
 		FEEDBACK_REQUEST, EMPLOYEE_ADDED, EMPLOYEE_UPDATED, TOPIC_ADDED,
-		TOPIC_UPDATED, TRAINING_SCHEDULED, TRAINING_CANCELLED;
+		TOPIC_UPDATED, TRAINING_SCHEDULED, TRAINING_CANCELLED, TRAINING_ROOM_UPDATED, TRAINING_ROOM_ADDED;
 	}
 }

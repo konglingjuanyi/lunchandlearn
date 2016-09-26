@@ -92,4 +92,6 @@ public interface TrainingService {
 	Integer getTrainingLikesCount(Long trainingId);
 
 	boolean sendFeedbackRequest(Long trainingId);
+
+	boolean sendTrainingRequest(Long trainingId);
 }

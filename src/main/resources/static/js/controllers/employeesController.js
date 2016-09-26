@@ -53,6 +53,9 @@ angular.module('controllers').controller('employeesController', [
 					self.totalCount = data.totalElements;
 					self.fromCount = (data.size * data.number) + 1;
 					self.toCount = (self.fromCount - 1) + data.numberOfElements;
+					if(self.currentPageSize > self.totalCount) {
+						self.currentPageSize = self.pageSizes[0];
+					}
 				}
 			}).finally(function() {
 				self.searching = false;
@@ -146,7 +149,7 @@ angular.module('controllers').controller('employeesController', [
 			$uibModal.open(opts).result.then(function (selectedItem) {
 				self.doRemove(data.guid)
 			}, function () {
-				console.log('confirmation modal cancelled')
+
 			});
 		}
 
@@ -171,7 +174,7 @@ angular.module('controllers').controller('employeesController', [
 						self.save();
 					}
 				}, function () {
-					console.log('confirmation modal cancelled')
+
 				});
 			});
 		}

@@ -16,8 +16,8 @@ import java.util.Map;
 /**
  * Created by de007ra on 4/28/2016.
  */
-@Document(collection = "topics")
-public final class Topic {
+@Document(collection = "trainingRooms")
+public final class TrainingRoom {
 	@Id
 	private Long id;
 	@NotNull()
@@ -27,13 +27,10 @@ public final class Topic {
 	@TextIndexed
 	@Indexed
 	private String lowername;
-	@TextIndexed
-	private String desc;
 
-	private Map<String, String> interestedEmployees;//guid, name
-	private Map<String, String> employeesKnowAbout;//guid, name
-	private List<MiniTrainingDetail> trainings;
-	private Integer likesCount;
+	@TextIndexed
+	@Indexed
+	private String location;
 
 	@NotNull
 	private String createdByGuid;
@@ -47,20 +44,20 @@ public final class Topic {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private Date lastModifiedOn;
 
-	public void setLowername() {
-		this.lowername = StringUtils.lowerCase(name);
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	@Override
 	public String toString() {
-		return "Topic{" +
+		return "TrainingRoom{" +
 				"id=" + id +
 				", name='" + name + '\'' +
-				", desc='" + desc + '\'' +
-				", interestedEmployees=" + interestedEmployees +
-				", employeesKnowAbout=" + employeesKnowAbout +
-				", trainings=" + trainings +
-				", likesCount=" + likesCount +
+				", lowername='" + lowername + '\'' +
 				", createdByGuid='" + createdByGuid + '\'' +
 				", createdByName='" + createdByName + '\'' +
 				", lastModifiedByGuid='" + lastModifiedByGuid + '\'' +
@@ -73,30 +70,24 @@ public final class Topic {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof Topic)) return false;
+		if (!(o instanceof TrainingRoom)) return false;
 
-		Topic topic = (Topic) o;
+		TrainingRoom that = (TrainingRoom) o;
 
-		if (id != null ? !id.equals(topic.id) : topic.id != null) return false;
-		if (name != null ? !name.equals(topic.name) : topic.name != null) return false;
-		if (desc != null ? !desc.equals(topic.desc) : topic.desc != null) return false;
-		if (interestedEmployees != null ? !interestedEmployees.equals(topic.interestedEmployees) : topic.interestedEmployees != null)
+		if (id != null ? !id.equals(that.id) : that.id != null) return false;
+		if (name != null ? !name.equals(that.name) : that.name != null) return false;
+		if (lowername != null ? !lowername.equals(that.lowername) : that.lowername != null) return false;
+		if (createdByGuid != null ? !createdByGuid.equals(that.createdByGuid) : that.createdByGuid != null)
 			return false;
-		if (employeesKnowAbout != null ? !employeesKnowAbout.equals(topic.employeesKnowAbout) : topic.employeesKnowAbout != null)
+		if (createdByName != null ? !createdByName.equals(that.createdByName) : that.createdByName != null)
 			return false;
-		if (trainings != null ? !trainings.equals(topic.trainings) : topic.trainings != null) return false;
-		if (likesCount != null ? !likesCount.equals(topic.likesCount) : topic.likesCount != null) return false;
-		if (createdByGuid != null ? !createdByGuid.equals(topic.createdByGuid) : topic.createdByGuid != null)
+		if (lastModifiedByGuid != null ? !lastModifiedByGuid.equals(that.lastModifiedByGuid) : that.lastModifiedByGuid != null)
 			return false;
-		if (createdByName != null ? !createdByName.equals(topic.createdByName) : topic.createdByName != null)
+		if (lastModifiedByName != null ? !lastModifiedByName.equals(that.lastModifiedByName) : that.lastModifiedByName != null)
 			return false;
-		if (lastModifiedByGuid != null ? !lastModifiedByGuid.equals(topic.lastModifiedByGuid) : topic.lastModifiedByGuid != null)
+		if (createDateTime != null ? !createDateTime.equals(that.createDateTime) : that.createDateTime != null)
 			return false;
-		if (lastModifiedByName != null ? !lastModifiedByName.equals(topic.lastModifiedByName) : topic.lastModifiedByName != null)
-			return false;
-		if (createDateTime != null ? !createDateTime.equals(topic.createDateTime) : topic.createDateTime != null)
-			return false;
-		return lastModifiedOn != null ? lastModifiedOn.equals(topic.lastModifiedOn) : topic.lastModifiedOn == null;
+		return lastModifiedOn != null ? lastModifiedOn.equals(that.lastModifiedOn) : that.lastModifiedOn == null;
 
 	}
 
@@ -104,11 +95,7 @@ public final class Topic {
 	public int hashCode() {
 		int result = id != null ? id.hashCode() : 0;
 		result = 31 * result + (name != null ? name.hashCode() : 0);
-		result = 31 * result + (desc != null ? desc.hashCode() : 0);
-		result = 31 * result + (interestedEmployees != null ? interestedEmployees.hashCode() : 0);
-		result = 31 * result + (employeesKnowAbout != null ? employeesKnowAbout.hashCode() : 0);
-		result = 31 * result + (trainings != null ? trainings.hashCode() : 0);
-		result = 31 * result + (likesCount != null ? likesCount.hashCode() : 0);
+		result = 31 * result + (lowername != null ? lowername.hashCode() : 0);
 		result = 31 * result + (createdByGuid != null ? createdByGuid.hashCode() : 0);
 		result = 31 * result + (createdByName != null ? createdByName.hashCode() : 0);
 		result = 31 * result + (lastModifiedByGuid != null ? lastModifiedByGuid.hashCode() : 0);
@@ -116,6 +103,18 @@ public final class Topic {
 		result = 31 * result + (createDateTime != null ? createDateTime.hashCode() : 0);
 		result = 31 * result + (lastModifiedOn != null ? lastModifiedOn.hashCode() : 0);
 		return result;
+	}
+
+	public String getLowername() {
+		return lowername;
+	}
+
+	public void setLowername(String lowername) {
+		this.lowername = lowername;
+	}
+
+	public void setLowername() {
+		this.lowername = StringUtils.lowerCase(name);
 	}
 
 	public String getLastModifiedByName() {
@@ -142,45 +141,12 @@ public final class Topic {
 		this.createDateTime = createDateTime;
 	}
 
-	public List<MiniTrainingDetail> getTrainings() {
-
-		return trainings;
-	}
-
-	public void setTrainings(List<MiniTrainingDetail> trainings) {
-		this.trainings = trainings;
-	}
-
 	public Date getLastModifiedOn() {
 		return lastModifiedOn;
 	}
 
 	public void setLastModifiedOn(Date lastModifiedOn) {
 		this.lastModifiedOn = lastModifiedOn;
-	}
-
-	public Map<String, String> getInterestedEmployees() {
-		return interestedEmployees;
-	}
-
-	public void setInterestedEmployees(Map<String, String> interestedEmployees) {
-		this.interestedEmployees = interestedEmployees;
-	}
-
-	public Map<String, String> getEmployeesKnowAbout() {
-		return employeesKnowAbout;
-	}
-
-	public void setEmployeesKnowAbout(Map<String, String> employeesKnowAbout) {
-		this.employeesKnowAbout = employeesKnowAbout;
-	}
-
-	public Integer getLikesCount() {
-		return likesCount;
-	}
-
-	public void setLikesCount(Integer likesCount) {
-		this.likesCount = likesCount;
 	}
 
 	public String getCreatedByGuid() {
@@ -199,9 +165,8 @@ public final class Topic {
 		this.lastModifiedByGuid = lastModifiedByGuid;
 	}
 
-	public Topic() {
+	public TrainingRoom() {
 		createDateTime = new Date();
-		likesCount = 0;
 	}
 
 	public Long getId() {
@@ -219,13 +184,5 @@ public final class Topic {
 	public void setName(String name) {
 		this.name = name;
 		lowername = StringUtils.lowerCase(name);
-	}
-
-	public String getDesc() {
-		return desc;
-	}
-
-	public void setDesc(String desc) {
-		this.desc = desc;
 	}
 }

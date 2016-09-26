@@ -47,11 +47,11 @@
                 <table ng-show="!self.searching" class="table table-hover">
                     <thead>
                     <tr>
-                        <th ng-if="self.isAdmin">GUID</th>
-                        <th><a href="" ng-click="self.sortList('name');" class="a-lnk">Name&nbsp;&nbsp;
-                            <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'name',
-                         'arrows-1_small-triangle-down': self.sort.name === 'name' && self.sort.direction === 'desc',
-                         'arrows-1_small-triangle-up': self.sort.name === 'name' && self.sort.direction === 'asc'}"></span></a>
+                        <th>GUID</th>
+                        <th><a href="" ng-click="self.sortList('lowername');" class="a-lnk">Name&nbsp;&nbsp;
+                            <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'lowername',
+                         'arrows-1_small-triangle-down': self.sort.name === 'lowername' && self.sort.direction === 'desc',
+                         'arrows-1_small-triangle-up': self.sort.name === 'lowername' && self.sort.direction === 'asc'}"></span></a>
                         </th>
                         <th><a href="" ng-click="self.sortList('emailId');" class="a-lnk">Email&nbsp;&nbsp;<span
                                 ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83':
@@ -77,14 +77,15 @@
                     </tr>
                     <tr ng-repeat="employee in self.employees" class="a-lnk"
                         ng-click="self.showEmployee(employee.guid)">
-                        <td ng-if="self.isAdmin">{{employee.guid}}</td>
+                        <td>{{employee.guid}}</td>
                         <td>{{employee.name}}</td>
                         <td><a ng-href="mailto: {{employee.emailId}}" ng-click="$event.stopPropagation();">{{employee.emailId}}</a>
                         </td>
                         <td><span ng-repeat="role in employee.roles"><span ng-if="$index !== 0">, </span><span>{{role | propercase}}</span></span>
                         </td>
-                        <td><span ng-repeat="(key, value) in employee.managers"><span
-                                ng-if="$index !== 0">, </span><span>{{value}}</span></span></td>
+                        <td ><a ng-repeat="(key, value) in employee.managers"
+                                ng-href="#/employees/{{key}}" ng-click="$event.stopPropagation();"><span
+                                ng-if="$index !== 0">, </span><span>{{value}}</span></a></td>
                         <td><span ng-repeat="knowTopic in employee.topics" class="label label-default"></span>{{knowTopic}}
                         </td>
                         <td ng-if="self.isAdmin">

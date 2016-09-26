@@ -1,10 +1,9 @@
-
 /**
  * Created by DE007RA on 6/23/2016.
  */
 angular.module('services').service('utilitiesService', ['restService', '$uibModal', function(restService, $uibModal) {
     var self = this;
-    self.addUnique = function (map, obj, objMapKey, objValueKey, sort){
+    self.addUnique = function (map, obj, objMapKey, objValueKey, sort) {
         if(angular.isDefined(obj)) {
             if (!map) {
                 map = {};
@@ -26,7 +25,29 @@ angular.module('services').service('utilitiesService', ['restService', '$uibModa
             }
         }
         return false;
-    }
+    };
+
+    self.getKeyByMatchingVal = function(value, jsonObj) {
+        value = _.toLower(value).trim();
+        var key = {};
+        _.each(jsonObj, function (v, k) {
+            if(_.toLower(v) === value) {
+                key = k;
+                return false;
+            }
+        });
+        return key;
+    };
+
+    self.isManagerUser = function (roles) {
+        if(!_.isEmpty(roles)) {
+            if (_.indexOf(roles, 'MANAGER') > -1) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     self.sortObj = function (obj) {
         var values = [];
         _.each(obj, function (v, k) {
@@ -67,7 +88,7 @@ angular.module('services').service('utilitiesService', ['restService', '$uibModa
     self.setEditable = function (obj, fieldName, status) {
         var propName = 'edit' + _.upperFirst(fieldName);
         obj[propName] = status;
-    }
+    };
 
     self.filterByLikeCount = function (array) {
         var data = _.filter(array, function (item) {
@@ -135,5 +156,10 @@ angular.module('services').service('utilitiesService', ['restService', '$uibModa
             }
         };
         $uibModal.open(opts);
-    }
+    };
+
+    self.resetErrorProps = function(obj) {
+        obj.error = false;
+        obj.errorMsg = null;
+    };
 }]);

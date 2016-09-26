@@ -4,6 +4,7 @@ import com.pb.lunchandlearn.config.LikeType;
 import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.repository.TopicRepository;
+import com.pb.lunchandlearn.service.es.ElasticSearchService;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,6 +38,9 @@ public class TopicServiceImpl implements TopicService {
 
 	private static Pageable recentPageable;
 	private static Pageable topByLikesPageable;
+
+	@Autowired
+	private ElasticSearchService elasticSearchService;
 
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
@@ -309,5 +313,13 @@ public class TopicServiceImpl implements TopicService {
 			return topic.getLikesCount();
 		}
 		return null;
+	}
+
+	@Override
+	public JSONObject getSuggestedTopics(String topicName) {
+		if(StringUtils.isEmpty(topicName)) {
+			return null;
+		}
+		return elasticSearchService.searchTopics(topicName.trim());
 	}
 }

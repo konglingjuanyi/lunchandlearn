@@ -4,12 +4,14 @@ package com.pb.lunchandlearn.web;
  * Created by DE007RA on 4/27/2016.
  */
 import com.pb.lunchandlearn.config.LikeType;
+import com.pb.lunchandlearn.domain.MiniTopic;
 import com.pb.lunchandlearn.domain.MiniTrainingDetail;
 import com.pb.lunchandlearn.domain.SimpleFieldEntry;
 import com.pb.lunchandlearn.domain.Topic;
 import com.pb.lunchandlearn.service.TopicService;
 import com.pb.lunchandlearn.service.TopicServiceImpl;
 import com.pb.lunchandlearn.service.TrainingServiceImpl;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -113,5 +115,10 @@ public class TopicController {
 	@RequestMapping(value="/trending", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Topic> trendingTopics() {
 		return topicService.getTrendingTopics();
+	}
+
+	@RequestMapping(value="/suggestions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public JSONObject suggestedTopics(@RequestParam(name="name") String topicName) {
+		return topicService.getSuggestedTopics(topicName);
 	}
 }

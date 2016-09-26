@@ -59,7 +59,10 @@
 								<li>
 									<a href="#/topics">Topics</a>
 								</li>
-								<li>
+								<li ng-if="self.isAdmin">
+									<a href="#/trainingrooms">Training Rooms</a>
+								</li>
+								<li ng-if="self.isAdmin || self.isManager">
 									<a href="#/employees">Employees</a>
 								</li>
 							</ul>
@@ -71,7 +74,7 @@
 								<li class="dropdown menu-user">
 									<a href="" class="dropdown-toggle face" data-toggle="dropdown">
 										<svg class="hidden-lg" width="24" height="24" viewBox="0 0 24 24"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svgUserInitials" x="0" y="0"></use></svg>
-										<span><i class="nc-icon-outline users_single-05"></i>&nbsp;&nbsp;{{user.name}}</span>
+										<span ng-cloak="true"><i class="nc-icon-outline users_single-05"></i>&nbsp;&nbsp;{{user.name}}</span>
 									</a>
 									<ul class="dropdown-menu" role="menu">
 										<li>
@@ -144,6 +147,7 @@
 			<script src="/lunchandlearn/js/common/services/utilitiesService.js"></script>
 			<script src="/lunchandlearn/js/services/employeeService.js"></script>
 			<script src="/lunchandlearn/js/services/topicService.js"></script>
+			<script src="/lunchandlearn/js/services/trainingRoomService.js"></script>
 			<script src="/lunchandlearn/js/services/trainingService.js"></script>
 			<script src="/lunchandlearn/js/controllers/modalController.js"></script>
 			<script src="/lunchandlearn/js/controllers/loginController.js"></script>
@@ -153,6 +157,7 @@
 			<script src="/lunchandlearn/js/controllers/topicsController.js"></script>
 			<script src="/lunchandlearn/js/controllers/employeesController.js"></script>
 			<script src="/lunchandlearn/js/controllers/employeeController.js"></script>
+			<script src="/lunchandlearn/js/controllers/trainingRoomsController.js"></script>
 			<script src="/lunchandlearn/js/controllers/trainingsController.js"></script>
 			<script src="/lunchandlearn/js/controllers/trainingController.js"></script>
 			<script src="/lunchandlearn/js/directives/mainTile.js"></script>

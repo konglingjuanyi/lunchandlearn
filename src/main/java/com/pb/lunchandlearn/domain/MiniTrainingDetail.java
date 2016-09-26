@@ -9,7 +9,7 @@ import java.util.Date;
  * Created by DE007RA on 6/20/2016.
  */
 @Document
-public class MiniTrainingDetail {
+public final class MiniTrainingDetail {
 	@Id
 	private Long id;
 	private String name;
