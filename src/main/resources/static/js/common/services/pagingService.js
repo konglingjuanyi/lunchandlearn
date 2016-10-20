@@ -7,7 +7,7 @@ angular.module('services').service('pagingService', ['$localStorage', function($
 
     self.pageSizes = [8, 15, 30, 60];
 
-    self.currentPageSize = angular.isDefined($localStorage.pageSize) ? $localStorage.pageSize : self.pageSizes[0];
+    self.currentPageSize = angular.isDefined($localStorage.lnlPageSize) ? $localStorage.lnlPageSize : self.pageSizes[0];
 
     self.savePageSize = function (pageSize) {
         pageSize = _.toNumber(pageSize);

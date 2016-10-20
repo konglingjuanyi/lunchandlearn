@@ -62,6 +62,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	public static SecuredUser getLoggedInUser() {
+		if(SecurityContextHolder.getContext().getAuthentication() == null) {
+			return null;
+		}
 		return (SecuredUser) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
 	}

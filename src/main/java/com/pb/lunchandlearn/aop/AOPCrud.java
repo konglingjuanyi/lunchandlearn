@@ -333,11 +333,11 @@ public class AOPCrud {
 		}
 	}
 
-	@Pointcut("execution(* com.pb.lunchandlearn.repository.*.find*(..))")
+	@Pointcut("execution(* com.pb.lunchandlearn.service.*.find*(..))")
 	private void findMethods() {
 	}
 
-	@Pointcut("execution(* com.pb.lunchandlearn.repository.*.get*(..))")
+	@Pointcut("execution(* com.pb.lunchandlearn.service.*.get*(..))")
 	private void getMethods() {
 	}
 

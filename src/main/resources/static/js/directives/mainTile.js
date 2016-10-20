@@ -11,9 +11,16 @@ lunchAndLearnDirectives.directive('mainTile', function() {
 		controller : 'mainTileController as self'
 	};
 }).controller('mainTileController',
-	[ 'restService', function(restService) {
+	[ 'restService', 'utilitiesService', function(restService, utilitiesService) {
 		var self = this;
 		self.sectionsCountUrl = restService.appUrl + '/sections/count';
+
+		restService.getLoggedInUser().then(function(user) {
+			if(user) {
+				self.userGuid = user.guid;
+				self.isAdmin = utilitiesService.isAdminUser(user.roles);
+			}
+		});
 
 		self.setSectionsCount = function() {
 			restService.get(self.sectionsCountUrl).then(function(response) {

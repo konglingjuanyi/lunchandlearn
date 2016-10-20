@@ -43,12 +43,12 @@ public final class MailingTask implements Runnable {
 	private static Logger logger = LoggerFactory.getLogger(MailingTask.class);
 	private static DateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
 
+	private SecuredUser securedUser = getLoggedInUser();
 	private String[] to;
 	private String subject;
 	private String msg;
 	private MailService.MailType mailType;
 	private Training training;
-	private SecuredUser securedUser = getLoggedInUser();
 	private Comment comment = null;
 	private Employee employee = null;
 	private FileAttachmentInfo fileAttachmentInfo = null;
@@ -173,7 +173,9 @@ public final class MailingTask implements Runnable {
 				break;
 			case COMMENT_ADDED:
 			case COMMENT_REMOVED:
-				training = trainingRepository.findById(parentId);
+				if(parentId != null) {
+					training = trainingRepository.findById(parentId);
+				}
 				mailingSet = addTraineesEmailId(mailingSet);
 				mailingSet = addTrainersEmailId(mailingSet);
 				Training trn = trainingRepository.findAllCommentsOwnerGuidById(training.getId());
@@ -188,15 +190,18 @@ public final class MailingTask implements Runnable {
 				mailingSet = addTraineesEmailId(mailingSet);
 				break;
 			case TRAINING_ADDED:
+			case TRAINING_REMINDER:
 			case TRAINING_UPDATED:
 				if(parentId != null && training == null) {
 					training = trainingRepository.findById(parentId);
 				}
 				mailingSet = addTraineesEmailId(mailingSet);
 				mailingSet = addTrainersEmailId(mailingSet);
-				employee = employeeRepository.findByGuid(training.getCreatedByGuid());
-				if(employee != null) {
-					mailingSet.add(employee.getEmailId());
+				if(training.getCreatedByGuid() != null) {
+					employee = employeeRepository.findByGuid(training.getCreatedByGuid());
+					if (employee != null) {
+						mailingSet.add(employee.getEmailId());
+					}
 				}
 				break;
 			case TOPIC_ADDED:
@@ -206,8 +211,10 @@ public final class MailingTask implements Runnable {
 				if(topic == null && parentId != null) {
 					topic = topicRepository.findById(parentId);
 				}
-				employee = employeeRepository.findByGuid(topic.getCreatedByGuid());
-				mailingSet.add(employee.getEmailId());
+				if(topic.getCreatedByGuid() != null) {
+					employee = employeeRepository.findByGuid(topic.getCreatedByGuid());
+					mailingSet.add(employee.getEmailId());
+				}
 		}
 		formatSubjectAndMsg();
 		if (!StringUtils.isEmpty(msg)) {
@@ -217,7 +224,11 @@ public final class MailingTask implements Runnable {
 					mailingSet.add(createdBy.getEmailId());
 				}
 			}
-			mailingSet.remove(securedUser.getEmailId());
+			securedUser = securedUser == null ? getLoggedInUser() : securedUser;
+
+			if(securedUser != null) {
+				mailingSet.remove(securedUser.getEmailId());
+			}
 			this.to = mailingSet.toArray(new String[0]);
 			if(this.to.length > 0) {
 				mimeMessage = mailSender.createMimeMessage();
@@ -362,6 +373,10 @@ public final class MailingTask implements Runnable {
 				subject = MessageFormat.format("Updated Training - {0}", training.getName());
 				msgPage = "training_updated";
 				break;
+			case TRAINING_REMINDER:
+				subject = MessageFormat.format("Training Reminder for - {0}", training.getName());
+				msgPage = "training_reminder";
+				break;
 			case TOPIC_ADDED:
 				subject = MessageFormat.format("Added Topic - {0}", topic.getName());
 				setTopicParams(ctx);
@@ -373,8 +388,6 @@ public final class MailingTask implements Runnable {
 				msgPage = "topic_updated";
 				break;
 			default:
-				int a = 1;
-				a++;
 		}
 		msg = this.templateEngine.process(msgPage, ctx);
 	}
@@ -441,13 +454,13 @@ public final class MailingTask implements Runnable {
 					getCalendarStatus() +
 					"BEGIN:VEVENT\n" +
 //					"ATTENDEE;ROLE=REQ-PARTICIPANT;RSVP=TRUE:MAILTO:lalima.arora@pb.com\n" +
-					"ORGANIZER:MAILTO:" + "lunchandlearn@pb.com" + "\n" +
+					"ORGANIZER:MAILTO:" + serviceAccountSettings.getEmailId() + "\n" +
 					"DTSTART:" + df.format(training.getScheduledOn()) + "\n" +
 					"DTEND:" + df.format(getTrainingEndDateTime(training)) + "\n" +
-					"LOCATION:" + training.getLocation() + "\n" +
+					"LOCATION:" + StringUtils.join(training.getLocations().values(), " & ") + "\n" +
 					"TRANSP:OPAQUE\n" +
 					"SEQUENCE:0\n" +
-					"UID:" + training.getId() + "LunchAndLearn" + "\n" +
+					"UID:" + "LunchAndLearn_" + training.getId() + "\n" +
 					"DTSTAMP:" + df.format(new Date()) + "\n" +
 					"CATEGORIES:Internal Training\n" +
 					"DESCRIPTION:" + msg + "\n\n" +
@@ -487,7 +500,6 @@ public final class MailingTask implements Runnable {
 			ex.printStackTrace();
 		}
 	}
-
 
 	private String getCalendarStatus() {
 		switch (training.getStatus()) {
@@ -530,6 +542,10 @@ public final class MailingTask implements Runnable {
 		ctx.setVariable("training_id_link", getTrainingLink());
 		if (mailType == MailService.MailType.TRAINING_ADDED) {
 			ctx.setVariable("training_topics", StringUtils.join(training.getTopics().values(), ", "));
+		} else if (mailType == MailService.MailType.TRAINING_REMINDER) {
+			ctx.setVariable("training_trainers", StringUtils.join(training.getTrainers().values(), ", "));
+			ctx.setVariable("training_locations", StringUtils.join(training.getLocations().values(), " & "));
+			ctx.setVariable("training_scheduledOn", CommonUtil.getDayMonthWithOrdinal(training.getScheduledOn()));
 		} else if (mailType == MailService.MailType.TRAINING_UPDATED) {
 			if (!StringUtils.isEmpty(updatedFieldName)) {
 				ctx.setVariable("training_updated_field_name", StringUtils.capitalize(updatedFieldName));
@@ -538,6 +554,7 @@ public final class MailingTask implements Runnable {
 				&& training.getTrainees().size() > 0) {
 			ctx.setVariable("training_topics", StringUtils.join(training.getTopics().values(), ", "));
 			ctx.setVariable("training_trainers", StringUtils.join(training.getTrainees().values().toArray(), ", "));
+			ctx.setVariable("training_locations", training.getLocations());
 		}
 		if (updatedFieldValue != null) {
 			ctx.setVariable("training_updated_field_value", getValues());

@@ -87,8 +87,6 @@ public interface TrainingService {
 
 	JSONObject getTrainingMinimal(Long trainingId);
 
-	String[] getTrainingLocations();
-
 	Integer getTrainingLikesCount(Long trainingId);
 
 	boolean sendFeedbackRequest(Long trainingId);

@@ -71,6 +71,16 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             }
         });
 
+        $scope.$watch('selected.location', function () {
+            if ($scope.selected.location && (!$scope.item.locations || !$scope.item.locations[$scope.selected.location.id])) {
+                $scope.item.locations = utilitiesService.addUnique($scope.item.locations, $scope.selected.location, 'id', 'name');
+                self.saveByField('locations');
+            }
+            else if($scope.selected.location) {
+                self.errorLocations = $scope.selected.location.name + ' already added as location';
+            }
+        });
+
         $scope.$watch('selected.trainee', function () {
             if ($scope.selected.trainee && (!$scope.item.trainers || !$scope.item.trainers[$scope.selected.trainee.guid])) {
                 $scope.item.trainees = utilitiesService.addUnique($scope.item.trainees, $scope.selected.trainee, 'guid', 'name');
@@ -145,21 +155,21 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                 self.error = true;
                 self.errorMsg = error.data.message;
             });
-        }
+        };
 
         self.saveSelectedField = function(fieldName) {
             $scope.item[fieldName] = $scope.selected[fieldName];
             return self.saveByField(fieldName);
-        }
+        };
 
         var setAgendaTabFields = function () {
             $scope.selected.agenda = $scope.item.agenda;
             $scope.selected.whatsForOrg = $scope.item.whatsForOrg;
             $scope.selected.whatsForTrainees = $scope.item.whatsForTrainees;
-        }
+        };
 
         var setCurrentStatus = function () {
-            $scope.isTrainingClosed = $scope.item.status === 'CLOSED';
+            self.isTrainingClosed = $scope.item.status === 'CLOSED';
             self.isTrainingComplete = self.isTrainingClosed || $scope.item.status === 'COMPLETED';
             if ($scope.item.status) {
                 self.trainingCurrentStatus = _.find(self.trainingStatus, {code: $scope.item.status}).label;
@@ -171,7 +181,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             trainingService.getAttachments(self.trainingId).then(function (response) {
                 $scope.item.attachments = response.data;
             });
-        }
+        };
 
         var afterSave = function(fieldName) {
             utilitiesService.setLastModifiedBy(self);
@@ -237,7 +247,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                             setAgendaTabFields();
                             break;
                         case 'status':
-                        case 'location':
+                        case 'locations':
                             setCurrentStatus();
                             break;
                         case 'trainees':
@@ -265,7 +275,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
 
         self.setEditStatus = function(fieldName, status) {
             if(status) {
-                if($scope.isTrainingClosed) {
+                if(self.isTrainingClosed) {
                     return false;
                 }
                 if(fieldName !== 'Status' && self.isTrainingComplete) {
@@ -289,7 +299,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             }
             self['error' + fieldName] = undefined;
             utilitiesService.setEditable(self, fieldName, status);
-        },
+        };
 
         self.showConfirmationDlg = function (data) {
             var opts = {
@@ -301,13 +311,13 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                         return {msg: data.msg, item: {guid: data.guid}};
                     }
                 }
-            }
+            };
             $uibModal.open(opts).result.then(function (selectedItem) {
                 self.doRemove(data.guid)
             }, function () {
                 
             });
-        }
+        };
 
         self.showModalDlg = function () {
             var opts = {
@@ -319,7 +329,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                         return {item: self.training, mode: self.mode, options: {managers: self.managers}};
                     }
                 }
-            }
+            };
             $uibModal.open(opts).result.then(function (selectedItem) {
                 self.training = selectedItem;
                 if (self.mode === 'add') {
@@ -349,7 +359,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                         return {item: self.training, mode: self.mode, options: {trainingId: self.trainingId}};
                     }
                 }
-            }
+            };
             $uibModal.open(opts).result.then(function (selectedItem) {
                 self.training = selectedItem;
                 if (self.mode === 'add') {
@@ -387,7 +397,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                     file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
                 });
             });
-        }
+        };
 
         self.removeAttachment = function (filename) {
             trainingService.removeAttachment(self.trainingId, filename).then(function (response) {
@@ -395,7 +405,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                 self.attachedFiles = undefined;
                 self.getAttachments();
             });
-        }
+        };
 
         self.sendFeedBackRequest = function () {
             self.errorStatus = getIncompleteMsg();
@@ -410,7 +420,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                     self.sendingTrainingFeedbackRequest = false;
                 }
             });
-        }
+        };
 
         self.sendTrainingRequest = function () {
             self.errorStatus = getIncompleteMsg();
@@ -425,23 +435,28 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                     self.sendingTrainingRequest = false;
                 }
             });
-        }
+        };
+
+        self.removeLocation = function (locationId) {
+            self.item.locations = _.remove(self.item.locations, {id: locationId});
+            self.saveByField('locations');
+        };
 
         self.cancelTextEdit = function (field) {
             $scope.selected[field] = $scope.item[field];
             self['edit' + _.upperFirst(field)] = false;
-        }
+        };
 
         var getTrainingLocations = function() {
             trainingRoomService.listTrainingRoomsBrief().then(function (response) {
                 if (angular.isDefined(response.data)) {
                     self.trainingLocations = [];
                     _.each(response.data, function(room) {
-                        self.trainingLocations.push(room.name + ", " + room.location);
+                        self.trainingLocations.push({id: room.id, name: room.name + ", " + room.location});
                     });
                 }
             });
-        }
+        };
 
         $scope.$on('training.refresh', function () {
             trainingService.getLikesCount(self.item.id).then(function(result) {
@@ -469,9 +484,9 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                 msg += "Name, ";
                 self.errorName = 'Name can\'t be empty';
             }
-            if(_.isEmpty($scope.item.location)) {
-                msg += "Location, ";
-                self.errorLocation = 'Location can\'t be empty';
+            if(_.isEmpty($scope.item.locations)) {
+                msg += "Locations, ";
+                self.errorLocation = 'Locations can\'t be empty';
             }
             if(!_.isNumber($scope.item.duration)) {
                 msg += "Duration, ";

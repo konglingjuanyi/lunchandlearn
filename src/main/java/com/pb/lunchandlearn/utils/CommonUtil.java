@@ -46,7 +46,7 @@ public final class CommonUtil {
 		objTraining.put("likesCount", training.getLikesCount());
 		objTraining.put("scheduledOn", training.getScheduledOn());
 		objTraining.put("status", training.getStatus());
-		objTraining.put("location", training.getLocation());
+		objTraining.put("locations", training.getLocations());
 		objTraining.put("duration", training.getDuration());
 		return objTraining;
 	}

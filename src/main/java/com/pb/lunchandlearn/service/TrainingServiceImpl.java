@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -30,8 +30,8 @@ import java.text.ParseException;
 import java.util.*;
 
 import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
-import static java.util.Calendar.SATURDAY;
-import static java.util.Calendar.SUNDAY;
+import static com.pb.lunchandlearn.domain.TrainingStatus.SCHEDULED;
+import static java.util.Calendar.*;
 
 /**
  * Created by de007ra on 5/1/2016.
@@ -222,7 +222,7 @@ public class TrainingServiceImpl implements TrainingService {
 		if(statusToSet == TrainingStatus.CLOSED && (status != TrainingStatus.COMPLETED)) {
 			return false;
 		}
-		if(statusToSet == TrainingStatus.SCHEDULED && (status != TrainingStatus.CANCELLED &&
+		if(statusToSet == SCHEDULED && (status != TrainingStatus.CANCELLED &&
 				status != TrainingStatus.POSTPONED && status != TrainingStatus.NOMINATED)) {
 			return false;
 		}
@@ -246,6 +246,19 @@ public class TrainingServiceImpl implements TrainingService {
 		comment.setOwnerName(user.getUsername());
 		comment.setOwnerGuid(user.getGuid());
 		return comment;
+	}
+
+	@Scheduled(cron = "0 0 9 ? * MON-FRI") //triggers on weekdays at 9 am //0 * * * * MON-FRI
+	public void sendTrainingReminders() {
+		Calendar startDate = Calendar.getInstance();
+		Calendar endDate = Calendar.getInstance();
+		int dayOfWeek = endDate.get(Calendar.DAY_OF_WEEK);
+		endDate.add(Calendar.DAY_OF_MONTH, dayOfWeek == SUNDAY ? 2 : dayOfWeek == SATURDAY ? 3 : 1);
+		List<Training> trainings = trainingRepository.findAllByStatusAndScheduledOnBetween(SCHEDULED,
+				startDate.getTime(), endDate.getTime());
+		for(Training training : trainings) {
+			mailService.sendMail(MailService.MailType.TRAINING_REMINDER, training);
+		}
 	}
 
 	@Override
@@ -512,12 +525,6 @@ public class TrainingServiceImpl implements TrainingService {
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public JSONObject getTrainingMinimal(Long trainingId) {
 		return CommonUtil.getTrainingJsonBrief(trainingRepository.findByTheTrainingsId(trainingId));
-	}
-
-	@Override
-	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
-	public String[] getTrainingLocations() {
-		return applicationConfiguration.TRAINING_LOCATIONS;
 	}
 
 	@Override

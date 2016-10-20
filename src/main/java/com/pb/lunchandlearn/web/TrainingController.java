@@ -236,9 +236,4 @@ public class TrainingController {
 		return ResponseEntity.ok().contentLength(fileAttachmentInfo.getSize()).headers(headers)
 				.contentType(MediaType.APPLICATION_OCTET_STREAM).body(new InputStreamResource(fileAttachmentInfo.getFile()));
 	}
-
-	@RequestMapping(value = "/locations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public String[] getTrainingLocations() {
-		return trainingService.getTrainingLocations();
-	}
 }

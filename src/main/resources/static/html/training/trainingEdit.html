@@ -225,82 +225,98 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group" ng-class="{'has-error': self.errorLocation}">
-                                <label class="form-label">Location</label>
-                                <div class="form-group">
-                                    <span ng-show="!self.editLocation" ng-class="{'btn btn-link': self.isAdmin &&
-                                    !self.isTrainingComplete}" ng-click="self.setEditStatus('Location', true)">
-                                        <i class="nc-icon-mini nc-fw location_flag-simple"></i>
-                                        {{item.location}}
+                            <div class="form-group">
+                                <label class="form-label">Locations</label>
+                                <div class="form-group" ng-class="{'has-error': self.errorLocations}">
+                                    <simple-tag items="item.locations" section="'trainingrooms'"
+                                                on-remove="self.saveByField" ng-if="!self.isTrainingComplete &&
+                                            (self.isEditable || self.isAdmin)"></simple-tag>
+                                    <simple-tag items="item.locations" section="'trainingrooms'"
+                                                ng-if="self.isTrainingComplete || !self.isEditable"></simple-tag>
+                                <span class="btn-group"
+                                      ng-show="!self.editLocations"
+                                      ng-click="self.setEditStatus('Locations', true)">
+                                    <span class="mini-tag-simple plus"
+                                          ng-if="!self.isTrainingComplete && (self.isEditable || self.isAdmin)">
+                                        <span class="a-lnk a-lnk-icon-mini"><i
+                                                class="nc-icon-mini ui-1_simple-add"></i></span>
                                     </span>
-                                    <select ng-change="self.saveByField('location');" focus-me
-                                            ng-model="item.location" ng-show="self.editLocation"
-                                            ng-options="location as location for location in self.trainingLocations"></select>
-                                    <span class="help-block" ng-show="self.errorLocation">{{self.errorLocation}}</span>
+                                </span>
+                                    <ui-select ng-model="selected.location" ng-show="self.editLocations">
+                                        <ui-select-match>
+                                            <span ng-bind="$select.selected.name"></span>
+                                        </ui-select-match>
+                                        <ui-select-choices
+                                                repeat="location in (self.trainingLocations | filter: $select.search)">
+                                            <span ng-bind-html="location.name | highlight: $select.search"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                <span class="help-block has-error"
+                                      ng-show="self.errorLocations">{{self.errorLocations}}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Status</label>
-                                <div class="form-group" ng-class="{'has-error': self.errorStatus}">
-                                <span ng-class="{'field-editable': !isTrainingClosed && (self.isEditable || self.isAdmin)}"
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Status</label>
+                                    <div class="form-group" ng-class="{'has-error': self.errorStatus}">
+                                <span ng-class="{'field-editable': !self.isTrainingClosed && (self.isEditable || self.isAdmin)}"
                                       ng-show="!self.editStatus" focus-me
                                       ng-click="self.setEditStatus('Status', true)">{{self.trainingCurrentStatus}}</span>
-                                    <select ng-change="self.saveByField('status');"
-                                            ng-model="item.status" ng-show="self.editStatus"
-                                            ng-options="status.code as status.label for status in self.trainingStatus"></select>
-                                    <span class="help-block" ng-show="self.errorStatus">{{self.errorStatus}}</span>
+                                        <select ng-change="self.saveByField('status');"
+                                                ng-model="item.status" ng-show="self.editStatus"
+                                                ng-options="status.code as status.label for status in self.trainingStatus"></select>
+                                        <span class="help-block" ng-show="self.errorStatus">{{self.errorStatus}}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <uib-tabset justified="true" class="training-tab">
-                        <uib-tab>
-                            <uib-tab-heading><i class="nc-icon-mini ui-3_bullet-list"></i>
-                                Agenda
-                            </uib-tab-heading>
-                            <ng-include src="'/lunchandlearn/html/training/agenda.html'"></ng-include>
-                        </uib-tab>
+                    <div class="form-group">
+                        <uib-tabset justified="true" class="training-tab">
+                            <uib-tab>
+                                <uib-tab-heading><i class="nc-icon-mini ui-3_bullet-list"></i>
+                                    Agenda
+                                </uib-tab-heading>
+                                <ng-include src="'/lunchandlearn/html/training/agenda.html'"></ng-include>
+                            </uib-tab>
 
-                        <uib-tab>
-                            <uib-tab-heading><i class="nc-icon-mini ui-1_attach-86"></i>
-                                Attachments ({{item.attachments.length}})
-                            </uib-tab-heading>
-                            <ng-include src="'/lunchandlearn/html/training/attachments.html'"></ng-include>
-                        </uib-tab>
+                            <uib-tab>
+                                <uib-tab-heading><i class="nc-icon-mini ui-1_attach-86"></i>
+                                    Attachments ({{item.attachments.length}})
+                                </uib-tab-heading>
+                                <ng-include src="'/lunchandlearn/html/training/attachments.html'"></ng-include>
+                            </uib-tab>
 
-                        <uib-tab>
-                            <uib-tab-heading><i class="nc-icon-mini ui-3_chat-33"></i>
-                                Comments ({{commentsCount}})
-                            </uib-tab-heading>
-                            <comments parent-id="self.trainingId" section-name="trainings"
-                                      comments-count="commentsCount"></comments>
-                        </uib-tab>
+                            <uib-tab>
+                                <uib-tab-heading><i class="nc-icon-mini ui-3_chat-33"></i>
+                                    Comments ({{commentsCount}})
+                                </uib-tab-heading>
+                                <comments parent-id="self.trainingId" section-name="trainings"
+                                          comments-count="commentsCount"></comments>
+                            </uib-tab>
 
-                        <uib-tab>
-                            <uib-tab-heading><i class="nc-icon-mini users_multiple-19"></i>
-                                Trainees ({{self.traineesCount}})
-                            </uib-tab-heading>
-                            <ng-include src="'/lunchandlearn/html/training/trainees.html'"></ng-include>
-                        </uib-tab>
+                            <uib-tab>
+                                <uib-tab-heading><i class="nc-icon-mini users_multiple-19"></i>
+                                    Trainees ({{self.traineesCount}})
+                                </uib-tab-heading>
+                                <ng-include src="'/lunchandlearn/html/training/trainees.html'"></ng-include>
+                            </uib-tab>
 
-                        <uib-tab>
-                            <uib-tab-heading><i class="nc-icon-mini"
-                                                ng-class="{'design_bullet-list-69': !feedbackStatus.pendingFeedBack, 'ui-1_bell-53': feedbackStatus.pendingFeedBack}"></i>
-                                Feedback ({{feedbackCount}})
-                            </uib-tab-heading>
-                            <feedback parent-id="self.trainingId" training="item"
-                                      feedback-count="feedbackCount" feedback-status="feedbackStatus"
-                                      is-training-closed="isTrainingClosed"></feedback>
-                        </uib-tab>
-                    </uib-tabset>
+                            <uib-tab>
+                                <uib-tab-heading><i class="nc-icon-mini"
+                                                    ng-class="{'design_bullet-list-69': !feedbackStatus.pendingFeedBack, 'ui-1_bell-53': feedbackStatus.pendingFeedBack}"></i>
+                                    Feedback ({{feedbackCount}})
+                                </uib-tab-heading>
+                                <feedback parent-id="self.trainingId" training="item"
+                                          feedback-count="feedbackCount" feedback-status="feedbackStatus"
+                                          is-training-closed="self.isTrainingClosed"></feedback>
+                            </uib-tab>
+                        </uib-tabset>
+                    </div>
                 </div>
             </form>
         </div>

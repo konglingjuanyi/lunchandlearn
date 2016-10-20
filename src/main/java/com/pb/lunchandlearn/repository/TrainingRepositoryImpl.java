@@ -207,6 +207,17 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 		return null;
 	}
 
+/*
+	@Override
+	public List<Training> findAllByStatusAndScheduledOnBetween(TrainingStatus scheduled, Date startDate, Date endDate) {
+		Query query = Query.query(where("status").is(TrainingStatus.SCHEDULED).and("scheduledOn").gte(startDate)
+				.lte(endDate));
+		query.fields().include("name").include("scheduledOn").include("location").include("status")
+				.include("scheduledOn").include("id");
+		return mongoTemplate.find(query, Training.class);
+	}
+*/
+
 	@Override
 	public FileAttachmentInfo getAttachmentFileInfoWithFile(Long trainingId, String fileName) throws IOException {
 		Query query = Query.query(whereMetaData().is(new BasicDBObject("trainingId", trainingId)).

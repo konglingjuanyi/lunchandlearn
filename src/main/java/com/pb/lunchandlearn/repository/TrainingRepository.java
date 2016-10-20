@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,4 +48,8 @@ public interface TrainingRepository extends MongoRepository<Training, String>, C
 
 	@Query(fields = "{'likesCount': 1}")
 	Training findLikesCountById(Long trainingId);
+
+	@Query(fields = "{'name': 1, 'scheduledOn': 1, 'location': 1, 'status': 1, trainers: 1, scheduledOn: 1, trainees: 1" +
+			", createdByGuid: 1}")
+	List<Training> findAllByStatusAndScheduledOnBetween(TrainingStatus scheduled, Date startDate, Date endDate);
 }

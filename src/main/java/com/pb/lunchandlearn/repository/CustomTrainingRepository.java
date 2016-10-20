@@ -6,15 +6,13 @@ import com.pb.lunchandlearn.domain.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by DE007RA on 6/6/2016.
  */
-public interface CustomTrainingRepository {
+interface CustomTrainingRepository {
 	Training updateLikes(Long trainingId, LikeType type, String userName, String userGuid);
 	List<Training> getAllByIds(List<Long> topicIds);
 	boolean updateByFieldName(Long trainingId, SimpleFieldEntry simpleFieldEntry, SecuredUser user);
@@ -41,9 +39,9 @@ public interface CustomTrainingRepository {
 
 	boolean removeAttachedFile(Long trainingId, String fileName);
 
-	public boolean removeCommentReply(Long trainingId, Long commentId, Long commentReplyId);
+	boolean removeCommentReply(Long trainingId, Long commentId, Long commentReplyId);
 
-	public boolean removeComment(Long trainingId, Long commentId);
+	boolean removeComment(Long trainingId, Long commentId);
 
 	FileAttachmentInfo getAttachedFileInfo(Long trainingId, String fileName);
 

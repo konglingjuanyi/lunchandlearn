@@ -23,8 +23,8 @@
                             <span ng-bind="item.location"></span>
                         </ui-select-match>
                         <ui-select-choices
-                                repeat="location in (options.locations | filter: $select.search)">
-                            <span ng-bind-html="location | highlight: $select.search"></span>
+                                repeat="locations in (options.locations | filter: $select.search)">
+                            <span ng-bind-html="locations | highlight: $select.search"></span>
                         </ui-select-choices>
                     </ui-select>
                 </div>

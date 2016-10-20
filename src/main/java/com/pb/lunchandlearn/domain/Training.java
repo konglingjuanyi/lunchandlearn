@@ -82,7 +82,7 @@ public final class Training {
 
 	private Float duration;
 
-	private String location;
+	private Map<Long, String> locations;
 
 	@Indexed
 	private Integer likesCount;
@@ -116,7 +116,7 @@ public final class Training {
 				", feedBackList=" + feedBackList +
 				", feedbackClosed=" + feedbackClosed +
 				", duration=" + duration +
-				", location='" + location + '\'' +
+				", locations='" + locations + '\'' +
 				", likesCount=" + likesCount +
 				", whatsForTrainees='" + whatsForTrainees + '\'' +
 				", whatsForOrg='" + whatsForOrg + '\'' +
@@ -167,7 +167,7 @@ public final class Training {
 		if (feedBackList != null ? !feedBackList.equals(training.feedBackList) : training.feedBackList != null)
 			return false;
 		if (duration != null ? !duration.equals(training.duration) : training.duration != null) return false;
-		if (location != null ? !location.equals(training.location) : training.location != null) return false;
+		if (locations != null ? !locations.equals(training.locations) : training.locations != null) return false;
 		if (likesCount != null ? !likesCount.equals(training.likesCount) : training.likesCount != null) return false;
 		if (whatsForTrainees != null ? !whatsForTrainees.equals(training.whatsForTrainees) : training.whatsForTrainees != null)
 			return false;
@@ -200,7 +200,7 @@ public final class Training {
 		result = 31 * result + (feedBackList != null ? feedBackList.hashCode() : 0);
 		result = 31 * result + (feedbackClosed ? 1 : 0);
 		result = 31 * result + (duration != null ? duration.hashCode() : 0);
-		result = 31 * result + (location != null ? location.hashCode() : 0);
+		result = 31 * result + (locations != null ? locations.hashCode() : 0);
 		result = 31 * result + (likesCount != null ? likesCount.hashCode() : 0);
 		result = 31 * result + (whatsForTrainees != null ? whatsForTrainees.hashCode() : 0);
 		result = 31 * result + (whatsForOrg != null ? whatsForOrg.hashCode() : 0);
@@ -231,12 +231,12 @@ public final class Training {
 		this.whatsForOrg = whatsForOrg;
 	}
 
-	public String getLocation() {
-		return location;
+	public Map<Long, String> getLocations() {
+		return locations;
 	}
 
-	public void setLocation(String location) {
-		this.location = location;
+	public void setLocations(Map<Long, String> locations) {
+		this.locations = locations;
 	}
 
 	public String getCreatedByName() {
