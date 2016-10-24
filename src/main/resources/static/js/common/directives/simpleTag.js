@@ -40,7 +40,7 @@ angular.module('directives').directive('simpleTag', function() {
 						scope.tagIcon = 'clothes_cap';
 						break;
 					case 'trainingrooms':
-						scope.tagIcon = 'ui-1_home-minimal';
+						scope.tagIcon = 'location_pin';
 						break;
 				}
 			}

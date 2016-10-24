@@ -24,6 +24,8 @@ lunchAndLearnControllers.controller('modalController',
                             $scope.suggestedNames = response.data;
                         }
                     }
+                }, function () {
+                    $scope.suggesting = false;
                 });
             }
         };

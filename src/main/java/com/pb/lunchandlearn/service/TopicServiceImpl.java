@@ -5,6 +5,7 @@ import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.repository.TopicRepository;
 import com.pb.lunchandlearn.service.es.ElasticSearchService;
+import com.pb.lunchandlearn.service.mail.MailService;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -13,14 +14,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.TextCriteria;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
 import static com.pb.lunchandlearn.utils.CommonUtil.SORT_BY_LIKES;
@@ -41,6 +45,9 @@ public class TopicServiceImpl implements TopicService {
 
 	@Autowired
 	private ElasticSearchService elasticSearchService;
+
+	@Autowired
+	private MailService mailService;
 
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
@@ -321,5 +328,24 @@ public class TopicServiceImpl implements TopicService {
 			return null;
 		}
 		return elasticSearchService.searchTopics(topicName.trim());
+	}
+
+	@Scheduled(cron = "0 0 10 ? * MON") // triggers on every MON at 9 am
+	public void sendTopicNotifications() {
+		Calendar startDate = Calendar.getInstance();
+		Calendar endDate = Calendar.getInstance();
+		startDate.add(Calendar.DAY_OF_MONTH, -7);
+		//new topics in last week
+		List<Topic> topics = topicRepository.findAllByCreateDateTimeBetween(startDate.getTime(), endDate.getTime());
+		if(!CollectionUtils.isEmpty(topics)) {
+			mailService.sendMail(MailService.MailType.NEW_TOPICS_NOTIFICATION, topics);
+		}
+		topics = topicRepository.findAll(topByLikesPageable).getContent();
+		if(!CollectionUtils.isEmpty(topics)) {
+			topics = topics.stream().filter((topic) -> topic.getLikesCount() > 0).collect(Collectors.toList());
+			if(!CollectionUtils.isEmpty(topics)) {
+				mailService.sendMail(MailService.MailType.TOPIC_LIKES_NOTIFICATION, topics);
+			}
+		}
 	}
 }

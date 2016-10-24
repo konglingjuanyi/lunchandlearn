@@ -1,6 +1,6 @@
 angular.module('controllers').controller('topicsController', [
-	'$scope', '$uibModal', 'topicService', 'pagingService',
-	function($scope, $uibModal, topicService, pagingService) {
+	'$scope', '$uibModal', 'topicService', 'pagingService', '$q',
+	function($scope, $uibModal, topicService, pagingService, $q) {
 		var self = this;
 
 		self.pageSizes = pagingService.pageSizes;
@@ -38,7 +38,7 @@ angular.module('controllers').controller('topicsController', [
 			}).finally(function() {
 				self.searching = false;
 			});
-		}
+		};
 
 		self.showEdit = function(guid) {
 			topicService.getTopic(guid).then(function(response) {
@@ -47,7 +47,7 @@ angular.module('controllers').controller('topicsController', [
 				self.mode = 'edit';
 				self.showModalDlg();
 			});
-		}
+		};
 
 		self.save = function() {
 			self.topic.managers = topicService.getManagersGuidWithName(self.managers, self.topic.managers);
@@ -55,7 +55,7 @@ angular.module('controllers').controller('topicsController', [
 				self.mode = null;
 				self.list();
 			});
-		}
+		};
 
 		self.add = function() {
 			topicService.addTopic(self.topic).then(function(response) {
@@ -64,22 +64,22 @@ angular.module('controllers').controller('topicsController', [
 				$scope.$broadcast('topics.refresh');
 				
 			});
-		}
+		};
 
 		$scope.$on('topics.refresh', function () {
 			self.list();
-		})
+		});
 
 		self.showAdd = function() {
 			self.topic = {};
 			self.mode = 'add';
 			self.showModalDlg();
-		}
+		};
 
 		self.remove = function(guid) {
 			var topic = topicService.getTopicByGuid(guid, self.topics);
 			self.showConfirmationDlg({msg: 'Topic \'' + topic.name + '\'', guid: guid});
-		}
+		};
 
 		self.doRemove = function(guid) {
 			topicService.removeTopic(guid).then(function (response) {
@@ -87,7 +87,7 @@ angular.module('controllers').controller('topicsController', [
 			}, function (response) {
 				console.log('error removeTopic: '+ response)
 			});
-		}
+		};
 
 		self.showConfirmationDlg = function (data) {
 			var opts = {
@@ -99,7 +99,7 @@ angular.module('controllers').controller('topicsController', [
 						return {msg: data.msg, item: {guid: data.guid}};
 					}
 				}
-			}
+			};
 			$uibModal.open(opts).result.then(function (selectedItem) {
 				self.doRemove(data.guid)
 			}, function () {
@@ -108,7 +108,16 @@ angular.module('controllers').controller('topicsController', [
 		};
 
 		self.getSuggestedNames = function(topicName) {
-			return topicService.getSuggestedNames(topicName);
+			var deferred = $q.defer();
+			topicService.getSuggestedNames(topicName).then(
+				function(response) {
+					deferred.resolve(response);
+				},
+				function (error) {
+					deferred.reject(false);
+				}
+			);
+			return deferred.promise;
 		};
 
 		self.showModalDlg = function () {

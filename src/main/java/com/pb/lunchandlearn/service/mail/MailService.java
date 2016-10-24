@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -67,6 +68,13 @@ public class MailService {
 		executor.execute(mailingTask);
 	}
 
+	public void sendMail(MailType mailType, final List<Topic> topics) {
+		MailingTask mailingTask = context.getBean(MailingTask.class);
+		mailingTask.setMailType(mailType);
+		mailingTask.setTopics(topics);
+		executor.execute(mailingTask);
+	}
+
 	public void sendMail(MailType mailType, Long parentId) {
 		MailingTask mailingTask = context.getBean(MailingTask.class);
 		mailingTask.setMailType(mailType);
@@ -101,6 +109,6 @@ public class MailService {
 		COMMENT_REMOVED, FEEDBACK_ADDED, TRAINING_ADDED, TRAINING_UPDATED,
 		FEEDBACK_REQUEST, EMPLOYEE_ADDED, EMPLOYEE_UPDATED, TOPIC_ADDED,
 		TOPIC_UPDATED, TRAINING_SCHEDULED, TRAINING_CANCELLED, TRAINING_REMINDER, TRAINING_ROOM_UPDATED,
-		TRAINING_ROOM_ADDED
+		TRAINING_ROOM_ADDED, NEW_TOPICS_NOTIFICATION, TOPIC_LIKES_NOTIFICATION
 	}
 }

@@ -11,6 +11,8 @@ import com.pb.lunchandlearn.repository.TrainingRepository;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
 import static com.pb.lunchandlearn.service.EmployeeServiceImpl.ADMIN_ROLE_LIST;
@@ -53,6 +56,7 @@ public final class MailingTask implements Runnable {
 	private Employee employee = null;
 	private FileAttachmentInfo fileAttachmentInfo = null;
 	private Topic topic;
+	private List<Topic> topics;
 	private boolean isCalenderRequest;
 
 	@Autowired
@@ -84,6 +88,14 @@ public final class MailingTask implements Runnable {
 	private String updatedFieldName;
 	private Object updatedFieldValue;
 	private Collection<String> recipientsGuid;
+
+	public List<Topic> getTopics() {
+		return topics;
+	}
+
+	public void setTopics(List<Topic> topics) {
+		this.topics = topics;
+	}
 
 	public void setUpdatedFieldValue(Object updatedFieldValue) {
 		this.updatedFieldValue = updatedFieldValue;
@@ -215,6 +227,11 @@ public final class MailingTask implements Runnable {
 					employee = employeeRepository.findByGuid(topic.getCreatedByGuid());
 					mailingSet.add(employee.getEmailId());
 				}
+			case TOPIC_LIKES_NOTIFICATION:
+			case NEW_TOPICS_NOTIFICATION:
+				mailingSet.addAll(Arrays.stream(mailServerSettings.getEmailGroups()).
+					collect(Collectors.toSet()));
+				break;
 		}
 		formatSubjectAndMsg();
 		if (!StringUtils.isEmpty(msg)) {
@@ -300,7 +317,16 @@ public final class MailingTask implements Runnable {
 		return link;
 	}
 
+	private String getTrainingsLink() {String link = MessageFormat.format("{0}/#/trainings",
+			applicationConfiguration.BASE_URL);
+		return link;
+	}
+
 	private String getTopicLink() {
+		return getTopicLink(topic);
+	}
+
+	private String getTopicLink(Topic topic) {
 		String link = MessageFormat.format(
 				"{0}/#/topics/{1}",
 				applicationConfiguration.BASE_URL, topic.getId().toString());
@@ -319,7 +345,7 @@ public final class MailingTask implements Runnable {
 		String msgPage = null;
 
 		ctx.setVariable("lunchandlearn_email",
-				mailServerSettings.getEmailGroup());
+				mailServerSettings.getEmailGroups());
 		ctx.setVariable("home_page_link",
 				applicationConfiguration.BASE_URL);
 
@@ -382,6 +408,16 @@ public final class MailingTask implements Runnable {
 				setTopicParams(ctx);
 				msgPage = "topic_added";
 				break;
+			case TOPIC_LIKES_NOTIFICATION:
+				subject = "Liked Topics";
+				setTopicsParams(ctx);
+				msgPage = "topics_liked";
+				break;
+			case NEW_TOPICS_NOTIFICATION:
+				subject = MessageFormat.format(topics.size() == 1 ? "{0} New Topic Added" : "{0} New Topics Added", topics.size());
+				setTopicsParams(ctx);
+				msgPage = "new_topics_added";
+				break;
 			case TOPIC_UPDATED:
 				subject = MessageFormat.format("Updated Topic - {0}", topic.getName());
 				setTopicParams(ctx);
@@ -399,7 +435,10 @@ public final class MailingTask implements Runnable {
 			training = trainingRepository.findById(parentId);
 			mailingSet = addTrainersEmailId(mailingSet);
 			mailingSet = addTraineesEmailId(mailingSet);
-//			mailingSet.addAll(ldapService.groupEmail);
+/*
+			mailingSet.addAll(Arrays.stream(mailServerSettings.getEmailGroups()).
+					collect(Collectors.toSet()));
+*/
 			employee = employeeRepository.findByGuid(training.getCreatedByGuid());
 			if(employee != null) {
 				if(StringUtils.isNotEmpty(employee.getEmailId())) {
@@ -576,13 +615,6 @@ public final class MailingTask implements Runnable {
 		}
 		return null;
 	}
-/*
-	private void convertToFieldName() {
-		for(int count = 0; count < updatedFieldName.length(); ++count) {
-			if(updatedFieldName.charAt(count))
-		}
-	}
-*/
 
 	private void setEmployeeParams(Context ctx) {
 		ctx.setVariable("employee_name", employee.getName());
@@ -597,10 +629,23 @@ public final class MailingTask implements Runnable {
 
 	private void setTopicParams(Context ctx) {
 		ctx.setVariable("topic_name", topic.getName());
-		ctx.setVariable("topic_id", topic.getName());
+		ctx.setVariable("topic_id", topic.getId().toString());
 		ctx.setVariable("employee_name", employee.getName());
 		ctx.setVariable("topic_id_link", getTopicLink());
 		ctx.setVariable("topic_desc", topic.getDesc());
+	}
+
+	private void setTopicsParams(Context ctx) {
+		JSONArray jsonTopics = new JSONArray();
+		for(Topic topic : topics) {
+			JSONObject obj = new JSONObject();
+			obj.put("name", topic.getName());
+			obj.put("id", topic.getId().toString());
+			obj.put("link", getTopicLink(topic));
+			jsonTopics.add(obj);
+		}
+		ctx.setVariable("topics", jsonTopics);
+		ctx.setVariable("trainings_link", getTrainingsLink());
 	}
 
 	private void setFileAttachmentParams(Context ctx) {

@@ -3,6 +3,7 @@ package com.pb.lunchandlearn.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -24,7 +25,14 @@ public final class MailServerSettings {
 	@NotNull
 	private String calenderRequestSubject;
 
-	private String emailGroup;
+	private String emailGroups;
+
+	private String[] emailGrps;
+
+	@PostConstruct
+	public void init() {
+		emailGrps = this.emailGroups.split("; +");
+	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -35,23 +43,23 @@ public final class MailServerSettings {
 
 		if (calenderRequestSubject != null ? !calenderRequestSubject.equals(that.calenderRequestSubject) : that.calenderRequestSubject != null)
 			return false;
-		return emailGroup != null ? emailGroup.equals(that.emailGroup) : that.emailGroup == null;
+		return emailGroups != null ? emailGroups.equals(that.emailGroups) : that.emailGroups == null;
 
 	}
 
 	@Override
 	public int hashCode() {
 		int result = calenderRequestSubject != null ? calenderRequestSubject.hashCode() : 0;
-		result = 31 * result + (emailGroup != null ? emailGroup.hashCode() : 0);
+		result = 31 * result + (emailGroups != null ? emailGroups.hashCode() : 0);
 		return result;
 	}
 
-	public String getEmailGroup() {
-		return emailGroup;
+	public String[] getEmailGroups() {
+		return emailGrps;
 	}
 
-	public void setEmailGroup(String emailGroup) {
-		this.emailGroup = emailGroup;
+	public void setEmailGroups(String emailGroups) {
+		this.emailGroups = emailGroups;
 	}
 
 	public String getCalenderRequestSubject() {

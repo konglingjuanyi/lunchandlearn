@@ -14,19 +14,18 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
-//apply plugin: 'war'
+apply plugin: 'war'
 
 jar {
 	baseName = 'lunchandlearn'
 	version = '1.0'
 }
 
-/*
+
 war {
 	baseName = 'lunchandlearn'
-//	version = '1.0'
 }
-*/
+
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
