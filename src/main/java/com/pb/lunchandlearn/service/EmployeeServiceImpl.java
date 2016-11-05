@@ -36,6 +36,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	public static final List<String> ADMIN_ROLE_LIST = Collections.unmodifiableList(new ArrayList<>(Arrays.asList(UserRole.ADMIN.name())));
 
+	public static final List<String> CLERICAL_ROLE_LIST = Collections.unmodifiableList(new ArrayList<>(Arrays.asList(UserRole.CLERICAL.name())));
+
 	@Autowired
 	private TopicService topicService;
 
@@ -266,5 +268,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
 	public Long countByManagers(String guid) {
 		return employeeRepository.countByManagers(guid);
+	}
+
+	@Override
+	public List<Employee> findAll() {
+		return employeeRepository.findAll();
 	}
 }

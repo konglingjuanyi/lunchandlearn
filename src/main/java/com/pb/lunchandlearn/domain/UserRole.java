@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 public enum UserRole {
 	EMPLOYEE("EMPLOYEE"),
 	ADMIN("ADMIN"),
+	CLERICAL("CLERICAL"),
 	MANAGER("MANAGER");
 
 	private String role;

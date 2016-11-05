@@ -6,71 +6,140 @@
     </div>
     <div class="row">
         <div class="col-md-8">
-            <div class="input-group spacer-bottom-xs">
-                <input class="form-control search" ng-model="self.searchTerm" type="text"
-                       placeholder="Search trainings" ng-keypress="self.checkSearch($event);" required>
-                <a class="search-clear a-lnk search-clear-a" href="" ng-show="self.searchTerm.length > 0"
-                   ng-click="self.searchTerm = ''; self.list();"><i
-                        class="nc-icon-mini fw ui-1_circle-remove"></i></a>
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-link" ng-click="self.list()"
-                            data-toggle="dropdown">
-                        <i class="nc-icon-mini ui-1_zoom"></i> <i
-                            class="nc-icon-mini arrows-2_small-down"></i>
-                    </button>
-                </span>
-            </div>
-            <div class="spacer-bottom-md">
-                <a class="btn btn-link spacer-bottom-xs" ng-click="self.showAdd();"><i
-                        class="nc-icon-mini ui-e-2_calendar-add"/>Add Training</a>
-                <div class="search-list">
-                    <div class="text-center" ng-show="self.searching">
-                        <loading/>
+            <div class="row">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group spacer-bottom-md">
+                            <input class="form-control search" ng-model="searchTerm" type="text"
+                                   placeholder="Search trainings" ng-keypress="self.checkSearch($event);" required>
+                            <a class="search-clear a-lnk search-clear-a" href="" ng-show="searchTerm.length > 0"
+                               ng-click="searchTerm = ''; self.list();"><i
+                                    class="nc-icon-mini fw ui-1_circle-remove"></i></a>
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-link" ng-click="self.list()"
+                                    data-toggle="dropdown">
+                                <i class="nc-icon-mini ui-1_zoom"></i> <i
+                                    class="nc-icon-mini arrows-2_small-down"></i>
+                            </button>
+                        </span>
+                        </div>
                     </div>
-                    <table class="table table-hover" ng-show="!self.searching">
-                        <thead>
-                        <tr>
-                            <th><a href="" ng-click="self.sortList('lowername');" class="a-lnk">Name&nbsp;&nbsp;
+                </div>
+                <div class="row">
+                    <div class="col-md-12 toolbar spacer-bottom-xs">
+                        <form class="form-inline pull-left">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    <div class="btn-group dropdown">
+                                        <button type="button" class="btn btn-link" ng-click="self.showAdd();"><i
+                                                class="nc-icon-mini ui-e-2_calendar-add"/>&nbsp;Add Training
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <form class="form-inline pull-right" ng-if="self.isAdmin">
+                            <div class="input-group">
+                                <div class="btn-group dropdown">
+                                    <div class="input-group">
+                                        <input type="text" uib-datepicker-popup="dd-MMM-yyyy"
+                                               ng-model="self.trainingStartDate"
+                                               is-open="self.isStartDatePickerOpen"
+                                               datepicker-options="self.datePickerOptions"
+                                               ng-change="self.searchByDate();" ng-hide="self.hideDateTxtBx"/>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default"
+                                                    ng-click="self.openDatePicker($event, 'isStartDatePickerOpen')"><i
+                                                    class="nc-icon-mini nc-fw ui-1_calendar-57"></i>
+                                                &nbsp;{{self.trainingStartDateStr}}
+                                            </button>
+                                        </span>
+                                    </div>
+                                    &nbsp;<b>to</b>&nbsp;
+                                    <div class="input-group">
+                                        <input type="text" uib-datepicker-popup="dd-MMM-yy"
+                                               ng-model="self.trainingEndDate" is-open="self.isEndDatePickerOpen"
+                                               datepicker-options="self.datePickerOptions"
+                                               ng-change="self.searchByDate();" ng-hide="self.hideDateTxtBx"/>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default"
+                                                    ng-click="self.openDatePicker($event, 'isEndDatePickerOpen')"><i
+                                                    class="nc-icon-mini nc-fw ui-1_calendar-57"></i>
+                                                &nbsp;{{self.trainingEndDateStr}}
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-btn">
+                                            <div class="btn-group dropdown">
+                                                <a type="button" class="btn btn-link" target="_blank"
+                                                ng-href="reports/status/completed/trainings?search={{searchTerm}}&filterBy={{filterBy}}">
+                                                    <i class="nc-icon-mini arrows-1_share-91"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 search-list spacer-bottom-md">
+                        <div class="text-center" ng-show="self.searching">
+                            <loading/>
+                        </div>
+                        <table class="table table-hover" ng-show="!self.searching">
+                            <thead>
+                            <tr>
+                                <th><a href="" ng-click="self.sortList('lowername');" class="a-lnk">Name&nbsp;&nbsp;
                                 <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'lowername',
                              'arrows-1_small-triangle-down': self.sort.name === 'lowername' && self.sort.direction === 'desc',
                              'arrows-1_small-triangle-up': self.sort.name === 'lowername' && self.sort.direction === 'asc'}"></span></a>
-                            </th>
-                            <th><a href="" ng-click="self.sortList('scheduledOn');" class="a-lnk">Date&nbsp;&nbsp;
+                                </th>
+                                <th><a href="" ng-click="self.sortList('scheduledOn');" class="a-lnk">Date&nbsp;&nbsp;
                                 <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'scheduledOn',
                              'arrows-1_small-triangle-down': self.sort.name === 'scheduledOn' && self.sort.direction === 'desc',
                              'arrows-1_small-triangle-up': self.sort.name === 'scheduledOn' && self.sort.direction === 'asc'}"></span></a>
-                            </th>
-                            <th>Locations</th>
-                            <th>Duration</th>
-                            <th><a href="" ng-click="self.sortList('status');" class="a-lnk">Status&nbsp;&nbsp;
+                                </th>
+                                <th>Locations</th>
+                                <th>Duration</th>
+                                <th><a href="" ng-click="self.sortList('status');" class="a-lnk">Status&nbsp;&nbsp;
                                 <span ng-class="{'nc-icon-mini': true, 'fw arrows-2_select-83': self.sort.name !== 'status',
                              'arrows-1_small-triangle-down': self.sort.name === 'status' && self.sort.direction === 'desc',
                              'arrows-1_small-triangle-up': self.sort.name === 'status' && self.sort.direction === 'asc'}"></span></a>
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="trn in self.searchedTrainings.data" ng-click="self.gotoTraining(trn.id)" class="a-lnk">
-                            <td><span training-tag training="trn"></span></td>
-                            <td>{{trn.scheduledOn}}</td>
-                            <td><simple-tag items="trn.locations" section="'trainingrooms'"></simple-tag></td>
-                            <td>{{trn.duration == undefined ? 'None' :
-                                trn.duration > 1 ? trn.duration + ' hrs' :
-                                trn.duration + ' hr'}}
-                            </td>
-                            <td>{{trn.status | propercase}}
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="trn in self.searchedTrainings.data" ng-click="self.gotoTraining(trn.id)"
+                                class="a-lnk">
+                                <td>{{trn.name}}</td>
+                                <td>{{trn.scheduledOn}}</td>
+                                <td>
+                            <span ng-repeat="(key, value) in trn.locations">{{value}}<span
+                                    ng-if="!$last">; </span></span>
+                                </td>
+                                <td>{{trn.duration == undefined ? 'None' :
+                                    trn.duration > 1 ? trn.duration + ' hrs' :
+                                    trn.duration + ' hr'}}
+                                </td>
+                                <td>{{trn.status | propercase}}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="col-md-12 bottom-border">
+                <div class="row">
+                    <div class="col-md-12 bottom-border">
+                    </div>
                 </div>
             </div>
-            <ng-include src="'/lunchandlearn/html/main/pagination.html'"></ng-include>
+            <ng-include src="'/pbacademy/html/main/pagination.html'"></ng-include>
         </div>
         <div class="col-md-4">
-            <ng-include src="'/lunchandlearn/html/training/trainingLeftPane.html'"></ng-include>
+            <ng-include src="'/pbacademy/html/training/trainingLeftPane.html'"></ng-include>
         </div>
     </div>
 </div>

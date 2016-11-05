@@ -27,6 +27,15 @@ angular.module('services').service('utilitiesService', ['restService', '$uibModa
         return false;
     };
 
+    self.isClericalUser = function (roles) {
+        if(!_.isEmpty(roles)) {
+            if (_.indexOf(roles, 'CLERICAL') > -1) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     self.getKeyByMatchingVal = function(value, jsonObj) {
         value = _.toLower(value).trim();
         var key = {};
@@ -105,7 +114,7 @@ angular.module('services').service('utilitiesService', ['restService', '$uibModa
         if(names.length < 4) {
             return false;
         }
-         return names[3] === 'lunchandlearn';
+         return names[3] === 'pbacademy';
     };
 
 
@@ -146,7 +155,7 @@ angular.module('services').service('utilitiesService', ['restService', '$uibModa
 
     self.showMsgDlg = function (data) {
         var opts = {
-            templateUrl: '/lunchandlearn/html/main/msgDlg.html',
+            templateUrl: '/pbacademy/html/main/msgDlg.html',
             controller: 'modalController as self',
             backdrop: 'static',
             resolve: {

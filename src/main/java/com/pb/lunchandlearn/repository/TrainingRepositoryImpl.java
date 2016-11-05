@@ -9,9 +9,15 @@ import com.pb.lunchandlearn.config.LikeType;
 import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.exception.ResourceNotFoundException;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.stereotype.Repository;
@@ -205,6 +211,63 @@ public class TrainingRepositoryImpl implements CustomTrainingRepository {
 			}
 		}
 		return null;
+	}
+
+	private Criteria getCriteria(JSONObject object) {
+		if(object == null) {
+			return null;
+		}
+		Criteria criteria = null;
+		if(object.containsKey("scheduledOnStartDate")) {
+			criteria = Criteria.where("scheduledOn").gte(new Date((long)object.get("scheduledOnStartDate")));
+		}
+		if(object.containsKey("scheduledOnEndDate")) {
+			if(criteria != null) {
+				criteria.lte(new Date((long) object.get("scheduledOnEndDate")));
+			}
+			else {
+				criteria = Criteria.where("scheduledOn").lte(new Date((long) object.get("scheduledOnEndDate")));
+			}
+		}
+		for(Object entry : object.entrySet()) {
+			Map.Entry<String, String> ent = (Map.Entry<String, String>) entry;
+			if(criteria == null) {
+				criteria = Criteria.where(ent.getKey()).is(ent.getValue());
+			}
+			else {
+				criteria = criteria.and(ent.getKey()).is(ent.getValue());
+			}
+		}
+		return criteria;
+	}
+
+	@Override
+	public Page<Training> findAllByFilter(JSONObject filterBy, TextCriteria textCriteria, Pageable pageable) {
+		Query query;
+		if(textCriteria != null) {
+			query = Query.query(textCriteria);
+			query.addCriteria(getCriteria(filterBy));
+		}
+		else {
+			query = Query.query(getCriteria(filterBy));
+		}
+		query.with(pageable);
+		List<Training> trainings = mongoTemplate.find(query, Training.class);
+		long count = mongoTemplate.count(query, Training.class);
+		return new PageImpl<>(trainings, pageable, count);
+	}
+
+	@Override
+	public List<Training> findAllByFilter(JSONObject filterBy, TextCriteria textCriteria) {
+		Query query;
+		if(textCriteria != null) {
+			query = Query.query(textCriteria);
+			query.addCriteria(getCriteria(filterBy));
+		}
+		else {
+			query = Query.query(getCriteria(filterBy));
+		}
+		return mongoTemplate.find(query, Training.class);
 	}
 
 /*

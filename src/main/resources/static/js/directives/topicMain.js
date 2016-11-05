@@ -1,11 +1,11 @@
 /**
  * Created by de007ra on 5/7/2016.
  */
-var lunchAndLearnDirectives = angular.module('directives');
+var pbAcademyDirectives = angular.module('directives');
 
-lunchAndLearnDirectives.directive('topicMain', function() {
+pbAcademyDirectives.directive('topicMain', function() {
 	return {
-		templateUrl : '/lunchandlearn/html/main/topicMain.html',
+		templateUrl : '/pbacademy/html/main/topicMain.html',
 		replace : true,
 		scope: true,
 		controller : 'topicMainController as self'

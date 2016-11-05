@@ -2,7 +2,7 @@
     <h1 class="specifications">Training</h1>
     <div class="row spacer-top-md">
         <div class="col-md-8">
-            <ng-include src="'/lunchandlearn/html/main/error.html'" ng-show="self.error"></ng-include>
+            <ng-include src="'/pbacademy/html/main/error.html'" ng-show="self.error"></ng-include>
             <form novalidate ng-show="!self.error">
                 <div class="alert alert-info alert-flex" ng-if="feedbackStatus.pendingFeedBack">
                     Pending Feedback, scroll down and click 'Feedback' tab
@@ -273,55 +273,69 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Type</label>
+                                    <div class="form-group" ng-class="{'has-error': self.errorTrainingType}">
+                                <span ng-class="{'field-editable': !self.isTrainingComplete && (self.isEditable || self.isAdmin)}"
+                                      ng-show="!self.editTrainingType"
+                                      ng-click="self.setEditStatus('TrainingType', true)">{{item.trainingType | propercase}}</span>
+                                        <select ng-change="self.saveByField('trainingType');"
+                                                ng-model="item.trainingType" ng-show="self.editTrainingType"
+                                                ng-options="trainingType.id as trainingType.label for trainingType in self.trainingTypes"></select>
+                                        <span class="help-block has-error" ng-show="self.errorTrainingType">{{self.errorTrainingType}}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <uib-tabset justified="true" class="training-tab">
-                            <uib-tab>
-                                <uib-tab-heading><i class="nc-icon-mini ui-3_bullet-list"></i>
-                                    Agenda
-                                </uib-tab-heading>
-                                <ng-include src="'/lunchandlearn/html/training/agenda.html'"></ng-include>
-                            </uib-tab>
+                        <div class="form-group">
+                            <uib-tabset justified="true" class="training-tab">
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini ui-3_bullet-list"></i>
+                                        Agenda
+                                    </uib-tab-heading>
+                                    <ng-include src="'/pbacademy/html/training/agenda.html'"></ng-include>
+                                </uib-tab>
 
-                            <uib-tab>
-                                <uib-tab-heading><i class="nc-icon-mini ui-1_attach-86"></i>
-                                    Attachments ({{item.attachments.length}})
-                                </uib-tab-heading>
-                                <ng-include src="'/lunchandlearn/html/training/attachments.html'"></ng-include>
-                            </uib-tab>
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini ui-1_attach-86"></i>
+                                        Attachments ({{item.attachments.length}})
+                                    </uib-tab-heading>
+                                    <ng-include src="'/pbacademy/html/training/attachments.html'"></ng-include>
+                                </uib-tab>
 
-                            <uib-tab>
-                                <uib-tab-heading><i class="nc-icon-mini ui-3_chat-33"></i>
-                                    Comments ({{commentsCount}})
-                                </uib-tab-heading>
-                                <comments parent-id="self.trainingId" section-name="trainings"
-                                          comments-count="commentsCount"></comments>
-                            </uib-tab>
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini ui-3_chat-33"></i>
+                                        Comments ({{commentsCount}})
+                                    </uib-tab-heading>
+                                    <comments parent-id="self.trainingId" section-name="trainings"
+                                              comments-count="commentsCount"></comments>
+                                </uib-tab>
 
-                            <uib-tab>
-                                <uib-tab-heading><i class="nc-icon-mini users_multiple-19"></i>
-                                    Trainees ({{self.traineesCount}})
-                                </uib-tab-heading>
-                                <ng-include src="'/lunchandlearn/html/training/trainees.html'"></ng-include>
-                            </uib-tab>
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini users_multiple-19"></i>
+                                        Trainees ({{self.traineesCount}})
+                                    </uib-tab-heading>
+                                    <ng-include src="'/pbacademy/html/training/trainees.html'"></ng-include>
+                                </uib-tab>
 
-                            <uib-tab>
-                                <uib-tab-heading><i class="nc-icon-mini"
-                                                    ng-class="{'design_bullet-list-69': !feedbackStatus.pendingFeedBack, 'ui-1_bell-53': feedbackStatus.pendingFeedBack}"></i>
-                                    Feedback ({{feedbackCount}})
-                                </uib-tab-heading>
-                                <feedback parent-id="self.trainingId" training="item"
-                                          feedback-count="feedbackCount" feedback-status="feedbackStatus"
-                                          is-training-closed="self.isTrainingClosed"></feedback>
-                            </uib-tab>
-                        </uib-tabset>
+                                <uib-tab>
+                                    <uib-tab-heading><i class="nc-icon-mini"
+                                                        ng-class="{'design_bullet-list-69': !feedbackStatus.pendingFeedBack, 'ui-1_bell-53': feedbackStatus.pendingFeedBack}"></i>
+                                        Feedback ({{feedbackCount}})
+                                    </uib-tab-heading>
+                                    <feedback parent-id="self.trainingId" training="item"
+                                              feedback-count="feedbackCount" feedback-status="feedbackStatus"
+                                              is-training-closed="self.isTrainingClosed"></feedback>
+                                </uib-tab>
+                            </uib-tabset>
+                        </div>
                     </div>
                 </div>
             </form>
         </div>
         <div class="col-md-4">
-            <ng-include src="'/lunchandlearn/html/training/trainingLeftPane.html'"></ng-include>
+            <ng-include src="'/pbacademy/html/training/trainingLeftPane.html'"></ng-include>
         </div>
     </div>
 </div>

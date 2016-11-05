@@ -1,5 +1,8 @@
 package com.pb.lunchandlearn.config;
 
+import com.pb.lunchandlearn.domain.Employee;
+import com.pb.lunchandlearn.domain.Topic;
+import com.pb.lunchandlearn.domain.Training;
 import com.pb.lunchandlearn.service.es.ElasticSearchTask;
 import com.pb.lunchandlearn.service.mail.MailingTask;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +16,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import javax.annotation.PostConstruct;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -27,11 +31,11 @@ public class ApplicationConfiguration {
 	@Value("${server.port}")
 	public Long APPLICATION_PORT;
 
-	public String BASE_URL = null;
+	public static String BASE_URL = null;
 
 	@PostConstruct
 	public void init() throws UnknownHostException {
-		BASE_URL = InetAddress.getLocalHost().getHostName() + (APPLICATION_PORT == 80 ? "" : ":" + APPLICATION_PORT)
+		BASE_URL = "http://" + InetAddress.getLocalHost().getHostName() + (APPLICATION_PORT == 80 ? "" : ":" + APPLICATION_PORT)
 				+ CONTEXT_PATH;
 	}
 
@@ -45,5 +49,29 @@ public class ApplicationConfiguration {
 	@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 	public static ElasticSearchTask elasticSearchTask() {
 		return new ElasticSearchTask();
+	}
+
+	public static String getTopicLink(Topic topic) {
+		String link = MessageFormat.format(
+				"{0}/#/topics/{1}",
+				BASE_URL, topic.getId().toString());
+		return link;
+	}
+
+	public static String getEmployeeLink(Employee employee) {
+		String link = MessageFormat.format(
+				"{0}/#/employees/{1}",
+				BASE_URL, employee.getGuid().toUpperCase());
+		return link;
+	}
+
+	public static String getTrainingLink(Training training) {String link = MessageFormat.format("{0}/#/trainings/{1}",
+			BASE_URL, training.getId().toString());
+		return link;
+	}
+
+	public static String getTrainingsLink() {String link = MessageFormat.format("{0}/#/trainings",
+			BASE_URL);
+		return link;
 	}
 }

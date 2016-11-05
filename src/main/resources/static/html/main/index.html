@@ -5,32 +5,32 @@
 		<!-- NO CONDITIONAL BLOCKS ALLOWED BEFORE THIS TAG. -->
 		<!-- Otherwise IE will not observe the IE=edge which turns off compatibility mode -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<title>Lunch & Learn</title>
+		<title>PB Academy</title>
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
 
-		<link rel="stylesheet" href="/lunchandlearn/lib/bootstrap3/css/bootstrap.css"/>
-		<link rel="stylesheet" href="/lunchandlearn/lib/daterangepicker/daterangepicker.css">
-		<link rel="stylesheet" href="/lunchandlearn/lib/ui-select/select.css">
-		<link rel="stylesheet" href="/lunchandlearn/css/custom.css">
+		<link rel="stylesheet" href="/pbacademy/lib/bootstrap3/css/bootstrap.css"/>
+		<link rel="stylesheet" href="/pbacademy/lib/daterangepicker/daterangepicker.css">
+		<link rel="stylesheet" href="/pbacademy/lib/ui-select/select.css">
+		<link rel="stylesheet" href="/pbacademy/css/custom.css">
 
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_16.png" sizes="16x16">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_32.png" sizes="32x32">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_57.png" sizes="57x57">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_72.png" sizes="72x72">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_96.png" sizes="96x96">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_120.png" sizes="120x120">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_128.png" sizes="128x128">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_144.png" sizes="144x144">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_152.png" sizes="152x152">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_195.png" sizes="195x195">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_16.png" sizes="16x16">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_32.png" sizes="32x32">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_57.png" sizes="57x57">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_72.png" sizes="72x72">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_96.png" sizes="96x96">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_120.png" sizes="120x120">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_128.png" sizes="128x128">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_144.png" sizes="144x144">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_152.png" sizes="152x152">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_195.png" sizes="195x195">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
 
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
-		<link rel="icon" type="image/png" href="/lunchandlearn/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
+		<link rel="icon" type="image/png" href="/pbacademy/lib/designsystem/images/favicon/favicon_228.png" sizes="228x228">
 
-		<link rel="stylesheet" href="/lunchandlearn/lib/designsystem/css/design_system.css">
+		<link rel="stylesheet" href="/pbacademy/lib/designsystem/css/design_system.css">
 		<style>
 			.select2 > .select2-choice.ui-select-match {
 				/* Because of the inclusion of Bootstrap */
@@ -42,13 +42,13 @@
 			}
 		</style>
 	</head>
-	<body ng-app="lunchAndLearnApp">
+	<body ng-app="pbAcademyApp">
 		<div ng-controller="loginController as self">
 			<header ng-if="authenticated">
 				<div id="header" class="navbar navbar-default custom-navbar">
 					<div class="container">
 						<div class="navbar-header">
-							<a class="navbar-brand brand-text a-lnk" href="/lunchandlearn">Lunch &amp; Learn</a>
+							<a class="navbar-brand brand-text a-lnk" href="/pbacademy">PB Academy</a>
 						</div>
 						<div class="collapse navbar-collapse" id="main-navbar">
 							<ul class="nav navbar-nav">
@@ -112,69 +112,69 @@
 				</div>
 			</footer>
 
-			<script src="/lunchandlearn/lib/lodash/lodash.min.js"></script>
-			<script src="/lunchandlearn/lib/jquery/jquery.js"></script>
-			<script src="/lunchandlearn/lib/jquery/jquery.cookie.js"></script>
-			<script src="/lunchandlearn/lib/angular/angular.min.js"></script>
-			<script src="/lunchandlearn/lib/angular/angular-route.min.js"></script>
-			<script src="/lunchandlearn/lib/angular/angular-sanitize.min.js"></script>
-			<!--<script src="/lunchandlearn/lib/angular/angular-resource.min.js"></script>-->
-			<script src="/lunchandlearn/lib/angular/angular-animate.min.js"></script>
-			<script src="/lunchandlearn/lib/moment/moment.min.js"></script>
-			<script src="/lunchandlearn/lib/datetime-picker/datetime-picker.min.js"></script>
+			<script src="/pbacademy/lib/lodash/lodash.min.js"></script>
+			<script src="/pbacademy/lib/jquery/jquery.js"></script>
+			<script src="/pbacademy/lib/jquery/jquery.cookie.js"></script>
+			<script src="/pbacademy/lib/angular/angular.min.js"></script>
+			<script src="/pbacademy/lib/angular/angular-route.min.js"></script>
+			<script src="/pbacademy/lib/angular/angular-sanitize.min.js"></script>
+			<!--<script src="/pbacademy/lib/angular/angular-resource.min.js"></script>-->
+			<script src="/pbacademy/lib/angular/angular-animate.min.js"></script>
+			<script src="/pbacademy/lib/moment/moment.min.js"></script>
+			<script src="/pbacademy/lib/datetime-picker/datetime-picker.min.js"></script>
 
-			<script src="/lunchandlearn/lib/angular/angular-messages.min.js"></script>
-			<script src="/lunchandlearn/lib/angular/angular-cookies.js"></script>
-			<script src="/lunchandlearn/lib/angular-ordinal/ordinal-browser.js"></script>
-			<script src="/lunchandlearn/lib/ngstorage/ngStorage.min.js"></script>
-			<script src="/lunchandlearn/lib/bootstrap3/js/bootstrap.min.js"></script>
-			<script src="/lunchandlearn/lib/angular-ui-bootstrap/ui-bootstrap.js"></script>
-			<script src="/lunchandlearn/lib/angular-ui-bootstrap/ui-bootstrap-tpls.js"></script>
-			<script src="/lunchandlearn/lib/ui-select/select.js"></script>
-			<script src="/lunchandlearn/lib/ng-file-upload/ng-file-upload-shim.min.js"></script>
-			<script src="/lunchandlearn/lib/ng-file-upload/ng-file-upload.min.js"></script>
-			<script src="/lunchandlearn/lib/numericStepper/jquery.stepper.min.js"></script>
-			<script src="/lunchandlearn/lib/d3/d3.min.js"></script>
-			<script src="/lunchandlearn/js/common/services/d3Service.js"></script>
+			<script src="/pbacademy/lib/angular/angular-messages.min.js"></script>
+			<script src="/pbacademy/lib/angular/angular-cookies.js"></script>
+			<script src="/pbacademy/lib/angular-ordinal/ordinal-browser.js"></script>
+			<script src="/pbacademy/lib/ngstorage/ngStorage.min.js"></script>
+			<script src="/pbacademy/lib/bootstrap3/js/bootstrap.min.js"></script>
+			<script src="/pbacademy/lib/angular-ui-bootstrap/ui-bootstrap.js"></script>
+			<script src="/pbacademy/lib/angular-ui-bootstrap/ui-bootstrap-tpls.js"></script>
+			<script src="/pbacademy/lib/ui-select/select.js"></script>
+			<script src="/pbacademy/lib/ng-file-upload/ng-file-upload-shim.min.js"></script>
+			<script src="/pbacademy/lib/ng-file-upload/ng-file-upload.min.js"></script>
+			<script src="/pbacademy/lib/numericStepper/jquery.stepper.min.js"></script>
+			<script src="/pbacademy/lib/d3/d3.min.js"></script>
+			<script src="/pbacademy/js/common/services/d3Service.js"></script>
 
-			<script src="/lunchandlearn/js/common/filters/rangeFilter.js"></script>
-			<script src="/lunchandlearn/js/common/filters/fileSizeFilter.js"></script>
-			<script src="/lunchandlearn/js/common/filters/propercaseFilter.js"></script>
-			<script src="/lunchandlearn/js/common/filters/commentDateFilter.js"></script>
+			<script src="/pbacademy/js/common/filters/rangeFilter.js"></script>
+			<script src="/pbacademy/js/common/filters/fileSizeFilter.js"></script>
+			<script src="/pbacademy/js/common/filters/propercaseFilter.js"></script>
+			<script src="/pbacademy/js/common/filters/commentDateFilter.js"></script>
 
-			<script src="/lunchandlearn/js/services/restService.js"></script>
-			<script src="/lunchandlearn/js/common/services/pagingService.js"></script>
-			<script src="/lunchandlearn/js/common/services/utilitiesService.js"></script>
-			<script src="/lunchandlearn/js/services/employeeService.js"></script>
-			<script src="/lunchandlearn/js/services/topicService.js"></script>
-			<script src="/lunchandlearn/js/services/trainingRoomService.js"></script>
-			<script src="/lunchandlearn/js/services/trainingService.js"></script>
-			<script src="/lunchandlearn/js/controllers/modalController.js"></script>
-			<script src="/lunchandlearn/js/controllers/loginController.js"></script>
-			<script src="/lunchandlearn/js/controllers/topicController.js"></script>
-			<script src="/lunchandlearn/js/controllers/topicPaneController.js"></script>
-			<script src="/lunchandlearn/js/controllers/trainingPaneController.js"></script>
-			<script src="/lunchandlearn/js/controllers/topicsController.js"></script>
-			<script src="/lunchandlearn/js/controllers/employeesController.js"></script>
-			<script src="/lunchandlearn/js/controllers/employeeController.js"></script>
-			<script src="/lunchandlearn/js/controllers/trainingRoomsController.js"></script>
-			<script src="/lunchandlearn/js/controllers/trainingsController.js"></script>
-			<script src="/lunchandlearn/js/controllers/trainingController.js"></script>
-			<script src="/lunchandlearn/js/directives/mainTile.js"></script>
-			<script src="/lunchandlearn/js/common/directives/simpleTag.js"></script>
-			<script src="/lunchandlearn/js/directives/comments.js"></script>
-			<script src="/lunchandlearn/js/directives/feedback.js"></script>
-			<script src="/lunchandlearn/js/common/directives/stepper.js"></script>
-			<script src="/lunchandlearn/js/common/directives/focus.js"></script>
-			<script src="/lunchandlearn/js/common/directives/loading.js"></script>
-			<script src="/lunchandlearn/js/common/directives/saveCancel.js"></script>
-			<script src="/lunchandlearn/js/directives/topicMain.js"></script>
-			<script src="/lunchandlearn/js/directives/trainingMain.js"></script>
-			<script src="/lunchandlearn/js/directives/topicListMini.js"></script>
-			<script src="/lunchandlearn/js/directives/trainingListMini.js"></script>
-			<script src="/lunchandlearn/js/directives/topicTag.js"></script>
-			<script src="/lunchandlearn/js/directives/trainingTag.js"></script>
-			<script src="/lunchandlearn/js/app.js"></script>
+			<script src="/pbacademy/js/services/restService.js"></script>
+			<script src="/pbacademy/js/common/services/pagingService.js"></script>
+			<script src="/pbacademy/js/common/services/utilitiesService.js"></script>
+			<script src="/pbacademy/js/services/employeeService.js"></script>
+			<script src="/pbacademy/js/services/topicService.js"></script>
+			<script src="/pbacademy/js/services/trainingRoomService.js"></script>
+			<script src="/pbacademy/js/services/trainingService.js"></script>
+			<script src="/pbacademy/js/controllers/modalController.js"></script>
+			<script src="/pbacademy/js/controllers/loginController.js"></script>
+			<script src="/pbacademy/js/controllers/topicController.js"></script>
+			<script src="/pbacademy/js/controllers/topicPaneController.js"></script>
+			<script src="/pbacademy/js/controllers/trainingPaneController.js"></script>
+			<script src="/pbacademy/js/controllers/topicsController.js"></script>
+			<script src="/pbacademy/js/controllers/employeesController.js"></script>
+			<script src="/pbacademy/js/controllers/employeeController.js"></script>
+			<script src="/pbacademy/js/controllers/trainingRoomsController.js"></script>
+			<script src="/pbacademy/js/controllers/trainingsController.js"></script>
+			<script src="/pbacademy/js/controllers/trainingController.js"></script>
+			<script src="/pbacademy/js/directives/mainTile.js"></script>
+			<script src="/pbacademy/js/common/directives/simpleTag.js"></script>
+			<script src="/pbacademy/js/directives/comments.js"></script>
+			<script src="/pbacademy/js/directives/feedback.js"></script>
+			<script src="/pbacademy/js/common/directives/stepper.js"></script>
+			<script src="/pbacademy/js/common/directives/focus.js"></script>
+			<script src="/pbacademy/js/common/directives/loading.js"></script>
+			<script src="/pbacademy/js/common/directives/saveCancel.js"></script>
+			<script src="/pbacademy/js/directives/topicMain.js"></script>
+			<script src="/pbacademy/js/directives/trainingMain.js"></script>
+			<script src="/pbacademy/js/directives/topicListMini.js"></script>
+			<script src="/pbacademy/js/directives/trainingListMini.js"></script>
+			<script src="/pbacademy/js/directives/topicTag.js"></script>
+			<script src="/pbacademy/js/directives/trainingTag.js"></script>
+			<script src="/pbacademy/js/app.js"></script>
 
 		</div>
 	</body>

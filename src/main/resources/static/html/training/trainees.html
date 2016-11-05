@@ -2,7 +2,7 @@
     <div class="col-md-12" ng-class="{'spacer-bottom-md': self.traineesCount === 0}">
             <simple-tag items="item.trainees" linkable="true"
                         section="'trainees'" section-url="'employees'"
-                        on-remove="self.saveByField" ng-if="!self.isTrainingClosed && self.isAdmin"></simple-tag>
+                        on-remove="self.saveByField" ng-if="!self.isTrainingClosed && (self.isAdmin || self.isClerical)"></simple-tag>
             <simple-tag items="item.trainees" linkable="true"
                         section="'trainees'" section-url="'employees'"
                         ng-if="self.isTrainingClosed || !self.isAdmin"></simple-tag>

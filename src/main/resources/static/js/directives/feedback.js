@@ -1,6 +1,6 @@
 angular.module('directives').directive('feedback', function() {
     return {
-        templateUrl : '/lunchandlearn/html/training/trainingFeedbackList.html',
+        templateUrl : '/pbacademy/html/training/trainingFeedbackList.html',
         replace : true,
         scope: {
             parentId: '=',
@@ -81,7 +81,7 @@ angular.module('directives').directive('feedback', function() {
 
         self.showModalDlg = function () {
             var opts = {
-                templateUrl: '/lunchandlearn/html/training/trainingFeedbackForm.html',
+                templateUrl: '/pbacademy/html/training/trainingFeedbackForm.html',
                 backdrop: 'static',
                 controller: 'modalController as self',
                 resolve: {

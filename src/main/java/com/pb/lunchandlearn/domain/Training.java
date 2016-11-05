@@ -44,6 +44,7 @@ public final class Training {
 	private Map<String, String> trainers;//empId, name
 
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@Indexed
 	private Date scheduledOn;
 
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -90,11 +91,15 @@ public final class Training {
 	private String whatsForTrainees;
 	private String whatsForOrg;
 
+	@Indexed
+	private TrainingType trainingType;
+
 	@Override
 	public String toString() {
 		return "Training{" +
 				"id=" + id +
 				", name='" + name + '\'' +
+				", lowername='" + lowername + '\'' +
 				", likedBy=" + likedBy +
 				", desc='" + desc + '\'' +
 				", score=" + score +
@@ -116,15 +121,12 @@ public final class Training {
 				", feedBackList=" + feedBackList +
 				", feedbackClosed=" + feedbackClosed +
 				", duration=" + duration +
-				", locations='" + locations + '\'' +
+				", locations=" + locations +
 				", likesCount=" + likesCount +
 				", whatsForTrainees='" + whatsForTrainees + '\'' +
 				", whatsForOrg='" + whatsForOrg + '\'' +
+				", trainingType=" + trainingType +
 				'}';
-	}
-
-	public void setLowername() {
-		this.lowername = StringUtils.lowerCase(name);
 	}
 
 	@Override
@@ -137,6 +139,7 @@ public final class Training {
 		if (feedbackClosed != training.feedbackClosed) return false;
 		if (id != null ? !id.equals(training.id) : training.id != null) return false;
 		if (name != null ? !name.equals(training.name) : training.name != null) return false;
+		if (lowername != null ? !lowername.equals(training.lowername) : training.lowername != null) return false;
 		if (likedBy != null ? !likedBy.equals(training.likedBy) : training.likedBy != null) return false;
 		if (desc != null ? !desc.equals(training.desc) : training.desc != null) return false;
 		if (score != null ? !score.equals(training.score) : training.score != null) return false;
@@ -171,7 +174,9 @@ public final class Training {
 		if (likesCount != null ? !likesCount.equals(training.likesCount) : training.likesCount != null) return false;
 		if (whatsForTrainees != null ? !whatsForTrainees.equals(training.whatsForTrainees) : training.whatsForTrainees != null)
 			return false;
-		return whatsForOrg != null ? whatsForOrg.equals(training.whatsForOrg) : training.whatsForOrg == null;
+		if (whatsForOrg != null ? !whatsForOrg.equals(training.whatsForOrg) : training.whatsForOrg != null)
+			return false;
+		return trainingType == training.trainingType;
 
 	}
 
@@ -179,6 +184,7 @@ public final class Training {
 	public int hashCode() {
 		int result = id != null ? id.hashCode() : 0;
 		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (lowername != null ? lowername.hashCode() : 0);
 		result = 31 * result + (likedBy != null ? likedBy.hashCode() : 0);
 		result = 31 * result + (desc != null ? desc.hashCode() : 0);
 		result = 31 * result + (score != null ? score.hashCode() : 0);
@@ -204,7 +210,20 @@ public final class Training {
 		result = 31 * result + (likesCount != null ? likesCount.hashCode() : 0);
 		result = 31 * result + (whatsForTrainees != null ? whatsForTrainees.hashCode() : 0);
 		result = 31 * result + (whatsForOrg != null ? whatsForOrg.hashCode() : 0);
+		result = 31 * result + (trainingType != null ? trainingType.hashCode() : 0);
 		return result;
+	}
+
+	public TrainingType getTrainingType() {
+		return trainingType;
+	}
+
+	public void setTrainingType(TrainingType trainingType) {
+		this.trainingType = trainingType;
+	}
+
+	public void setLowername() {
+		this.lowername = StringUtils.lowerCase(name);
 	}
 
 	public boolean isFeedbackClosed() {

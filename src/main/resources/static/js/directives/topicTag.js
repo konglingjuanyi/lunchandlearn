@@ -3,7 +3,7 @@
  */
 angular.module('directives').directive('topicTag', function() {
     return {
-        templateUrl : '/lunchandlearn/html/topic/topicTag.html',
+        templateUrl : '/pbacademy/html/topic/topicTag.html',
         replace : true,
         scope: {
             topic: '=',

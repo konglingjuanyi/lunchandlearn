@@ -41,6 +41,11 @@ public class TrainingController {
 		return trainingService.getAllByIds(trainingIds);
 	}
 
+	@RequestMapping(value = "/maxMinScheduledOn", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public JSONObject maxMinScheduledOn() {
+		return trainingService.getMaxMinScheduledOn();
+	}
+
 	@RequestMapping(value = "training/{id}/topics", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public JSONObject topics(@PathVariable("id") Long trainingId) {
 		return trainingService.getTopics(trainingId);

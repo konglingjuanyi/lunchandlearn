@@ -2,7 +2,7 @@ angular.module('services', ['ngStorage']).factory('restService', [ '$http', '$q'
 	function($http, $q, $rootScope, $location) {
 	var restService = {
 		self: this,
-		appUrl: '/lunchandlearn',
+		appUrl: '/pbacademy',
 
 		getLoggedInUser: function () {
 			var deferred = $q.defer();

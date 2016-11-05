@@ -23,7 +23,9 @@ public interface TrainingService {
 
 	List<Training> getAll();
 
-	JSONObject getAll(Pageable pageable, boolean contentOnly, String trainingStatus);
+	JSONObject getAll(Pageable pageable, boolean contentOnly, String filterBy);
+
+	List<Training> getAll(String filterBy);
 
 	Long getCount();
 
@@ -43,7 +45,13 @@ public interface TrainingService {
 
 	JSONArray getComments(Long trainingId);
 
+	@PreAuthorize("hasAnyRole('ADMIN','CLERICAL')")
+	List<Training> getAll(String searchTerm, String filterBy);
+
 	JSONObject search(String searchTerm, Pageable pageable, String trainingStatus);
+
+	@PreAuthorize("hasAnyRole('ADMIN','CLERICAL')")
+	List<Training> search(String searchTerm, String filterBy);
 
 	JSONObject updateLikes(Long trainingId, LikeType type);
 
@@ -92,4 +100,6 @@ public interface TrainingService {
 	boolean sendFeedbackRequest(Long trainingId);
 
 	boolean sendTrainingRequest(Long trainingId);
+
+	JSONObject getMaxMinScheduledOn();
 }

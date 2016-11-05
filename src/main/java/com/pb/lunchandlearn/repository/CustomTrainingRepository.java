@@ -3,6 +3,11 @@ package com.pb.lunchandlearn.repository;
 import com.pb.lunchandlearn.config.LikeType;
 import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
+import org.json.simple.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,4 +59,8 @@ interface CustomTrainingRepository {
 	Comment getComment(Long trainingId, Long commentId);
 
 	Comment getCommentReply(Long trainingId, Long commentId, Long replyCommentId);
+
+	Page<Training> findAllByFilter(JSONObject filterBy, TextCriteria textCriteria, Pageable pageable);
+
+	List<Training> findAllByFilter(JSONObject filterBy, TextCriteria textCriteria);
 }

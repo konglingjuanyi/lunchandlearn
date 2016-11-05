@@ -214,6 +214,8 @@ public class AOPCrud {
 						mailService.sendMail(MailService.MailType.TRAINING_CANCELLED, trainingId);
 					} else if (TrainingStatus.NOMINATED == status) {
 						mailService.sendMail(MailService.MailType.TRAINING_ADDED, trainingId, simpleFieldEntry);
+					} else if(TrainingStatus.CLOSED == status) {
+						mailService.sendMail(MailService.MailType.TRAINING_CLOSED, trainingId, simpleFieldEntry);
 					}
 				} else {
 					mailService.sendMail(MailService.MailType.TRAINING_UPDATED, trainingId, simpleFieldEntry, recipientsGuid);

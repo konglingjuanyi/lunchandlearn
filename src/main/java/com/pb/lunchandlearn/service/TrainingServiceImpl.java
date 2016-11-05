@@ -1,6 +1,5 @@
 package com.pb.lunchandlearn.service;
 
-import com.pb.lunchandlearn.config.ApplicationConfiguration;
 import com.pb.lunchandlearn.config.LikeType;
 import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.domain.*;
@@ -14,6 +13,7 @@ import com.pb.lunchandlearn.utils.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,9 +53,6 @@ public class TrainingServiceImpl implements TrainingService {
 	@Autowired
 	private MailService mailService;
 
-	@Autowired
-	private ApplicationConfiguration applicationConfiguration;
-
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public List<Training> getAll() {
@@ -64,13 +61,41 @@ public class TrainingServiceImpl implements TrainingService {
 
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
-	public JSONObject getAll(Pageable pageable, boolean contentOnly, String trainingStatus) {
-		if (StringUtils.isEmpty(trainingStatus)) {
+	public JSONObject getAll(Pageable pageable, boolean contentOnly, String filterBy) {
+		if (StringUtils.isEmpty(filterBy)) {
 			return getTrainingsJSON(trainingRepository.findAll(pageable), contentOnly);
 		} else {
-			TrainingStatus status = TrainingStatus.valueOf(trainingStatus.toUpperCase());
+			JSONObject filter = getFilterByObj(filterBy);
+			if(filter != null) {
+				return getTrainingsJSON(trainingRepository.findAllByFilter(filter, null, pageable), contentOnly);
+			}
+			TrainingStatus status = TrainingStatus.valueOf(filterBy.toUpperCase());
 			return getTrainingsJSON(trainingRepository.findAllByStatusOrderByScore(status, pageable), contentOnly);
 		}
+	}
+
+	@Override
+	public List<Training> getAll(String filterBy) {
+		if (StringUtils.isEmpty(filterBy)) {
+			return trainingRepository.findAll();
+		} else {
+			JSONObject filter = getFilterByObj(filterBy);
+			if(filter != null) {
+				return trainingRepository.findAllByFilter(filter, null);
+			}
+			TrainingStatus status = TrainingStatus.valueOf(filterBy.toUpperCase());
+			return trainingRepository.findAllByStatusOrderByScore(status);
+		}
+	}
+
+	private JSONObject getFilterByObj(String filterBy) {
+		JSONParser jsonParser = new JSONParser();
+		JSONObject filter = null;
+		try {
+			filter = (JSONObject) jsonParser.parse(filterBy);
+		}catch (Exception exp) {}
+
+		return filter;
 	}
 
 	@Override
@@ -137,13 +162,48 @@ public class TrainingServiceImpl implements TrainingService {
 	}
 
 	@Override
-	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
-	public JSONObject search(String searchTerm, Pageable pageable, String trainingStatus) {
+	@PreAuthorize("hasAnyRole('ADMIN','CLERICAL')")
+	public List<Training> getAll(String searchTerm, String filterBy) {
 		TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matching(searchTerm);
-		if (trainingStatus == null) {
+		if (filterBy == null) {
+			return trainingRepository.findAllBy(textCriteria);
+		}
+		JSONObject filter = getFilterByObj(filterBy);
+
+		if(filter != null) {
+			return trainingRepository.findAllByFilter(filter, textCriteria);
+		}
+		return trainingRepository.findAllByStatusOrderByScore(TrainingStatus.valueOf(filterBy));
+	}
+
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+	public JSONObject search(String searchTerm, Pageable pageable, String filterBy) {
+		TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matching(searchTerm);
+		if (filterBy == null) {
 			return getTrainingsJSON(trainingRepository.findAllBy(textCriteria, pageable), false);
 		}
-		return getTrainingsJSON(trainingRepository.findAllByStatusOrderByScore(TrainingStatus.valueOf(trainingStatus), textCriteria, pageable), false);
+		JSONObject filter = getFilterByObj(filterBy);
+
+		if(filter != null) {
+			return getTrainingsJSON(trainingRepository.findAllByFilter(filter, textCriteria, pageable), false);
+		}
+		return getTrainingsJSON(trainingRepository.findAllByStatusOrderByScore(TrainingStatus.valueOf(filterBy), textCriteria, pageable), false);
+	}
+
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN','CLERICAL')")
+	public List<Training> search(String searchTerm, String filterBy) {
+		TextCriteria textCriteria = TextCriteria.forDefaultLanguage().matching(searchTerm);
+		if (filterBy == null) {
+			return trainingRepository.findAllBy(textCriteria);
+		}
+		JSONObject filter = getFilterByObj(filterBy);
+
+		if(filter != null) {
+			return trainingRepository.findAllByFilter(filter, textCriteria);
+		}
+		return trainingRepository.findAllByStatusOrderByScore(TrainingStatus.valueOf(filterBy), textCriteria);
 	}
 
 	private static JSONObject getTrainingsJSON(Page<Training> trainings, boolean contentOnly) {
@@ -549,5 +609,15 @@ public class TrainingServiceImpl implements TrainingService {
 	public boolean sendTrainingRequest(Long trainingId) {
 		mailService.sendMail(MailService.MailType.TRAINING_SCHEDULED, trainingId);
 		return true;
+	}
+
+	@Override
+	public JSONObject getMaxMinScheduledOn() {
+		Training max = trainingRepository.findTopByOrderByScheduledOnDesc();
+		Training min = trainingRepository.findTopByOrderByScheduledOnAsc();
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("maxScheduledOn", max.getScheduledOn());
+		jsonObject.put("minScheduledOn", min.getScheduledOn());
+		return jsonObject;
 	}
 }

@@ -3,7 +3,7 @@
  */
 angular.module('directives').directive('saveCancel', function () {
     return {
-        templateUrl: '/lunchandlearn/html/main/saveCancel.html',
+        templateUrl: '/pbacademy/html/main/saveCancel.html',
         replace: true,
         scope: {
             onSave: '=',

@@ -1,11 +1,11 @@
 /**
  * Created by de007ra on 5/7/2016.
  */
-var lunchAndLearnDirectives = angular.module('directives', [ 'services']);
+var pbAcademyDirectives = angular.module('directives', [ 'services']);
 
-lunchAndLearnDirectives.directive('mainTile', function() {
+pbAcademyDirectives.directive('mainTile', function() {
 	return {
-		templateUrl : '/lunchandlearn/html/main/tile.html',
+		templateUrl : '/pbacademy/html/main/tile.html',
 		replace : true,
 		scope: true,
 		controller : 'mainTileController as self'

@@ -159,7 +159,7 @@ angular.module('controllers').controller('topicController', [
 
 		self.showConfirmationDlg = function (data) {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/main/confirmationDlg.html',
+				templateUrl: '/pbacademy/html/main/confirmationDlg.html',
 				controller: 'modalController as self',
 				backdrop: 'static',
 				resolve: {
@@ -183,7 +183,7 @@ angular.module('controllers').controller('topicController', [
 
 		self.showModalDlg = function () {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/training/trainingCreate.html',
+				templateUrl: '/pbacademy/html/training/trainingCreate.html',
 				backdrop: 'static',
 				controller: 'modalController as self',
 				resolve: {

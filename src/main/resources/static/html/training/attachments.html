@@ -3,7 +3,7 @@
         <ul class="spaced">
             <li ng-repeat="attachment in item.attachments">
                 <a target="_blank"
-                   ng-href="/lunchandlearn/trainings/training/{{item.id}}/attachments/file?name={{attachment.fileName}}">
+                   ng-href="/pbacademy/trainings/training/{{item.id}}/attachments/file?name={{attachment.fileName}}">
                     {{attachment.fileName}} [{{attachment.size | filesize}}]</a>&nbsp;
                 <span class="a-lnk a-lnk-icon" ng-show="self.isEditable" ng-click="self.removeAttachment(attachment.fileName);">
                 <i class="nc-icon-mini ui-1_trash-simple"></i>

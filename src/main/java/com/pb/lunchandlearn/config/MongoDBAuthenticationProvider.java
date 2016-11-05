@@ -52,7 +52,7 @@ public class MongoDBAuthenticationProvider extends AbstractUserDetailsAuthentica
 		}
 		guid = guid.toUpperCase();
 		try {
-			ldapService.authenticateEmployee(guid, authentication.getCredentials().toString());
+//			ldapService.authenticateEmployee(guid, authentication.getCredentials().toString());
 			Employee emp = employeeRepository.findByGuid(guid);
 			if (emp == null) {
 				//first time user fetch the information and save it

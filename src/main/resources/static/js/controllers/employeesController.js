@@ -137,7 +137,7 @@ angular.module('controllers').controller('employeesController', [
 
 		self.showConfirmationDlg = function (data) {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/main/confirmationDlg.html',
+				templateUrl: '/pbacademy/html/main/confirmationDlg.html',
 				controller: 'modalController as self',
 				backdrop: 'static',
 				resolve: {
@@ -156,7 +156,7 @@ angular.module('controllers').controller('employeesController', [
 		self.showModalDlg = function () {
 			setManagers().then(function () {
 				var opts = {
-					templateUrl: '/lunchandlearn/html/employee/employeeCreateEdit.html',
+					templateUrl: '/pbacademy/html/employee/employeeCreateEdit.html',
 					backdrop: 'static',
 					controller: 'modalController as self',
 					resolve: {

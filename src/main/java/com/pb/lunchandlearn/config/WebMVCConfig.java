@@ -11,7 +11,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @EnableSpringDataWebSupport
 public class WebMVCConfig extends WebMvcConfigurerAdapter {
-
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
 

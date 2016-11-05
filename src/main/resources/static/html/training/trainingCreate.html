@@ -14,7 +14,7 @@
                     <input type="text" class="form-control" ng-model="item.name" autofocus="true" ng-required="true"
                            name="name" ng-blur="item.name = item.name.trim()">
                     <span class="help-block has-error"
-                        ng-show="form.name.$error.required && submit">Name can't be empty</span>
+                          ng-show="form.name.$error.required && submit">Name can't be empty</span>
                 </div>
             </div>
             <div class="row form-group">
@@ -24,10 +24,18 @@
                 </div>
             </div>
             <div class="row form-group">
+                </label> <label class="col-md-3 field-label">Type</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="item.trainingType"
+                            ng-options="trainingType.id as trainingType.label for trainingType in options.trainingTypes"></select>
+                </div>
+            </div>
+            <div class="row form-group">
                 </label> <label class="col-md-3 field-label">Topics</label>
                 <div class="col-md-9">
                     <div class="row">
-                        <div class="col-md-12 spacer-bottom-xs" ng-class="{'has-error': errorTopics || (form.topics.$error.required && submit)}">
+                        <div class="col-md-12 spacer-bottom-xs"
+                             ng-class="{'has-error': errorTopics || (form.topics.$error.required && submit)}">
                             <ui-select ng-model="selected.topic" name="topics" ng-required="true">
                                 <ui-select-match>
                                     <span ng-bind="$select.selected.name"></span>
@@ -44,10 +52,10 @@
                         <div class="col-md-12">
                             <simple-tag items="item.topics" on-remove="true"
                                         section="'topics'"></simple-tag>
-                            <simple-tag ></simple-tag>
+                            <simple-tag></simple-tag>
                         </div>
                         <div class="col-md-12 text-none">
-                            for adding new topic, click <a href="#/topics">here</a>
+                            for adding new topic, click <a href="#/topics?add=true" ng-click="cancel()">here</a>
                         </div>
                     </div>
                 </div>
@@ -78,7 +86,8 @@
                 </label> <label class="col-md-3 field-label">Trainers</label>
                 <div class="col-md-9">
                     <div class="row">
-                        <div class="col-md-12 spacer-bottom-xs" ng-class="{'has-error': form.trainers.$error.required && submit}">
+                        <div class="col-md-12 spacer-bottom-xs"
+                             ng-class="{'has-error': form.trainers.$error.required && submit}">
                             <ui-select ng-model="selected.trainer" ng-required="true" name="trainers">
                                 <ui-select-match>
                                     <span ng-bind="$select.selected.name"></span>
@@ -118,7 +127,7 @@
                 <div class="col-md-9" ng-class="{'has-error': form.duration.$error.required && submit}">
                     <input type="number" class="form-control short-stepper" stepper
                            options="options.stepperOptions" ng-model="item.duration" ng-required="true"
-                    name="duration">&nbsp;(Hrs.)
+                           name="duration">&nbsp;(Hrs.)
                     <span class="help-block has-error"
                           ng-show="form.duration.$error.required && submit">Duration can't be empty</span>
                 </div>

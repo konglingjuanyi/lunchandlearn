@@ -30,6 +30,7 @@ public final class CommonUtil {
 
 	private static DateFormat dfDay = new SimpleDateFormat("d MMM");
 	private static DateFormat dfTime = new SimpleDateFormat("h:mm a");
+	private static DateFormat dfDate = new SimpleDateFormat("dd/MM/YYYY");
 
 	public static JSONObject getTopicJsonBrief(Topic topic) {
 		JSONObject objTopic = new JSONObject();
@@ -219,6 +220,10 @@ public final class CommonUtil {
 		return dfTime.format(date.getTime());
 	}
 
+	public static String getDate(Date date) {
+		return dfDate.format(date.getTime());
+	}
+
 	public static JSONArray getTrainingRoomsJson(List<TrainingRoom> rooms) {
 		JSONArray array = new JSONArray();
 		for(TrainingRoom room : rooms) {
@@ -239,6 +244,7 @@ public final class CommonUtil {
 		objTopic.put("id", trainingRoom.getId());
 		objTopic.put("name", trainingRoom.getName());
 		objTopic.put("location", trainingRoom.getLocation());
+		objTopic.put("emailId", trainingRoom.getEmailId());
 		return objTopic;
 	}
 }

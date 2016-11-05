@@ -69,4 +69,6 @@ public interface EmployeeService {
 	void updatedLdapEmployee(String guid);
 
 	Long countByManagers(String guid);
+
+	List<Employee> findAll();
 }

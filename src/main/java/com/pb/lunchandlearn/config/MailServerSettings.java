@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 
 /**
  * Created by de007ra on 7/14/2016.
@@ -29,9 +30,24 @@ public final class MailServerSettings {
 
 	private String[] emailGrps;
 
-	@PostConstruct
-	public void init() {
-		emailGrps = this.emailGroups.split("; +");
+	private String userEmailId;
+
+	public String getUserEmailId() {
+		return userEmailId;
+	}
+
+	public void setUserEmailId(String userEmailId) {
+		this.userEmailId = userEmailId;
+	}
+
+	@Override
+	public String toString() {
+		return "MailServerSettings{" +
+				"calenderRequestSubject='" + calenderRequestSubject + '\'' +
+				", emailGroups='" + emailGroups + '\'' +
+				", emailGrps=" + Arrays.toString(emailGrps) +
+				", userEmailId='" + userEmailId + '\'' +
+				'}';
 	}
 
 	@Override
@@ -43,7 +59,10 @@ public final class MailServerSettings {
 
 		if (calenderRequestSubject != null ? !calenderRequestSubject.equals(that.calenderRequestSubject) : that.calenderRequestSubject != null)
 			return false;
-		return emailGroups != null ? emailGroups.equals(that.emailGroups) : that.emailGroups == null;
+		if (emailGroups != null ? !emailGroups.equals(that.emailGroups) : that.emailGroups != null) return false;
+		// Probably incorrect - comparing Object[] arrays with Arrays.equals
+		if (!Arrays.equals(emailGrps, that.emailGrps)) return false;
+		return userEmailId != null ? userEmailId.equals(that.userEmailId) : that.userEmailId == null;
 
 	}
 
@@ -51,7 +70,14 @@ public final class MailServerSettings {
 	public int hashCode() {
 		int result = calenderRequestSubject != null ? calenderRequestSubject.hashCode() : 0;
 		result = 31 * result + (emailGroups != null ? emailGroups.hashCode() : 0);
+		result = 31 * result + Arrays.hashCode(emailGrps);
+		result = 31 * result + (userEmailId != null ? userEmailId.hashCode() : 0);
 		return result;
+	}
+
+	@PostConstruct
+	public void init() {
+		emailGrps = this.emailGroups.split("; +");
 	}
 
 	public String[] getEmailGroups() {

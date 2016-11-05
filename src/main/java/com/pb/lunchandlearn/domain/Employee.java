@@ -42,12 +42,15 @@ public final class Employee extends User {
 	@TextIndexed
 	private Map<Long, String> topicsInterestedIn;
 
+	@Indexed
+	private String empId;
+
 	@TextScore
 	private Float score;
 
 	@Override
 	public String toString() {
-		return "Employee{" + super.toString() +
+		return "Employee{" +
 				"guid='" + guid + '\'' +
 				", managers=" + managers +
 				", trainingsInterestedIn=" + trainingsInterestedIn +
@@ -55,8 +58,57 @@ public final class Employee extends User {
 				", trainingsImparted=" + trainingsImparted +
 				", topicsKnown=" + topicsKnown +
 				", topicsInterestedIn=" + topicsInterestedIn +
+				", empId='" + empId + '\'' +
 				", score=" + score +
 				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Employee)) return false;
+		if (!super.equals(o)) return false;
+
+		Employee employee = (Employee) o;
+
+		if (guid != null ? !guid.equals(employee.guid) : employee.guid != null) return false;
+		if (managers != null ? !managers.equals(employee.managers) : employee.managers != null) return false;
+		if (trainingsInterestedIn != null ? !trainingsInterestedIn.equals(employee.trainingsInterestedIn) : employee.trainingsInterestedIn != null)
+			return false;
+		if (trainingsAttended != null ? !trainingsAttended.equals(employee.trainingsAttended) : employee.trainingsAttended != null)
+			return false;
+		if (trainingsImparted != null ? !trainingsImparted.equals(employee.trainingsImparted) : employee.trainingsImparted != null)
+			return false;
+		if (topicsKnown != null ? !topicsKnown.equals(employee.topicsKnown) : employee.topicsKnown != null)
+			return false;
+		if (topicsInterestedIn != null ? !topicsInterestedIn.equals(employee.topicsInterestedIn) : employee.topicsInterestedIn != null)
+			return false;
+		if (empId != null ? !empId.equals(employee.empId) : employee.empId != null) return false;
+		return score != null ? score.equals(employee.score) : employee.score == null;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (guid != null ? guid.hashCode() : 0);
+		result = 31 * result + (managers != null ? managers.hashCode() : 0);
+		result = 31 * result + (trainingsInterestedIn != null ? trainingsInterestedIn.hashCode() : 0);
+		result = 31 * result + (trainingsAttended != null ? trainingsAttended.hashCode() : 0);
+		result = 31 * result + (trainingsImparted != null ? trainingsImparted.hashCode() : 0);
+		result = 31 * result + (topicsKnown != null ? topicsKnown.hashCode() : 0);
+		result = 31 * result + (topicsInterestedIn != null ? topicsInterestedIn.hashCode() : 0);
+		result = 31 * result + (empId != null ? empId.hashCode() : 0);
+		result = 31 * result + (score != null ? score.hashCode() : 0);
+		return result;
+	}
+
+	public String getEmpId() {
+		return empId;
+	}
+
+	public void setEmpId(String empId) {
+		this.empId = empId;
 	}
 
 	public Employee() {}
@@ -84,44 +136,6 @@ public final class Employee extends User {
 
 	public Map<Long, String> getTopicsInterestedIn() {
 		return topicsInterestedIn;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Employee)) return false;
-		if (!super.equals(o)) return false;
-
-		Employee employee = (Employee) o;
-
-		if (guid != null ? !guid.equals(employee.guid) : employee.guid != null) return false;
-		if (managers != null ? !managers.equals(employee.managers) : employee.managers != null) return false;
-		if (trainingsInterestedIn != null ? !trainingsInterestedIn.equals(employee.trainingsInterestedIn) : employee.trainingsInterestedIn != null)
-			return false;
-		if (trainingsAttended != null ? !trainingsAttended.equals(employee.trainingsAttended) : employee.trainingsAttended != null)
-			return false;
-		if (trainingsImparted != null ? !trainingsImparted.equals(employee.trainingsImparted) : employee.trainingsImparted != null)
-			return false;
-		if (topicsKnown != null ? !topicsKnown.equals(employee.topicsKnown) : employee.topicsKnown != null)
-			return false;
-		if (topicsInterestedIn != null ? !topicsInterestedIn.equals(employee.topicsInterestedIn) : employee.topicsInterestedIn != null)
-			return false;
-		return score != null ? score.equals(employee.score) : employee.score == null;
-
-	}
-
-	@Override
-	public int hashCode() {
-		int result = super.hashCode();
-		result = 31 * result + (guid != null ? guid.hashCode() : 0);
-		result = 31 * result + (managers != null ? managers.hashCode() : 0);
-		result = 31 * result + (trainingsInterestedIn != null ? trainingsInterestedIn.hashCode() : 0);
-		result = 31 * result + (trainingsAttended != null ? trainingsAttended.hashCode() : 0);
-		result = 31 * result + (trainingsImparted != null ? trainingsImparted.hashCode() : 0);
-		result = 31 * result + (topicsKnown != null ? topicsKnown.hashCode() : 0);
-		result = 31 * result + (topicsInterestedIn != null ? topicsInterestedIn.hashCode() : 0);
-		result = 31 * result + (score != null ? score.hashCode() : 0);
-		return result;
 	}
 
 	public void setTopicsInterestedIn(Map<Long, String> topicsInterestedIn) {

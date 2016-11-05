@@ -3,7 +3,7 @@
  */
 angular.module('directives').directive('simpleTag', function() {
 	return {
-		templateUrl : '/lunchandlearn/html/main/simpleTag.html',
+		templateUrl : '/pbacademy/html/main/simpleTag.html',
 		replace : true,
 		scope: {
 			items: '=',

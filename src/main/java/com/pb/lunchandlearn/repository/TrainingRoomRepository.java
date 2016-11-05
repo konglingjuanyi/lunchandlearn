@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Created by de007ra on 5/1/2016.
  */
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Repository;
 public interface TrainingRoomRepository extends MongoRepository<TrainingRoom, Long> {
 	TrainingRoom findByName(String name);
 	TrainingRoom findById(Long id);
-
+	List<TrainingRoom> findAlByIdIn(Long[] ids);
 	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
 	Page<TrainingRoom> findAllBy(TextCriteria textCriteria, Pageable pageable);
 }

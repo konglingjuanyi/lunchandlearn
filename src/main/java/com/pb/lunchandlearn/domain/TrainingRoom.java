@@ -37,6 +37,7 @@ public final class TrainingRoom {
 	private String createdByName;
 	private String lastModifiedByGuid;
 	private String lastModifiedByName;
+	private String emailId;
 
 	@NotNull
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -44,24 +45,18 @@ public final class TrainingRoom {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private Date lastModifiedOn;
 
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
 	@Override
 	public String toString() {
 		return "TrainingRoom{" +
 				"id=" + id +
 				", name='" + name + '\'' +
 				", lowername='" + lowername + '\'' +
+				", location='" + location + '\'' +
 				", createdByGuid='" + createdByGuid + '\'' +
 				", createdByName='" + createdByName + '\'' +
 				", lastModifiedByGuid='" + lastModifiedByGuid + '\'' +
 				", lastModifiedByName='" + lastModifiedByName + '\'' +
+				", emailId='" + emailId + '\'' +
 				", createDateTime=" + createDateTime +
 				", lastModifiedOn=" + lastModifiedOn +
 				'}';
@@ -77,6 +72,7 @@ public final class TrainingRoom {
 		if (id != null ? !id.equals(that.id) : that.id != null) return false;
 		if (name != null ? !name.equals(that.name) : that.name != null) return false;
 		if (lowername != null ? !lowername.equals(that.lowername) : that.lowername != null) return false;
+		if (location != null ? !location.equals(that.location) : that.location != null) return false;
 		if (createdByGuid != null ? !createdByGuid.equals(that.createdByGuid) : that.createdByGuid != null)
 			return false;
 		if (createdByName != null ? !createdByName.equals(that.createdByName) : that.createdByName != null)
@@ -85,6 +81,7 @@ public final class TrainingRoom {
 			return false;
 		if (lastModifiedByName != null ? !lastModifiedByName.equals(that.lastModifiedByName) : that.lastModifiedByName != null)
 			return false;
+		if (emailId != null ? !emailId.equals(that.emailId) : that.emailId != null) return false;
 		if (createDateTime != null ? !createDateTime.equals(that.createDateTime) : that.createDateTime != null)
 			return false;
 		return lastModifiedOn != null ? lastModifiedOn.equals(that.lastModifiedOn) : that.lastModifiedOn == null;
@@ -96,13 +93,31 @@ public final class TrainingRoom {
 		int result = id != null ? id.hashCode() : 0;
 		result = 31 * result + (name != null ? name.hashCode() : 0);
 		result = 31 * result + (lowername != null ? lowername.hashCode() : 0);
+		result = 31 * result + (location != null ? location.hashCode() : 0);
 		result = 31 * result + (createdByGuid != null ? createdByGuid.hashCode() : 0);
 		result = 31 * result + (createdByName != null ? createdByName.hashCode() : 0);
 		result = 31 * result + (lastModifiedByGuid != null ? lastModifiedByGuid.hashCode() : 0);
 		result = 31 * result + (lastModifiedByName != null ? lastModifiedByName.hashCode() : 0);
+		result = 31 * result + (emailId != null ? emailId.hashCode() : 0);
 		result = 31 * result + (createDateTime != null ? createDateTime.hashCode() : 0);
 		result = 31 * result + (lastModifiedOn != null ? lastModifiedOn.hashCode() : 0);
 		return result;
+	}
+
+	public String getEmailId() {
+		return emailId;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	public String getLowername() {

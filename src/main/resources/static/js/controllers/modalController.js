@@ -1,9 +1,9 @@
 /**
  * Created by DE007RA on 5/9/2016.
  */
-var lunchAndLearnControllers = angular.module('controllers', [ 'services', 'ui.bootstrap' ]);
+var pbAcademyControllers = angular.module('controllers', [ 'services', 'ui.bootstrap' ]);
 
-lunchAndLearnControllers.controller('modalController',
+pbAcademyControllers.controller('modalController',
     ['$uibModalInstance', 'data', '$scope', 'utilitiesService', function($uibModalInstance, data, $scope,
                                                                          utilitiesService) {
         $scope.mode = data.mode;

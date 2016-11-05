@@ -4,6 +4,7 @@ import com.pb.lunchandlearn.domain.Training;
 import com.pb.lunchandlearn.domain.TrainingStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -23,11 +24,20 @@ public interface TrainingRepository extends MongoRepository<Training, String>, C
 	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1, 'scheduledOn': 1, 'location': 1, 'duration': 1, 'status': 1}")
 	Page<Training> findAllBy(TextCriteria textCriteria, Pageable pageable);
 
+	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1, 'scheduledOn': 1, 'location': 1, 'duration': 1, 'status': 1}")
+	List<Training> findAllBy(TextCriteria textCriteria);
+
 	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
 	Page<Training> findAllByStatusOrderByScore(TrainingStatus status, TextCriteria textCriteria, Pageable pageable);
 
 	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
+	List<Training> findAllByStatusOrderByScore(TrainingStatus status, TextCriteria textCriteria);
+
+	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
 	Page<Training> findAllByStatusOrderByScore(TrainingStatus status, Pageable pageable);
+
+	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
+	List<Training> findAllByStatusOrderByScore(TrainingStatus status);
 
 	@Query(fields = "{'comments': 0, 'attachmentInfos': 0, 'feedBackList': 0, 'score': 0}")
 	Training findById(Long trainingId);
@@ -52,4 +62,13 @@ public interface TrainingRepository extends MongoRepository<Training, String>, C
 	@Query(fields = "{'name': 1, 'scheduledOn': 1, 'location': 1, 'status': 1, trainers: 1, scheduledOn: 1, trainees: 1" +
 			", createdByGuid: 1}")
 	List<Training> findAllByStatusAndScheduledOnBetween(TrainingStatus scheduled, Date startDate, Date endDate);
+
+	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1, 'scheduledOn': 1, 'location': 1, 'duration': 1, 'status': 1}")
+	Page<Training> findAllByScheduledOnBetween(Date startDate, Date endDate, Pageable pageable);
+
+	@Query(fields = "{'scheduledOn': 1}")
+	Training findTopByOrderByScheduledOnDesc();
+
+	@Query(fields = "{'scheduledOn': 1}")
+	Training findTopByOrderByScheduledOnAsc();
 }

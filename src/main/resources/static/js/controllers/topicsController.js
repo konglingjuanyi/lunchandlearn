@@ -1,6 +1,6 @@
 angular.module('controllers').controller('topicsController', [
-	'$scope', '$uibModal', 'topicService', 'pagingService', '$q',
-	function($scope, $uibModal, topicService, pagingService, $q) {
+	'$scope', '$uibModal', 'topicService', 'pagingService', '$q', '$location',
+	function($scope, $uibModal, topicService, pagingService, $q, $location) {
 		var self = this;
 
 		self.pageSizes = pagingService.pageSizes;
@@ -11,6 +11,13 @@ angular.module('controllers').controller('topicsController', [
 		self.checkSearch = function($event) {
 			if($event.which === 13 || $event.keyCode === 13) {
 				self.list();
+			}
+		};
+
+		var init = function() {
+			self.list();
+			if ($location.search().add) {
+				self.showAdd();
 			}
 		};
 
@@ -91,7 +98,7 @@ angular.module('controllers').controller('topicsController', [
 
 		self.showConfirmationDlg = function (data) {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/main/confirmationDlg.html',
+				templateUrl: '/pbacademy/html/main/confirmationDlg.html',
 				controller: 'modalController as self',
 				backdrop: 'static',
 				resolve: {
@@ -122,7 +129,7 @@ angular.module('controllers').controller('topicsController', [
 
 		self.showModalDlg = function () {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/topic/topicCreate.html',
+				templateUrl: '/pbacademy/html/topic/topicCreate.html',
 				backdrop: 'static',
 				controller: 'modalController as self',
 				resolve: {
@@ -145,5 +152,5 @@ angular.module('controllers').controller('topicsController', [
 			});
 		};
 
-		self.list();
+		init();
 	}]);

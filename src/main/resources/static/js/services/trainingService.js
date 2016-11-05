@@ -17,6 +17,8 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 		{label: 'Responsiveness', code: 'answerAllQueries', color: 'darkturquoise'},
 		{label: 'Preparedness', code: 'preparedness', color: 'tomato'}],
 
+		trainingTypes: [{id: 'INTERNAL', label: 'Internal'}, {id: 'EXTERNAL', label: 'External'}],
+
 		listTrainings: function(config) {
 			var url = this.trainingsUrl;
 			if(!_.isEmpty(config.url)) {
@@ -183,6 +185,7 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 
 		setEditables: function (training, obj) {
 			obj.isAdmin = utilitiesService.isAdminUser($rootScope.user.roles);
+			obj.isClerical = utilitiesService.isClericalUser($rootScope.user.roles);
 			obj.userGuid = $rootScope.user.guid;
 			if(obj.isAdmin) {
 				obj.isEditable = true;
@@ -192,6 +195,10 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 					obj.isEditable = status;
 				});
 			}
+		},
+
+		getMaxMinScheduledOn: function () {
+			return restService.get(this.trainingsUrl + '/maxMinScheduledOn');
 		}
 	};
 	return trainingService;

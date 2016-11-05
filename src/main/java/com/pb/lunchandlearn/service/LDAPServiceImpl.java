@@ -65,7 +65,7 @@ public class LDAPServiceImpl implements LDAPService {
 	public void init() {
 		setLdapAttributes();
 		try {
-			updateEmployees();
+//			updateEmployees();
 		} catch (Exception e) {
 			//TODO: log it
 		}
@@ -244,6 +244,7 @@ public class LDAPServiceImpl implements LDAPService {
 			Employee employee = new Employee();
 			employee.setGuid(((String) attrs.get("cn").get()).toUpperCase());
 			employee.setName((String) attrs.get("displayName").get());
+			employee.setEmpId((String) attrs.get("displayName").get());
 			if (attrs.get("mail") != null) {
 				employee.setEmailId((String) attrs.get("mail").get());
 			}

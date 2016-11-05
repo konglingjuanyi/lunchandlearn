@@ -10,6 +10,51 @@ angular.module('controllers').controller('trainingsController', [
 		self.currentPageSize = pagingService.currentPageSize;
 		self.maxPageSize = pagingService.maxPageSize;
 		self.sort = {};
+		self.isStartDatePickerOpen = false;
+		self.isEndDatePickerOpen = false;
+		self.datePickerOptions = {
+			'show-button-bar': false,
+			'showWeeks': false,
+		};
+		self.hideDateTxtBx = true;
+
+		self.searchByDate = function() {
+			var filter = {};
+			self.trainingStartDateStr = moment(self.trainingStartDate).format('DD-MMM-YYYY');
+			self.trainingEndDateStr = moment(self.trainingEndDate).format('DD-MMM-YYYY');
+			filter.scheduledOnStartDate = self.trainingStartDate.getTime();
+			filter.scheduledOnEndDate = self.trainingEndDate.getTime();
+			$scope.filterBy = JSON.stringify(filter);
+			self.list();
+		};
+
+		$scope.$watch('filterBy', function () {
+			self.filterBy = $scope.filterBy;
+		});
+
+		$scope.$watch('searchTerm', function () {
+			self.searchTerm = $scope.searchTerm;
+		});
+
+		self.openDatePicker = function (e, fldName) {
+			e.preventDefault();
+			e.stopPropagation();
+			self[fldName] = true;
+		};
+
+		self.init = function() {
+			trainingService.setEditables(self.training, self);
+			trainingService.getMaxMinScheduledOn().then(function(response) {
+				if(response.data.minScheduledOn) {
+					self.trainingStartDate = new Date(response.data.minScheduledOn);
+					self.trainingEndDate = new Date(response.data.maxScheduledOn);
+					self.trainingStartDateStr = moment(self.trainingStartDate).format('DD-MMM-YYYY');
+					self.trainingEndDateStr = moment(self.trainingEndDate).format('DD-MMM-YYYY');
+				}
+				self.list();
+
+			});
+		};
 
 		self.checkSearch = function($event) {
 			if($event.which === 13 || $event.keyCode === 13) {
@@ -80,11 +125,7 @@ angular.module('controllers').controller('trainingsController', [
 			if(self.training.trainers) {
 				self.training.trainers = utilitiesService.sortObj(self.training.trainers);
 			}
-/*
-			if(self.training.trainees) {
-				self.training.trainees = utilitiesService.sortObj(self.training.trainees);
-			}
-*/
+
 			trainingService.addTraining(self.training).then(function(response) {
 				self.mode = null;
 				self.list();
@@ -100,7 +141,7 @@ angular.module('controllers').controller('trainingsController', [
 			employeeService.listEmployeesMinimal().then(function (response) {
 				self.trainers = response.data.content;
 				topicService.listTopics().then(function(res) {
-					self.training = {scheduledOn: {startDate: moment().second(0).minute(0).hour(12)}};
+					self.training = {scheduledOn: {startDate: moment().second(0).minute(0).hour(12)}, trainingType: 'INTERNAL'};
 					self.topics = res.data.content;
 					self.mode = 'add';
 					self.showModalDlg();
@@ -114,7 +155,7 @@ angular.module('controllers').controller('trainingsController', [
 
 		self.showTopicModalDlg = function () {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/topic/topicCreate.html',
+				templateUrl: '/pbacademy/html/topic/topicCreate.html',
 				backdrop: 'static',
 				controller: 'modalController as self',
 				resolve: {
@@ -159,7 +200,7 @@ angular.module('controllers').controller('trainingsController', [
 
 		self.showConfirmationDlg = function (data) {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/main/confirmationDlg.html',
+				templateUrl: '/pbacademy/html/main/confirmationDlg.html',
 				controller: 'modalController as self',
 				backdrop: 'static',
 				resolve: {
@@ -178,13 +219,15 @@ angular.module('controllers').controller('trainingsController', [
 
 		self.showModalDlg = function () {
 			var opts = {
-				templateUrl: '/lunchandlearn/html/training/trainingCreate.html',
+				templateUrl: '/pbacademy/html/training/trainingCreate.html',
 				backdrop: 'static',
 				controller: 'modalController as self',
 				resolve: {
 					data: function () {
 						return {item: self.training, mode: self.mode, options: {trainerId: self.trainerId,
-							employees: self.trainers, topics: self.topics, stepperOptions: trainingService.durationStepperOptions
+							employees: self.trainers, topics: self.topics,
+							stepperOptions: trainingService.durationStepperOptions,
+							trainingTypes: trainingService.trainingTypes
 					}};
 					}
 				}
@@ -201,6 +244,5 @@ angular.module('controllers').controller('trainingsController', [
 				
 			});
 		};
-
-		self.list();
+		self.init();
 	}]);

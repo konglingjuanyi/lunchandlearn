@@ -16,6 +16,8 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             // 'minDate': new Date(),
             maxDate: moment().add(3, 'M').toDate()
         };
+        self.trainingTypes = trainingService.trainingTypes;
+
         self.openDatePicker = function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -95,7 +97,8 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
             self.traineesCount = _.size($scope.item.trainees);
             self.isFeedBackReady = self.traineesCount > 0 && self.isTrainingComplete;
             self.isScheduled = $scope.item.status === 'SCHEDULED';
-        }
+        };
+
         $scope.$watch('selected.topic', function () {
             if ($scope.selected.topic && (!$scope.item.prerequisites || !$scope.item.prerequisites[$scope.selected.topic.id])) {
                 $scope.item.topics = utilitiesService.addUnique($scope.item.topics, $scope.selected.topic, 'id', 'name');
@@ -303,7 +306,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
 
         self.showConfirmationDlg = function (data) {
             var opts = {
-                templateUrl: '/lunchandlearn/html/main/confirmationDlg.html',
+                templateUrl: '/pbacademy/html/main/confirmationDlg.html',
                 controller: 'modalController as self',
                 backdrop: 'static',
                 resolve: {
@@ -321,7 +324,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
 
         self.showModalDlg = function () {
             var opts = {
-                templateUrl: '/lunchandlearn/html/training/trainingCreate.html',
+                templateUrl: '/pbacademy/html/training/trainingCreate.html',
                 backdrop: 'static',
                 controller: 'modalController as self',
                 resolve: {
@@ -351,7 +354,7 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
 
         self.showModalDlg = function () {
             var opts = {
-                templateUrl: '/lunchandlearn/html/training/trainingCreate.html',
+                templateUrl: '/pbacademy/html/training/trainingCreate.html',
                 backdrop: 'static',
                 controller: 'modalController as self',
                 resolve: {

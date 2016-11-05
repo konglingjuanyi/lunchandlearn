@@ -3,7 +3,7 @@
  */
 angular.module('directives').directive('comments', function() {
     return {
-        templateUrl : '/lunchandlearn/html/main/comments.html',
+        templateUrl : '/pbacademy/html/main/comments.html',
         replace : true,
         scope: {
             parentId: '=?',

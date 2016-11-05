@@ -21,8 +21,8 @@
 }
 
 .search-list {
-    min-height: 420px;
-    max-height: 420px;
+    min-height: 255px;
+    max-height: 255px;
     overflow: auto;
 }
 .data-widget:hover {
