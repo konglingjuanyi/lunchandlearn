@@ -66,7 +66,7 @@ public class TrainingServiceImpl implements TrainingService {
 			return getTrainingsJSON(trainingRepository.findAll(pageable), contentOnly);
 		} else {
 			JSONObject filter = getFilterByObj(filterBy);
-			if(filter != null) {
+			if (filter != null) {
 				return getTrainingsJSON(trainingRepository.findAllByFilter(filter, null, pageable), contentOnly);
 			}
 			TrainingStatus status = TrainingStatus.valueOf(filterBy.toUpperCase());
@@ -80,7 +80,7 @@ public class TrainingServiceImpl implements TrainingService {
 			return trainingRepository.findAll();
 		} else {
 			JSONObject filter = getFilterByObj(filterBy);
-			if(filter != null) {
+			if (filter != null) {
 				return trainingRepository.findAllByFilter(filter, null);
 			}
 			TrainingStatus status = TrainingStatus.valueOf(filterBy.toUpperCase());
@@ -93,7 +93,8 @@ public class TrainingServiceImpl implements TrainingService {
 		JSONObject filter = null;
 		try {
 			filter = (JSONObject) jsonParser.parse(filterBy);
-		}catch (Exception exp) {}
+		} catch (Exception exp) {
+		}
 
 		return filter;
 	}
@@ -170,7 +171,7 @@ public class TrainingServiceImpl implements TrainingService {
 		}
 		JSONObject filter = getFilterByObj(filterBy);
 
-		if(filter != null) {
+		if (filter != null) {
 			return trainingRepository.findAllByFilter(filter, textCriteria);
 		}
 		return trainingRepository.findAllByStatusOrderByScore(TrainingStatus.valueOf(filterBy));
@@ -185,7 +186,7 @@ public class TrainingServiceImpl implements TrainingService {
 		}
 		JSONObject filter = getFilterByObj(filterBy);
 
-		if(filter != null) {
+		if (filter != null) {
 			return getTrainingsJSON(trainingRepository.findAllByFilter(filter, textCriteria, pageable), false);
 		}
 		return getTrainingsJSON(trainingRepository.findAllByStatusOrderByScore(TrainingStatus.valueOf(filterBy), textCriteria, pageable), false);
@@ -200,7 +201,7 @@ public class TrainingServiceImpl implements TrainingService {
 		}
 		JSONObject filter = getFilterByObj(filterBy);
 
-		if(filter != null) {
+		if (filter != null) {
 			return trainingRepository.findAllByFilter(filter, textCriteria);
 		}
 		return trainingRepository.findAllByStatusOrderByScore(TrainingStatus.valueOf(filterBy), textCriteria);
@@ -239,8 +240,8 @@ public class TrainingServiceImpl implements TrainingService {
 				break;
 			case "status":
 				TrainingStatus status = TrainingStatus.valueOf(simpleFieldEntry.getValue().toString());
-				if(!isValidStatus(trainingId, status)) {
-					throw new InvalidOperationException("Status can't be set to " +status.toString());
+				if (!isValidStatus(trainingId, status)) {
+					throw new InvalidOperationException("Status can't be set to " + status.toString());
 				}
 				break;
 		}
@@ -257,7 +258,7 @@ public class TrainingServiceImpl implements TrainingService {
 				//update topics
 				Training training = trainingRepository.findById(trainingId);
 				topicService.addTrainingTo(training.getTopics(), training);
-				if(TrainingStatus.COMPLETED == training.getStatus()) {
+				if (TrainingStatus.COMPLETED == training.getStatus()) {
 					//update trainers
 					employeeService.addTrainingTo(training.getTrainers(), training, "trainingsImparted");
 					//update trainees
@@ -266,7 +267,7 @@ public class TrainingServiceImpl implements TrainingService {
 				break;
 			case "trainees":
 				training = trainingRepository.findById(trainingId);
-				if(TrainingStatus.COMPLETED == training.getStatus()) {
+				if (TrainingStatus.COMPLETED == training.getStatus()) {
 					employeeService.addTrainingTo(training.getTrainees(), training, "trainingsAttended");
 				}
 		}
@@ -276,13 +277,13 @@ public class TrainingServiceImpl implements TrainingService {
 	private boolean isValidStatus(Long trainingId, TrainingStatus statusToSet) {
 		Training training = trainingRepository.getStatusById(trainingId);
 		TrainingStatus status = training.getStatus();
-		if(status == statusToSet) {
+		if (status == statusToSet) {
 			return false;
 		}
-		if(statusToSet == TrainingStatus.CLOSED && (status != TrainingStatus.COMPLETED)) {
+		if (statusToSet == TrainingStatus.CLOSED && (status != TrainingStatus.COMPLETED)) {
 			return false;
 		}
-		if(statusToSet == SCHEDULED && (status != TrainingStatus.CANCELLED &&
+		if (statusToSet == SCHEDULED && (status != TrainingStatus.CANCELLED &&
 				status != TrainingStatus.POSTPONED && status != TrainingStatus.NOMINATED)) {
 			return false;
 		}
@@ -316,7 +317,7 @@ public class TrainingServiceImpl implements TrainingService {
 		endDate.add(Calendar.DAY_OF_MONTH, dayOfWeek == SUNDAY ? 2 : dayOfWeek == SATURDAY ? 3 : 1);
 		List<Training> trainings = trainingRepository.findAllByStatusAndScheduledOnBetween(SCHEDULED,
 				startDate.getTime(), endDate.getTime());
-		for(Training training : trainings) {
+		for (Training training : trainings) {
 			mailService.sendMail(MailService.MailType.TRAINING_REMINDER, training);
 		}
 	}
@@ -419,40 +420,34 @@ public class TrainingServiceImpl implements TrainingService {
 	public JSONObject getFeedBacks(Long trainingId) {
 		SecuredUser user = getLoggedInUser();
 		boolean isAdmin = user.isAdmin();
+		boolean isClerk = user.isClerk();
 		boolean isTrainer = false;
 		boolean isTrainee = false;
 		Training training = trainingRepository.findTrainersAndTraineesAndDurationById(trainingId);
-		if(!isAdmin) {
+		if (!isAdmin) {
 			isTrainee = training.getTrainees() != null && training.getTrainees().
 					containsKey(user.getGuid());
 			isTrainer = training.getTrainers() != null && training.getTrainers().
 					containsKey(user.getGuid());
 		}
-		if(isAdmin || isTrainee || isTrainer) {
+		if (isAdmin || isTrainee || isTrainer || isClerk) {
 			List<FeedBack> feedBacks = feedbackRepository.findAllByParentId(trainingId);
 			JSONObject jsonObject = new JSONObject();
-			if(CollectionUtils.isEmpty(feedBacks)) {
+			if (CollectionUtils.isEmpty(feedBacks)) {
 				return jsonObject;
 			}
-			if(!isAdmin && isTrainee) {
+			if (!isAdmin && isTrainee) {
 				feedBacks.removeIf(p -> p.equals(user.getGuid()));
 			}
 			jsonObject.put("feedbackCount", feedBacks.size());
-			if(isAdmin || isTrainee) {
+			if (isAdmin || isTrainee) {
 				jsonObject.put("content", CommonUtil.getFeedbacks(feedBacks));
 			}
 
-			if(!CollectionUtils.isEmpty(feedBacks)) {
-				if(isAdmin || isTrainer) {
-					int audienceRating = getRatingByTrainees(training.getTrainees());
-					int hoursRating = getRatingByHours(training.getDuration());
+			if (!CollectionUtils.isEmpty(feedBacks)) {
+				if (isAdmin || isTrainer || isClerk) {
 					setFeedBackRatingsPoint(feedBacks, training.getScheduledOn(), jsonObject);
-					int feedBacksRating = (int) jsonObject.get("feedbackRating");
-					float overAllRating = ((audienceRating + hoursRating) / 2) * feedBacksRating;
-
-					jsonObject.put("hoursRating", hoursRating);
-					jsonObject.put("audienceRating", audienceRating);
-					jsonObject.put("overAllReward", overAllRating);
+					setFeedbackRatingsJson(training, jsonObject);
 					JSONArray comments = new JSONArray();
 					for (FeedBack feedBack : feedBacks) {
 						if (!StringUtils.isEmpty(feedBack.getComment())) {
@@ -460,8 +455,7 @@ public class TrainingServiceImpl implements TrainingService {
 						}
 					}
 					jsonObject.put("comments", comments);
-				}
-				else {
+				} else {
 					JSONArray comments = new JSONArray();
 					for (FeedBack feedBack : feedBacks) {
 						if (!StringUtils.isEmpty(feedBack.getComment())
@@ -473,8 +467,7 @@ public class TrainingServiceImpl implements TrainingService {
 				}
 			}
 			return jsonObject;
-		}
-		else {
+		} else {
 			JSONObject jsonObject = new JSONObject();
 			JSONArray array = CommonUtil.getFeedbacks(feedbackRepository.
 					findAllByParentIdAndRespondentGuid(trainingId, user.getGuid()));
@@ -483,6 +476,18 @@ public class TrainingServiceImpl implements TrainingService {
 		}
 	}
 
+	public static void setFeedbackRatingsJson(Training training, JSONObject jsonObject) {
+		if(jsonObject.containsKey("feedbackRating")) {
+			int audienceRating = getRatingByTrainees(training.getTrainees());
+			int hoursRating = getRatingByHours(training.getDuration());
+			int feedBacksRating = (int) jsonObject.get("feedbackRating");
+			float overAllRating = ((audienceRating + hoursRating) / 2) * feedBacksRating;
+
+			jsonObject.put("hoursRating", hoursRating);
+			jsonObject.put("audienceRating", audienceRating);
+			jsonObject.put("overAllReward", overAllRating);
+		}
+	}
 	private JSONObject getComment(FeedBack feedBack) {
 		JSONObject comment = new JSONObject();
 		comment.put("respondentName", feedBack.getRespondentName());
@@ -491,7 +496,7 @@ public class TrainingServiceImpl implements TrainingService {
 		return comment;
 	}
 
-	private void setFeedBackRatingsPoint(List<FeedBack> feedBacks, Date trainingDate, JSONObject jsonObject) {
+	public static void setFeedBackRatingsPoint(List<FeedBack> feedBacks, Date trainingDate, JSONObject jsonObject) {
 		if (!CollectionUtils.isEmpty(feedBacks)) {
 			float avg;
 			int ratingSum;
@@ -499,14 +504,14 @@ public class TrainingServiceImpl implements TrainingService {
 			float overAllAvg;
 			Map<String, Integer> individualFeedbackRatings = null;
 			for (FeedBack feedBack : feedBacks) {
-				if(individualFeedbackRatings == null) {
+				if (individualFeedbackRatings == null) {
 					individualFeedbackRatings = new HashMap<>(feedBack.getRatings().size());
 				}
-				if(feedBack.getRatings() != null) {
+				if (feedBack.getRatings() != null) {
 					ratingSum = 0;
 					for (Map.Entry<String, Integer> rating : feedBack.getRatings().entrySet()) {
 						Integer sum = individualFeedbackRatings.get(rating.getKey());
-						if(sum == null) {
+						if (sum == null) {
 							sum = 0;
 						}
 						individualFeedbackRatings.put(rating.getKey(), sum + rating.getValue());
@@ -516,65 +521,63 @@ public class TrainingServiceImpl implements TrainingService {
 					avgSum += avg;
 				}
 			}
-			for(Map.Entry<String, Integer> feedbackRating : individualFeedbackRatings.entrySet()) {
+			for (Map.Entry<String, Integer> feedbackRating : individualFeedbackRatings.entrySet()) {
 				jsonObject.put(feedbackRating.getKey(), (float) (feedbackRating.getValue() / feedBacks.size()));
 			}
 			overAllAvg = avgSum / feedBacks.size();
-			if(overAllAvg >= 4.5) {
+			if (overAllAvg >= 4.5) {
 				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 1500 : 1000);
-			}
-			else if(overAllAvg > 4 && overAllAvg < 4.5) {
+			} else if (overAllAvg >= 4 && overAllAvg < 4.5) {
 				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 1250 : 800);
-			}
-			else if(overAllAvg > 3.5 && overAllAvg < 4) {
+			} else if (overAllAvg >= 3.5 && overAllAvg < 4) {
 				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 1000 : 600);
-			}
-			else if(overAllAvg > 3 && overAllAvg < 3.5) {
+			} else if (overAllAvg >= 3 && overAllAvg < 3.5) {
 				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 750 : 400);
-			}
-			else {
+			} else {
 				jsonObject.put("feedbackRating", 0);
 			}
 		}
 	}
 
-	private boolean isWeekEnd(Date trainingDate) {
+	private static boolean isWeekEnd(Date trainingDate) {
 		Calendar date = new GregorianCalendar();
 		date.setTime(trainingDate);
 		int weekDay = date.get(Calendar.DAY_OF_WEEK);
 		return weekDay == SUNDAY || weekDay == SATURDAY;
 	}
-	private int getRatingByHours(Float duration) {
-		if(duration < 1)
+
+	private static int getRatingByHours(Float duration) {
+		if (duration < 1)
 			return 0;
-		else if(duration > 1 && duration <= 2)
+		else if (duration > 1 && duration <= 2)
 			return 2;
-		else if(duration > 2 && duration <= 3)
+		else if (duration > 2 && duration <= 3)
 			return 3;
-		else if(duration > 3 && duration <= 4)
+		else if (duration > 3 && duration <= 4)
 			return 4;
-		else if(duration > 4 && duration <= 6)
+		else if (duration > 4 && duration <= 6)
 			return 5;
-		else if(duration > 6 && duration <= 8)
+		else if (duration > 6 && duration <= 8)
 			return 8;
 		else {
 			throw new InvalidOperationException();
 		}
 	}
 
-	private int getRatingByTrainees(Map<String, String> trainees) {
+	private static int getRatingByTrainees(Map<String, String> trainees) {
 		int traineesCount = trainees != null ? trainees.size() : 0;
 
-		if(traineesCount < 10)
+		if (traineesCount < 10)
 			return 0;
-		else if(traineesCount > 10 && traineesCount <= 15)
+		else if (traineesCount > 10 && traineesCount <= 15)
 			return 2;
-		else if(traineesCount > 15 && traineesCount <= 20)
+		else if (traineesCount > 15 && traineesCount <= 20)
 			return 3;
-		else if(traineesCount > 20 && traineesCount <= 25)
+		else if (traineesCount > 20 && traineesCount <= 25)
 			return 4;
 		return 5;
 	}
+
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public FeedBack getFeedBack(Long feedbackId) {
@@ -591,7 +594,7 @@ public class TrainingServiceImpl implements TrainingService {
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public Integer getTrainingLikesCount(Long trainingId) {
 		Training trn = trainingRepository.findLikesCountById(trainingId);
-		if(trn != null) {
+		if (trn != null) {
 			return trn.getLikesCount();
 		}
 		return null;
@@ -612,6 +615,7 @@ public class TrainingServiceImpl implements TrainingService {
 	}
 
 	@Override
+	@PreAuthorize("hasAnyRole('ADMIN', 'CLERICAL')")
 	public JSONObject getMaxMinScheduledOn() {
 		Training max = trainingRepository.findTopByOrderByScheduledOnDesc();
 		Training min = trainingRepository.findTopByOrderByScheduledOnAsc();
@@ -619,5 +623,16 @@ public class TrainingServiceImpl implements TrainingService {
 		jsonObject.put("maxScheduledOn", max.getScheduledOn());
 		jsonObject.put("minScheduledOn", min.getScheduledOn());
 		return jsonObject;
+	}
+
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN', 'CLERICAL')")
+	public  Map<Long, List<FeedBack>> getFeedbacksByTrainings(List<Training> trainings) {
+		Map<Long, List<FeedBack>> feedbacksByTrainingId = new HashMap<>(trainings.size());
+		for(Training training : trainings) {
+			List<FeedBack> feedBacks = feedbackRepository.findAllByParentId(training.getId());
+			feedbacksByTrainingId.put(training.getId(), feedBacks);
+		}
+		return feedbacksByTrainingId;
 	}
 }

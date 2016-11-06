@@ -210,6 +210,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+	public List<Employee> getEmployeesWithNotNullEmailId() {
+		List<Employee> list = employeeRepository.findAllByEmailIdNotNull();
+		return list;
+	}
+
+	@Override
+	@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
 	public void updateTopics(Long topicId, String topicNewName) {
 		employeeRepository.updateTopics(topicId, topicNewName, "topicsKnown");
 		employeeRepository.updateTopics(topicId, topicNewName, "topicsInterestedIn");

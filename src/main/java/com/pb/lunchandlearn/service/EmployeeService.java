@@ -52,6 +52,8 @@ public interface EmployeeService {
 
 	JSONObject getEmployeesMinimal();
 
+	List<Employee> getEmployeesWithNotNullEmailId();
+
 	void updateTopics(Long topicId, String topicNewName);
 
 	void updateTrainings(Long trainingId, String trainingNewName);

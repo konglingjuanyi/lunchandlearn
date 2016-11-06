@@ -14,16 +14,6 @@ angular.module('services', ['ngStorage']).factory('restService', [ '$http', '$q'
 					if (!_.isEmpty(response)) {
 						$rootScope.authenticated = true;
 						$rootScope.user = response.data;
-/*
-						if($location.path() === '/login') {
-							if (angular.isDefined($localStorage.lastLnLUrl)) {
-								$location.path($localStorage.lastLnLUrl);
-							}
-							else {
-								$location.path('/').search({logout: null});
-							}
-						}
-*/
 						$q.resolve($rootScope.user);
 					} else {
 						$rootScope.authenticated = false;

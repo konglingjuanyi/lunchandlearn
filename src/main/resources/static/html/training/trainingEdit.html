@@ -206,21 +206,19 @@
                             <div class="form-group">
                                 <label class="form-label">Duration</label>
                                 <div class="form-group" ng-class="{'has-error': self.errorDuration}">
-                                <span class="btn btn-link"
-                                      ng-show="!self.editDuration" ng-class="{'btn btn-link': self.isAdmin &&
-                                    !self.isTrainingComplete}" ng-click="self.openStepper($event);">
-                                     <i class="nc-icon-mini nc-fw ui-2_time-clock"></i>
-                                    {{item.duration == undefined ? 'None' :
-                                    item.duration > 1 ? item.duration + ' hours' :
-                                    item.duration + ' hour'}}
-                                </span>
-                                    <span ng-show="self.errorDuration">
-                                        <input type="number" class="form-control short-stepper" stepper
-                                               options="self.stepperOptions" ng-model="item.duration"/>
-                                        <div save-cancel ng-show="self.editDuration" on-save="self.saveByField"
-                                             on-cancel="self.setEditStatus" field="duration"></div>
-                                        <span class="help-block has-error" ng-show="self.errorDuration">{{self.errorDuration}}</span>
+                                    <span class="btn btn-link"
+                                          ng-show="!self.editDuration" ng-class="{'btn btn-link': self.isAdmin &&
+                                        !self.isTrainingComplete}" ng-click="self.openStepper($event);">
+                                         <i class="nc-icon-mini nc-fw ui-2_time-clock"></i>
+                                        {{item.duration == undefined ? 'None' :
+                                        item.duration > 1 ? item.duration + ' hours' :
+                                        item.duration + ' hour'}}
                                     </span>
+                                    <input type="number" class="form-control short-stepper" stepper
+                                           options="self.stepperOptions" ng-if="self.editDuration" ng-model="item.duration"/>
+                                    <div save-cancel ng-show="self.editDuration" on-save="self.saveByField"
+                                         on-cancel="self.setEditStatus" field="duration"></div>
+                                    <span class="help-block has-error" ng-show="self.errorDuration">{{self.errorDuration}}</span>
                                 </div>
                             </div>
                         </div>
@@ -266,7 +264,7 @@
                                 <span ng-class="{'field-editable': !self.isTrainingClosed && (self.isEditable || self.isAdmin)}"
                                       ng-show="!self.editStatus" focus-me
                                       ng-click="self.setEditStatus('Status', true)">{{self.trainingCurrentStatus}}</span>
-                                        <select ng-change="self.saveByField('status');"
+                                        <select ng-change="self.saveByField('status');" class="form-control"
                                                 ng-model="item.status" ng-show="self.editStatus"
                                                 ng-options="status.code as status.label for status in self.trainingStatus"></select>
                                         <span class="help-block" ng-show="self.errorStatus">{{self.errorStatus}}</span>
@@ -280,7 +278,7 @@
                                 <span ng-class="{'field-editable': !self.isTrainingComplete && (self.isEditable || self.isAdmin)}"
                                       ng-show="!self.editTrainingType"
                                       ng-click="self.setEditStatus('TrainingType', true)">{{item.trainingType | propercase}}</span>
-                                        <select ng-change="self.saveByField('trainingType');"
+                                        <select ng-change="self.saveByField('trainingType');" class="form-control"
                                                 ng-model="item.trainingType" ng-show="self.editTrainingType"
                                                 ng-options="trainingType.id as trainingType.label for trainingType in self.trainingTypes"></select>
                                         <span class="help-block has-error" ng-show="self.errorTrainingType">{{self.errorTrainingType}}</span>

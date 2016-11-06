@@ -74,7 +74,7 @@ angular.module('services').factory('employeeService', [ 'restService', 'utilitie
 			});
 		},
 
-		roles: [{label: 'Manager', code: 'MANAGER'}, {label: 'Admin', code: 'ADMIN'}],
+		roles: [{label: 'Manager', code: 'MANAGER'}, {label: 'Admin', code: 'ADMIN'}, {label: 'Clerical', code: 'CLERICAL'}],
 
 		updateEmployeeByField: function(empGuid, item) {
 			return restService.put(this.employeeUrl  + "/" +  empGuid + '/field', item);

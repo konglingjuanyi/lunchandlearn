@@ -6,8 +6,10 @@ import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.config.ServiceAccountSettings;
 import com.pb.lunchandlearn.domain.*;
 import com.pb.lunchandlearn.repository.EmployeeRepository;
+import com.pb.lunchandlearn.repository.FeedbackRepository;
 import com.pb.lunchandlearn.repository.TopicRepository;
 import com.pb.lunchandlearn.repository.TrainingRepository;
+import com.pb.lunchandlearn.service.TrainingServiceImpl;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -41,6 +43,7 @@ import java.util.stream.Collectors;
 import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
 import static com.pb.lunchandlearn.service.EmployeeServiceImpl.ADMIN_ROLE_LIST;
 import static com.pb.lunchandlearn.service.EmployeeServiceImpl.CLERICAL_ROLE_LIST;
+import static com.pb.lunchandlearn.service.EmployeeServiceImpl.MANAGER_ROLE_LIST;
 
 public final class MailingTask implements Runnable {
 
@@ -59,6 +62,9 @@ public final class MailingTask implements Runnable {
 	private Topic topic;
 	private List<Topic> topics;
 	private boolean isCalenderRequest;
+
+	@Autowired
+	private FeedbackRepository feedbackRepository;
 
 	@Autowired
 	private JavaMailSender mailSender;
@@ -204,11 +210,15 @@ public final class MailingTask implements Runnable {
 			case TRAINING_ADDED:
 			case TRAINING_REMINDER:
 			case TRAINING_UPDATED:
+			case TRAINING_COMPLETED:
 				if (parentId != null && training == null) {
 					training = trainingRepository.findById(parentId);
 				}
 				mailingSet = addTraineesEmailId(mailingSet);
 				mailingSet = addTrainersEmailId(mailingSet);
+				if(MailService.MailType.TRAINING_COMPLETED == mailType) {
+					mailingSet = getEmailsByRoles(CLERICAL_ROLE_LIST, mailingSet);
+				}
 				if (training.getCreatedByGuid() != null) {
 					employee = employeeRepository.findByGuid(training.getCreatedByGuid());
 					if (employee != null) {
@@ -229,6 +239,7 @@ public final class MailingTask implements Runnable {
 					if (employee != null) {
 						mailingSet.add(employee.getEmailId());
 					}
+					addEmployeesEmail(employee.getManagers().keySet(), mailingSet);
 				}
 				break;
 			case TOPIC_ADDED:
@@ -402,8 +413,14 @@ public final class MailingTask implements Runnable {
 				msgPage = "training_added";
 				break;
 			case TRAINING_UPDATED:
+			case TRAINING_COMPLETED:
 				subject = MessageFormat.format("Updated Training - {0}", training.getName());
 				msgPage = "training_updated";
+				break;
+			case TRAINING_CLOSED:
+				setTrainingFeedbackParams(ctx);
+				subject = MessageFormat.format("Closed Training - {0}", training.getName());
+				msgPage = "training_closed";
 				break;
 			case TRAINING_REMINDER:
 				subject = MessageFormat.format("Training Reminder for - {0}", training.getName());
@@ -458,14 +475,14 @@ public final class MailingTask implements Runnable {
 			mimeMessage.addHeaderLine("charset=UTF-8");
 			mimeMessage.addHeaderLine("component=VEVENT");
 			from = serviceAccountSettings.getEmailId();
-			mimeMessage.setFrom(new InternetAddress(serviceAccountSettings.getEmailId(), serviceAccountSettings.getEmailPersonName()));
-			subject = training.getName() + " || " + CommonUtil.getDayMonthWithOrdinal(training.getScheduledOn());
+			mimeMessage.setFrom(new InternetAddress(from, serviceAccountSettings.getEmailPersonName()));
+			subject = training.getName() + " || PB Academy";
 			mimeMessage.setSubject(subject);
 			this.to = mailingSet.toArray(new String[0]);
 			StringBuffer msgSb = new StringBuffer("\\nDear All,\\n");
 			msgSb.append("This is to inform you that this week, we will conduct one session on ");
 			msgSb.append(CommonUtil.getWeekMonthYear(training.getScheduledOn()));
-			msgSb.append(", the details of which are given below. Pune members can be a part of the trainings through VC in Everest.\\n\\n");
+			msgSb.append(", the details of which are given below.\\n\\n");
 
 			msgSb.append("Details:\\n-----------------------------\\n");
 			msgSb.append(StringUtils.rightPad("Name:", 15, " ") + training.getName());
@@ -591,7 +608,7 @@ public final class MailingTask implements Runnable {
 			ctx.setVariable("training_trainers", StringUtils.join(training.getTrainers().values(), ", "));
 			ctx.setVariable("training_locations", StringUtils.join(training.getLocations().values(), " & "));
 			ctx.setVariable("training_scheduledOn", CommonUtil.getDayMonthWithOrdinal(training.getScheduledOn()));
-		} else if (mailType == MailService.MailType.TRAINING_UPDATED) {
+		} else if (mailType == MailService.MailType.TRAINING_UPDATED || mailType == MailService.MailType.TRAINING_COMPLETED) {
 			if (!StringUtils.isEmpty(updatedFieldName)) {
 				ctx.setVariable("training_updated_field_name", StringUtils.capitalize(updatedFieldName));
 			}
@@ -638,6 +655,14 @@ public final class MailingTask implements Runnable {
 		ctx.setVariable("employee_name", employee.getName());
 		ctx.setVariable("topic_id_link", getTopicLink());
 		ctx.setVariable("topic_desc", topic.getDesc());
+	}
+
+	private void setTrainingFeedbackParams(Context ctx) {
+		List<FeedBack> feedbacks = feedbackRepository.findAllByParentId(training.getId());
+		JSONObject jsonObject = new JSONObject();
+		TrainingServiceImpl.setFeedBackRatingsPoint(feedbacks, training.getScheduledOn(), jsonObject);
+		ctx.setVariable("training_overallRewards", jsonObject.get("overallRewards"));
+		ctx.setVariable("training_feedback_rating", jsonObject.get("feedbackRating"));
 	}
 
 	private void setTopicsParams(Context ctx) {

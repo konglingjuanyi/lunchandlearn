@@ -14,6 +14,7 @@ angular.module('controllers').controller('employeesController', [
 			if(user) {
 				self.userGuid = user.guid;
 				self.isAdmin = utilitiesService.isAdminUser(user.roles);
+				self.isClerical = utilitiesService.isClericalUser(user.roles);
 			}
 		});
 

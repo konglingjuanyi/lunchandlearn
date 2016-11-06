@@ -33,8 +33,8 @@ angular.module('services').factory('trainingService', [ 'restService', '$localSt
 					return true;
 				}
 				var currentUserGuid = user.guid.toUpperCase();
-				return currentUserGuid === training.createdByGuid
-					|| (training.trainers && angular.isDefined(training.trainers[currentUserGuid]));
+				return training && (currentUserGuid === training.createdByGuid
+					|| (training.trainers && angular.isDefined(training.trainers[currentUserGuid])));
 			});
 		},
 

@@ -102,4 +102,7 @@ public interface TrainingService {
 	boolean sendTrainingRequest(Long trainingId);
 
 	JSONObject getMaxMinScheduledOn();
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'CLERICAL')")
+	Map<Long, List<FeedBack>> getFeedbacksByTrainings(List<Training> trainings);
 }

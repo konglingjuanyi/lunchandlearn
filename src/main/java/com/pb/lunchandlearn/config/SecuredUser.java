@@ -15,6 +15,7 @@ public final class SecuredUser implements UserDetails {
 
 	private static GrantedAuthority ADMIN_AUTHORITY = new SimpleGrantedAuthority(UserRole.ADMIN.name());
 	private static GrantedAuthority MANAGER_AUTHORITY = new SimpleGrantedAuthority(UserRole.MANAGER.name());
+	private static GrantedAuthority CLERK_AUTHORITY = new SimpleGrantedAuthority(UserRole.CLERICAL.name());
 
 	private static final long serialVersionUID = -6174534965909137051L;
 	private String guid;
@@ -96,4 +97,7 @@ public final class SecuredUser implements UserDetails {
 		return this.getAuthorities().contains(MANAGER_AUTHORITY);
 	}
 
+	public boolean isClerk() {
+		return this.getAuthorities().contains(CLERK_AUTHORITY);
+	}
 }

@@ -216,6 +216,8 @@ public class AOPCrud {
 						mailService.sendMail(MailService.MailType.TRAINING_ADDED, trainingId, simpleFieldEntry);
 					} else if(TrainingStatus.CLOSED == status) {
 						mailService.sendMail(MailService.MailType.TRAINING_CLOSED, trainingId, simpleFieldEntry);
+					} else if(TrainingStatus.COMPLETED == status) {
+						mailService.sendMail(MailService.MailType.TRAINING_COMPLETED, trainingId, simpleFieldEntry);
 					}
 				} else {
 					mailService.sendMail(MailService.MailType.TRAINING_UPDATED, trainingId, simpleFieldEntry, recipientsGuid);

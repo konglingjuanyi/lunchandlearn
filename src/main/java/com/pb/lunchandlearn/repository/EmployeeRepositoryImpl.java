@@ -120,7 +120,7 @@ public class EmployeeRepositoryImpl implements CustomEmployeeRepository {
 	@Override
 	public List<Employee> findAllByRoles(List<String> roles) {
 		Query query = new Query(where("roles").in(roles));
-		query.fields().include("name").include("guid");
+		query.fields().include("name").include("guid").include("emailId");
 		return mongoTemplate.find(query, Employee.class);
 	}
 

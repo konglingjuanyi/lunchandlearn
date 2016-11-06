@@ -1,5 +1,6 @@
 package com.pb.lunchandlearn.web;
 
+import com.pb.lunchandlearn.domain.FeedBack;
 import com.pb.lunchandlearn.domain.Training;
 import com.pb.lunchandlearn.service.EmployeeService;
 import com.pb.lunchandlearn.service.TrainingService;
@@ -47,9 +48,10 @@ public class ReportController {
 		else {
 			trainings = trainingService.getAll(filterBy);
 		}
-		Map<String, Object> values = new HashMap<>(4);
+		Map<String, Object> values = new HashMap<>(3);
 		values.put("trainings", trainings);
-		values.put("employees", employeeService.getEmployeesMinimal());
+		values.put("employees", employeeService.getEmployeesWithNotNullEmailId());
+		values.put("feedbacks", trainingService.getFeedbacksByTrainings(trainings));
 		ModelAndView modelAndView = new ModelAndView(new EmployeesTrainingsExcelView(), values);
 		return modelAndView;
 	}
