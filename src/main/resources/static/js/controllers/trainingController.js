@@ -229,6 +229,13 @@ angular.module('controllers').controller('trainingController', ['$scope', '$uibM
                             deferred.resolve(false);
                         }
                     }
+                    else if(data.value === 'COMPLETED') {
+                        self.errorStatus = getIncompleteMsg();
+                        if(!_.isEmpty(self.errorStatus)) {
+                            $scope.item.status = prevItem.status;
+                            deferred.resolve(false);
+                        }
+                    }
                     break;
                 case 'name':
                     if(_.isEmpty(data.value)) {

@@ -268,7 +268,7 @@ h3 {
 
 .commentText {
     margin:0;
-    white-space: pre;
+    white-space: pre-line;
 }
 .sub-text {
     color:#aaa;

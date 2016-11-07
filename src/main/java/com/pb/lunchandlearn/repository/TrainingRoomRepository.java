@@ -18,7 +18,7 @@ import java.util.List;
 public interface TrainingRoomRepository extends MongoRepository<TrainingRoom, Long> {
 	TrainingRoom findByName(String name);
 	TrainingRoom findById(Long id);
-	List<TrainingRoom> findAlByIdIn(Long[] ids);
+	List<TrainingRoom> findAlByIdIn(List<Long> ids);
 	@Query(fields = "{'name': 1, 'likesCount': 1, 'score': 1}")
 	Page<TrainingRoom> findAllBy(TextCriteria textCriteria, Pageable pageable);
 }

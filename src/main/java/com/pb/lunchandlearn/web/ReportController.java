@@ -34,12 +34,12 @@ public class ReportController {
 										@RequestParam(value = "filterBy", required = false) String filterBy) {
 		List<Training> trainings;
 		if(StringUtils.isEmpty(filterBy)) {
-			filterBy = "{\"status\": \"COMPLETED\"}";
+			filterBy = "{\"status\": \"CLOSED\"}";
 		}
 		else {
 			int lastIndex = filterBy.lastIndexOf("}");
 			if(lastIndex > -1) {
-				filterBy = filterBy.substring(0, lastIndex - 1) + "\"status\": \"COMPLETED\"}";
+				filterBy = filterBy.substring(0, lastIndex - 1) + "\"status\": \"CLOSED\"}";
 			}
 		}
 		if (!StringUtils.isEmpty(searchTerm)) {

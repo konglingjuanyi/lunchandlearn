@@ -24,7 +24,7 @@ public interface EmployeeRepository extends MongoRepository<Employee, String>, C
 	@Query(fields = "{'name': 1, 'guid': 1, 'emailId': 1}")
 	List<Employee> findAllByEmailIdNotNull();
 
-	@Query(fields = "{'name': 1, 'guid': 1, 'emailId': 1, 'roles': 1}")
+	@Query(fields = "{'name': 1, 'guid': 1, 'emailId': 1, 'roles': 1, 'managers': 1}")
 	Employee findByGuid(String guid);
 
 	Page<Employee> findAllBy(TextCriteria textCriteria, Pageable pageable);

@@ -75,8 +75,12 @@
                                         style="padding: 0px; border-collapse: collapse; padding: 0 0 10px 0; width: 20%;font-size: 16px;">
                                     OverAll Rewards:</td>
                                 <td
-                                        style="padding: 0px; border-collapse: collapse; padding: 0 0 10px 0;">
+                                        style="padding: 0px; border-collapse: collapse; padding: 0 0 10px 0;" th:if="${training_overallRewards > 0}">
                                     Gift coupons costing Rs. <span th:text="${training_overallRewards}"></span>
+                                </td>
+                                <td
+                                        style="padding: 0px; border-collapse: collapse; padding: 0 0 10px 0;" th:if="${training_overallRewards >= 0}">
+                                    Rs. 0
                                 </td>
                             </tr>
                         </table>

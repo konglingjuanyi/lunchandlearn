@@ -5,10 +5,7 @@ import com.pb.lunchandlearn.config.MailServerSettings;
 import com.pb.lunchandlearn.config.SecuredUser;
 import com.pb.lunchandlearn.config.ServiceAccountSettings;
 import com.pb.lunchandlearn.domain.*;
-import com.pb.lunchandlearn.repository.EmployeeRepository;
-import com.pb.lunchandlearn.repository.FeedbackRepository;
-import com.pb.lunchandlearn.repository.TopicRepository;
-import com.pb.lunchandlearn.repository.TrainingRepository;
+import com.pb.lunchandlearn.repository.*;
 import com.pb.lunchandlearn.service.TrainingServiceImpl;
 import com.pb.lunchandlearn.utils.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +40,6 @@ import java.util.stream.Collectors;
 import static com.pb.lunchandlearn.config.SecurityConfig.getLoggedInUser;
 import static com.pb.lunchandlearn.service.EmployeeServiceImpl.ADMIN_ROLE_LIST;
 import static com.pb.lunchandlearn.service.EmployeeServiceImpl.CLERICAL_ROLE_LIST;
-import static com.pb.lunchandlearn.service.EmployeeServiceImpl.MANAGER_ROLE_LIST;
 
 public final class MailingTask implements Runnable {
 
@@ -71,6 +67,8 @@ public final class MailingTask implements Runnable {
 	@Autowired
 	private SpringTemplateEngine templateEngine;
 
+	@Autowired
+	private TrainingRoomRepository trainingRoomRepository;
 	@Autowired
 	private TrainingRepository trainingRepository;
 	@Autowired
@@ -216,12 +214,12 @@ public final class MailingTask implements Runnable {
 				}
 				mailingSet = addTraineesEmailId(mailingSet);
 				mailingSet = addTrainersEmailId(mailingSet);
-				if(MailService.MailType.TRAINING_COMPLETED == mailType) {
+				if (MailService.MailType.TRAINING_COMPLETED == mailType) {
 					mailingSet = getEmailsByRoles(CLERICAL_ROLE_LIST, mailingSet);
 				}
 				if (training.getCreatedByGuid() != null) {
 					employee = employeeRepository.findByGuid(training.getCreatedByGuid());
-					if (employee != null) {
+					if (employee != null && StringUtils.isNotEmpty(employee.getEmailId())) {
 						mailingSet.add(employee.getEmailId());
 					}
 				}
@@ -236,10 +234,17 @@ public final class MailingTask implements Runnable {
 
 				if (training.getCreatedByGuid() != null) {
 					employee = employeeRepository.findByGuid(training.getCreatedByGuid());
-					if (employee != null) {
+					if (employee != null && StringUtils.isNotEmpty(employee.getEmailId())) {
 						mailingSet.add(employee.getEmailId());
 					}
-					addEmployeesEmail(employee.getManagers().keySet(), mailingSet);
+
+					for (String empGuid : training.getTrainers().keySet()) {
+						employee = employeeRepository.findByGuid(empGuid);
+						if (employee.getManagers() != null) {
+							addEmployeesEmail(employee.getManagers().keySet(), mailingSet);
+						}
+					}
+
 				}
 				break;
 			case TOPIC_ADDED:
@@ -309,8 +314,8 @@ public final class MailingTask implements Runnable {
 		return emails;
 	}
 
-	private Set<String> getEmailsByRoles(List<String> roles, Set<String> mailingList ) {
-		if(mailingList == null) {
+	private Set<String> getEmailsByRoles(List<String> roles, Set<String> mailingList) {
+		if (mailingList == null) {
 			mailingList = new HashSet<>(roles.size());
 		}
 		for (Employee employee : employeeRepository.findAllByRoles(roles)) {
@@ -467,6 +472,12 @@ public final class MailingTask implements Runnable {
 				if (StringUtils.isNotEmpty(employee.getEmailId())) {
 					mailingSet.add(employee.getEmailId());
 				}
+			}
+			//get location emailId(non null only)
+			List<Long> locationIds = training.getLocations().keySet().stream().collect(Collectors.toList());
+			for (TrainingRoom room : trainingRoomRepository.findAlByIdIn(locationIds).stream().filter(r ->
+					StringUtils.isNotEmpty(r.getEmailId())).collect(Collectors.toList())) {
+				mailingSet.add(room.getEmailId());
 			}
 
 			// Define message
@@ -661,8 +672,11 @@ public final class MailingTask implements Runnable {
 		List<FeedBack> feedbacks = feedbackRepository.findAllByParentId(training.getId());
 		JSONObject jsonObject = new JSONObject();
 		TrainingServiceImpl.setFeedBackRatingsPoint(feedbacks, training.getScheduledOn(), jsonObject);
-		ctx.setVariable("training_overallRewards", jsonObject.get("overallRewards"));
-		ctx.setVariable("training_feedback_rating", jsonObject.get("feedbackRating"));
+		TrainingServiceImpl.setFeedbackRatingsJson(training, jsonObject);
+		ctx.setVariable("training_overallRewards", jsonObject.get("overallRewards") != null ? jsonObject.get("overallRewards") :
+		"No Feedback received");
+		ctx.setVariable("training_feedback_rating", jsonObject.get("overAllAvg") != null ? jsonObject.get("overAllAvg") :
+		0);
 	}
 
 	private void setTopicsParams(Context ctx) {

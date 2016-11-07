@@ -65,7 +65,7 @@ public class LDAPServiceImpl implements LDAPService {
 	public void init() {
 		setLdapAttributes();
 		try {
-//			updateEmployees();
+			updateEmployees();
 		} catch (Exception e) {
 			//TODO: log it
 		}

@@ -525,6 +525,7 @@ public class TrainingServiceImpl implements TrainingService {
 				jsonObject.put(feedbackRating.getKey(), (float) (feedbackRating.getValue() / feedBacks.size()));
 			}
 			overAllAvg = avgSum / feedBacks.size();
+			jsonObject.put("overAllAvg", overAllAvg);
 			if (overAllAvg >= 4.5) {
 				jsonObject.put("feedbackRating", isWeekEnd(trainingDate) ? 1500 : 1000);
 			} else if (overAllAvg >= 4 && overAllAvg < 4.5) {

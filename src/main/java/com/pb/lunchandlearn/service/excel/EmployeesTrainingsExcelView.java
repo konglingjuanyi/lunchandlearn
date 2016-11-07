@@ -115,7 +115,7 @@ public class EmployeesTrainingsExcelView extends AbstractXlsxView {
 			colHeading.setCellValue("Trainer");
 			colHeading.setCellStyle(headerRightStyle);
 			colHeading = trainingOverAllRating.createCell(0);
-			colHeading.setCellValue("OverAll Rating");
+			colHeading.setCellValue("Score(Out of 1500)");
 			colHeading.setCellStyle(headerRightStyle);
 			colHeading = rewardRow.createCell(0);
 			colHeading.setCellValue("Reward(Rs.)");
